@@ -1,0 +1,1252 @@
+/* =================================================================
+   PORTABOX — homepage, after gigaenergy.com
+   A standalone system. Loaded only by this page; it shares nothing
+   with the other homepage's components.
+
+   Measured from the reference: zero border-radius anywhere, display
+   type at weight 400 on ~0.95 leading with negative tracking, 16px
+   body, small uppercase tracked accent labels, 1440px container,
+   118px section padding, alternating full-bleed bands including one
+   saturated brand-colour band, GSAP/ScrollTrigger + Lenis motion.
+
+   Colour, typeface and the cyan band are Portabox's own.
+   ================================================================= */
+
+.g {
+  /* Brand — unchanged from the Portabox system */
+  --g-navy:     #0E385D;
+  --g-navy-d:   #0A2A47;
+  --g-navy-x:   #071E33;
+  --g-cyan:     #1EC4F4;
+  --g-cyan-tx:  #0A6F8E;   /* cyan as text on light: 5.71:1 */
+  --g-yellow:   #FED200;
+
+  /* Grounds */
+  --g-white:    #FFFFFF;
+  --g-stone:    #EEF2F4;   /* giga's #e7e5e4, cooled to the brand */
+  --g-mist:     #F7F9FA;
+
+  /* Ink */
+  --g-ink:      #0E385D;
+  --g-body:     #46575F;
+  --g-mute:     #5C6972;   /* 5.65 white / 5.01 stone; #6C7B85 was 3.88 */
+  --g-onnavy:   rgba(255,255,255,.74);
+  --g-faint:    rgba(255,255,255,.66);   /* 6.15 on navy; .46 was 3.83 */
+
+  /* Rules — giga uses hairlines, never boxes with shadows */
+  --g-rule:     #D3DDE3;
+  --g-rule-d:   rgba(255,255,255,.18);
+  --g-rule-c:   rgba(14,56,93,.24);
+  --g-rule-h:   #BCCBD6;   /* hairline on a hovered card */
+
+  --g-max:      1440px;
+  --g-gut:      clamp(1.25rem, 3.4vw, 3.25rem);
+  --g-pad:      clamp(4.5rem, 8.2vw, 7.4rem);   /* giga ships 118.4px */
+
+  --g-out:      cubic-bezier(0.19, 1, 0.22, 1); /* giga's easing: scroll reveals */
+  --g-hover:    cubic-bezier(0.33, 1, 0.68, 1); /* easeOutCubic: hover states */
+  --g-t:        .45s;   /* hover duration; scroll reveals keep their own */
+  --g-nav:      64px;
+
+  --font: "Montserrat", "Helvetica Neue", Arial, sans-serif;
+
+  background: var(--g-white);
+  color: var(--g-body);
+  font-weight: 400;
+}
+
+/* This page ships no base stylesheet, so it carries its own reset.
+   `.g *` does not match <body> itself, which is why the default 8px
+   body margin was pushing the fixed nav 39px past the viewport. */
+html { -webkit-text-size-adjust:100%; }
+html:has(body.g), body.g { margin:0; padding:0; overflow-x:hidden; }
+/* overflow-x:hidden computes to hidden/auto, which makes the body a scroll
+   container and silently disables position:sticky -- the journey's pin. `clip`
+   clips the same way without creating one, so sticky keeps working; `hidden`
+   above stays as the fallback for browsers without it. */
+@supports (overflow-x: clip) {
+  html:has(body.g), body.g { overflow-x:clip; }
+}
+body.g { box-sizing:border-box; font-family:var(--font, "Montserrat", Arial, sans-serif);
+  font-size:1rem; line-height:1.62; -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale; }
+.g, .g *, .g *::before, .g *::after { box-sizing:border-box; }
+.g h1, .g h2, .g h3, .g h4, .g p, .g figure, .g blockquote, .g ul, .g ol, .g dl { margin:0; }
+.g ul, .g ol { padding:0; list-style:none; }
+.g img, .g svg, .g video { display:block; max-width:100%; }
+.g button { background:none; border:0; font:inherit; color:inherit; }
+.g a { color:inherit; }
+.g ::selection { background:var(--g-yellow); color:var(--g-navy); }
+.g p, .g span, .g li, .g div, .g figcaption, .g blockquote, .g dd, .g dt { font-weight:400; }
+
+/* Nothing on this page is rounded. */
+.g *, .g *::before, .g *::after { border-radius:0; }
+
+/* ---------- Layout ---------- */
+
+.g .g-wrap { width:100%; max-width:var(--g-max); margin-inline:auto; padding-inline:var(--g-gut); }
+.g .g-band { padding-block:var(--g-pad); }
+.g .g-band--white { background:var(--g-white); }
+.g .g-band--mist  { background:var(--g-mist); }
+.g .g-band--stone { background:var(--g-stone); }
+.g .g-band--navy  { background:var(--g-navy); color:var(--g-onnavy); }
+.g .g-band--deep  { background:var(--g-navy-x); color:var(--g-onnavy); }
+.g .g-band--cyan  { background:var(--g-cyan); color:var(--g-navy); }
+
+/* ---------- Type ---------- */
+
+.g .g-display {
+  font-family:var(--font); font-weight:400;
+  font-size:clamp(2.5rem, 5.6vw, 4.5rem);
+  line-height:0.98; letter-spacing:-.028em;
+  color:#fff; margin:0; text-wrap:balance;
+}
+.g .g-h2 {
+  font-family:var(--font); font-weight:400;
+  font-size:clamp(2rem, 4.2vw, 3.5rem);
+  line-height:1.0; letter-spacing:-.028em;
+  color:var(--g-ink); margin:0; text-wrap:balance;
+}
+.g .g-h3 {
+  font-family:var(--font); font-weight:500;
+  font-size:1.25rem; line-height:1.2; letter-spacing:-.022em;
+  color:var(--g-ink); margin:0;
+}
+.g .g-band--navy .g-h2, .g .g-band--deep .g-h2,
+.g .g-band--navy .g-h3, .g .g-band--deep .g-h3 { color:#fff; }
+.g .g-band--cyan .g-h2, .g .g-band--cyan .g-h3 { color:var(--g-navy); }
+
+.g .g-body { font-size:1rem; line-height:1.62; color:var(--g-body); max-width:46ch; }
+.g .g-band--navy .g-body, .g .g-band--deep .g-body { color:var(--g-onnavy); }
+.g .g-band--cyan .g-body { color:var(--g-navy); }
+
+/* Small uppercase tracked label in the accent colour — giga's section marker. */
+.g .g-label {
+  display:flex; align-items:center; gap:.55rem; margin:0 0 1.25rem;
+  font-size:.75rem; font-weight:700; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--g-cyan-tx);
+}
+.g .g-label::before { content:""; width:14px; height:2px; background:currentColor; flex:none; }
+.g .g-band--navy .g-label, .g .g-band--deep .g-label { color:var(--g-cyan); }
+.g .g-band--cyan .g-label { color:var(--g-navy); }
+
+/* The split intro: display left, body right. */
+.g .g-intro { display:grid; gap:1.75rem 4rem; margin-bottom:clamp(2.5rem,5vw,4.5rem); }
+@media (min-width:980px){ .g .g-intro { grid-template-columns:1.15fr .85fr; align-items:end; } }
+.g .g-intro .g-body { max-width:44ch; }
+
+/* ---------- Buttons: square, uppercase, tracked ---------- */
+
+.g .g-btn {
+  display:inline-flex; align-items:center; gap:0;
+  height:52px; padding:0 0 0 1.5rem; border:1px solid currentColor;
+  font-size:.75rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
+  text-decoration:none; cursor:pointer; white-space:nowrap;
+  transition:background-color var(--g-t) var(--g-hover), color var(--g-t) var(--g-hover), border-color var(--g-t) var(--g-hover);
+}
+/* The arrow lives in its own square cell flush to the right edge. */
+.g .g-btn i {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:52px; margin-left:1.5rem;
+  border-left:1px solid currentColor; font-style:normal;
+  /* Stretch through the button's own border so the divider meets the top
+     and bottom edges. height:100% only fills the content box, which left a
+     1px seam at each corner. */
+  align-self:stretch; margin-block:-1px;
+}
+.g .g-btn i svg { width:15px; height:15px; transition:transform var(--g-t) var(--g-hover); }
+.g .g-btn:hover i svg { transform:translate(3px,-3px); }
+/* The handset should not fly off diagonally like the go-to arrow; it just
+   lifts a touch. */
+.g .g-btn--tel:hover i svg { transform:scale(1.1); }
+.g .g-btn:active { transform:translateY(1px); }
+
+.g .g-btn--solid  { background:var(--g-navy); color:#fff; border-color:var(--g-navy); }
+.g .g-btn--solid:hover  { background:var(--g-navy-x); border-color:var(--g-navy-x); }
+.g .g-btn--yellow { background:var(--g-yellow); color:var(--g-navy); border-color:var(--g-yellow); }
+.g .g-btn--yellow:hover { background:#E8BF00; border-color:#E8BF00; }
+.g .g-btn--line   { background:transparent; color:var(--g-ink); }
+.g .g-btn--line:hover   { background:var(--g-navy); color:#fff; border-color:var(--g-navy); }
+.g .g-btn--ghost  { background:transparent; color:#fff; }
+.g .g-btn--ghost:hover  { background:#fff; color:var(--g-navy); }
+.g .g-btns { display:flex; flex-wrap:wrap; gap:.75rem; }
+@media (max-width:520px){ .g .g-btns .g-btn { width:100%; justify-content:space-between; } }
+
+/* Inline text link with a small square arrow box. */
+.g .g-link {
+  display:inline-flex; align-items:center; gap:.75rem;
+  font-size:.75rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--g-ink); text-decoration:none;
+}
+.g .g-link span {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:26px; height:26px; border:1px solid var(--g-rule);
+  transition:background-color var(--g-t) var(--g-hover), border-color var(--g-t) var(--g-hover), color var(--g-t) var(--g-hover);
+}
+.g .g-link span svg { width:12px; height:12px; transition:transform var(--g-t) var(--g-hover); }
+.g .g-link:hover span { background:var(--g-navy); border-color:var(--g-navy); color:#fff; }
+.g .g-link:hover span svg { transform:translate(2px,-2px); }
+.g .g-band--navy .g-link, .g .g-band--deep .g-link { color:#fff; }
+.g .g-band--navy .g-link span, .g .g-band--deep .g-link span { border-color:var(--g-rule-d); }
+.g .g-band--cyan .g-link { color:var(--g-navy); }
+.g .g-band--cyan .g-link span { border-color:var(--g-rule-c); }
+
+/* ---------- Nav: full width, square, hairline ---------- */
+
+.g .g-nav {
+  position:fixed; inset-inline:0; top:0; z-index:100; height:var(--g-nav);
+  display:flex; align-items:center;
+  transition:background-color var(--g-t) var(--g-hover), border-color var(--g-t) var(--g-hover);
+  border-bottom:1px solid transparent;
+}
+.g .g-nav::before {
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background:linear-gradient(180deg, rgba(7,30,51,.72), rgba(7,30,51,0));
+  transition:opacity var(--g-t) var(--g-hover);
+}
+.g .g-nav.is-stuck { background:var(--g-cyan); border-bottom-color:var(--g-rule-c); }
+.g .g-nav.is-stuck::before { opacity:0; }
+.g .g-nav-in {
+  position:relative; z-index:1; width:100%; max-width:var(--g-max);
+  margin-inline:auto; padding-inline:var(--g-gut);
+  display:flex; align-items:center; gap:2rem;
+}
+.g .g-brand { display:flex; align-items:center; flex:none; text-decoration:none; }
+.g .g-brand img { display:block; width:auto; }
+.g .g-brand .on-dark-logo { height:26px; }
+.g .g-brand .on-cyan-logo { height:34px; display:none; }
+.g .g-nav.is-stuck .on-dark-logo { display:none; }
+.g .g-nav.is-stuck .on-cyan-logo { display:block; }
+
+.g .g-menu { display:none; margin-left:auto; align-items:center; gap:.25rem; }
+@media (min-width:1100px){ .g .g-menu { display:flex; } }
+.g .g-menu-l {
+  /* Multi-word labels ("How it works", "About us") broke mid-label once the
+     row got tight, leaving links at different heights. */
+  white-space:nowrap; display:inline-flex; align-items:center;
+  padding:.55rem .85rem; font-size:.75rem; font-weight:500;
+  letter-spacing:.12em; text-transform:uppercase; color:#fff; text-decoration:none;
+  transition:color var(--g-t) var(--g-hover), background-color var(--g-t) var(--g-hover);
+}
+.g .g-nav.is-stuck .g-menu-l { color:var(--g-navy); }
+.g .g-menu-l:hover { background:rgba(255,255,255,.14); }
+.g .g-nav.is-stuck .g-menu-l:hover { background:rgba(14,56,93,.12); }
+
+.g .g-nav-cta { margin-left:auto; display:none; }
+@media (min-width:1100px){ .g .g-nav-cta { display:flex; margin-left:1rem; gap:.5rem; } }
+.g .g-nav-cta .g-btn { height:42px; font-size:.6875rem; }
+.g .g-nav-cta .g-btn i { width:42px; margin-left:1.1rem; }
+.g .g-nav .g-btn--ghost { color:#fff; }
+/* This rule and `.g .g-btn--ghost:hover` are both 0,3,0, and this section
+   comes later in the file — so without an explicit nav-scoped hover the
+   label stayed white on the white hover fill and disappeared. The border
+   and arrow follow currentColor, so they come back with it. */
+.g .g-nav .g-btn--ghost:hover { background:#fff; color:var(--g-navy); }
+.g .g-nav.is-stuck .g-btn--ghost { color:var(--g-navy); }
+.g .g-nav.is-stuck .g-btn--ghost:hover { background:var(--g-navy); color:#fff; }
+
+.g .g-burger {
+  margin-left:auto; width:44px; height:44px; display:inline-flex;
+  align-items:center; justify-content:center; cursor:pointer;
+  border:1px solid rgba(255,255,255,.34); color:#fff; background:none;
+}
+@media (min-width:1100px){ .g .g-burger { display:none; } }
+.g .g-nav.is-stuck .g-burger { color:var(--g-navy); border-color:var(--g-rule-c); }
+.g .g-burger b { display:block; width:17px; height:1.5px; background:currentColor; position:relative; transition:background-color .3s; }
+.g .g-burger b::before, .g .g-burger b::after {
+  content:""; position:absolute; left:0; width:17px; height:1.5px; background:currentColor;
+  transition:transform var(--g-t) var(--g-hover);
+}
+.g .g-burger b::before { top:-6px; } .g .g-burger b::after { top:6px; }
+.g .g-burger[aria-expanded="true"] b { background:transparent; }
+.g .g-burger[aria-expanded="true"] b::before { transform:translateY(6px) rotate(45deg); }
+.g .g-burger[aria-expanded="true"] b::after  { transform:translateY(-6px) rotate(-45deg); }
+
+.g .g-drawer {
+  position:fixed; inset:var(--g-nav) 0 0; z-index:99; background:var(--g-navy-x);
+  padding:1.5rem var(--g-gut) 3rem; overflow-y:auto;
+  opacity:0; visibility:hidden; transform:translateY(-8px);
+  transition:opacity var(--g-t) var(--g-hover), transform var(--g-t) var(--g-hover), visibility .5s;
+}
+.g .g-drawer.is-open { opacity:1; visibility:visible; transform:none; }
+@media (min-width:1100px){ .g .g-drawer { display:none; } }
+.g .g-drawer a {
+  display:block; padding:1rem 0; border-bottom:1px solid var(--g-rule-d);
+  color:#fff; text-decoration:none;
+  font-size:.875rem; font-weight:500; letter-spacing:.12em; text-transform:uppercase;
+}
+.g .g-drawer .g-btns { margin-top:1.75rem; }
+
+/* ---------- Hero ---------- */
+
+.g .g-hero {
+  position:relative; min-height:100dvh; display:flex; align-items:flex-end;
+  padding-top:var(--g-nav); overflow:hidden; background:var(--g-navy-x);
+}
+.g .g-hero-media { position:absolute; inset:0; }
+.g .g-hero-media video, .g .g-hero-media img { width:100%; height:100%; object-fit:cover; object-position:58% 50%; }
+.g .g-hero-media::after {
+  content:""; position:absolute; inset:0;
+  /* The copy sits in the bottom third, so the scrim is heaviest there.
+     Measured against the brightest frames of the footage. */
+  background:linear-gradient(180deg,
+    rgba(7,30,51,.50) 0%, rgba(7,30,51,.42) 30%,
+    rgba(7,30,51,.74) 55%, rgba(7,30,51,.90) 78%, rgba(7,30,51,.94) 100%);
+}
+.g .g-hero-in { position:relative; z-index:1; width:100%; padding-bottom:clamp(2.5rem,5vw,4rem); }
+.g .g-hero-grid { display:grid; gap:2rem 4rem; align-items:end; }
+@media (min-width:980px){ .g .g-hero-grid { grid-template-columns:1.3fr .7fr; } }
+.g .g-hero-body { font-size:1rem; line-height:1.62; color:rgba(255,255,255,.88); max-width:42ch; }
+
+/* The bordered flag giga puts above its hero headline. */
+.g .g-flag {
+  display:inline-flex; align-items:stretch; margin-bottom:1.75rem;
+  border:1px solid rgba(255,255,255,.4); text-decoration:none;
+}
+.g .g-flag b {
+  display:inline-flex; align-items:center; padding:.5rem .7rem;
+  background:var(--g-yellow); color:var(--g-navy);
+  font-size:.625rem; font-weight:800; letter-spacing:.14em; text-transform:uppercase;
+}
+.g .g-flag span {
+  display:inline-flex; align-items:center; padding:.5rem 1rem;
+  color:#fff; font-size:.8125rem; font-weight:500;
+}
+.g .g-flag:hover { border-color:#fff; }
+
+/* ---------- Index rows: number, title, meta ---------- */
+
+.g .g-index { border-top:1px solid var(--g-rule); }
+.g .g-band--navy .g-index, .g .g-band--deep .g-index { border-top-color:var(--g-rule-d); }
+.g .g-band--cyan .g-index { border-top-color:var(--g-rule-c); }
+
+.g .g-row {
+  /* --row-bleed widens the hover state past the content without moving it.
+     Capped under the smallest gutter (1.25rem) so it can never overflow. */
+  --row-bleed:0px;   /* hover must align with the heading and the rules */
+  position:relative; isolation:isolate;
+  display:grid; gap:.5rem 2rem; padding-block:1.6rem;
+  border-bottom:1px solid var(--g-rule); align-items:baseline;
+  grid-template-columns:auto 1fr;
+}
+/* Hover reads as a soft wash that fades out to the right rather than a
+   hard-edged panel, plus a solid accent bar down the leading edge. The old
+   full-width rectangle fought the row separators and doubled the hairline. */
+.g .g-row::before {
+  content:""; position:absolute; inset:0; z-index:-1;
+  background:linear-gradient(90deg, rgba(14,56,93,.075) 0%, rgba(14,56,93,.03) 42%, rgba(14,56,93,0) 100%);
+  opacity:0; transition:opacity var(--g-t) var(--g-hover);
+}
+.g .g-row:hover::before { opacity:1; }
+
+/* The accent bar has to stay on the content edge to line up with the heading
+   and the rules, so the breathing room comes from the row's content sliding
+   right on hover instead. transform only — no layout is touched. */
+.g .g-row > *, .g .g-price-row > *, .g .g-region > * {
+  transition:transform var(--g-t) var(--g-hover);
+}
+.g .g-row:hover > *, .g .g-price-row:hover > *, .g .g-region:hover > * {
+  transform:translateX(14px);
+}
+.g .g-row:hover > .g-row-m { transform:none; }
+
+/* A hairline that wipes across the row's full bleed on hover. Scaling a
+   1px bar costs nothing; animating width would trigger layout. */
+.g .g-row::after {
+  content:""; position:absolute; top:0; bottom:0; width:2px; left:0;
+  background:var(--g-cyan); transform:scaleY(0); transform-origin:top;
+  transition:transform var(--g-t) var(--g-hover);
+}
+.g .g-row:hover::after { transform:scaleY(1); }
+.g .g-row:hover .g-row-n { color:var(--g-cyan); }
+.g .g-row-t, .g .g-row-m { transition:color var(--g-t) var(--g-hover), transform var(--g-t) var(--g-hover); }
+.g .g-row:hover .g-row-m { color:var(--g-ink); }
+
+/* On the dark and cyan grounds the tint and number colour flip. */
+.g .g-band--navy .g-row::before, .g .g-band--deep .g-row::before {
+  background:linear-gradient(90deg, rgba(255,255,255,.085) 0%, rgba(255,255,255,.03) 42%, rgba(255,255,255,0) 100%);
+}
+.g .g-band--navy .g-row:hover .g-row-m, .g .g-band--deep .g-row:hover .g-row-m { color:#fff; }
+.g .g-band--cyan .g-row::after { background:var(--g-navy); }
+.g .g-band--cyan .g-row::before {
+  background:linear-gradient(90deg, rgba(14,56,93,.13) 0%, rgba(14,56,93,.05) 42%, rgba(14,56,93,0) 100%);
+}
+.g .g-band--cyan .g-row:hover .g-row-n { color:var(--g-navy); }
+@media (min-width:860px){ .g .g-row { grid-template-columns:3.5rem minmax(7rem,1fr) minmax(0,1.9fr) 13rem; align-items:start; } }
+/* An index without leading numbers: the title column takes the left edge so
+   it still lines up with the section heading and the hover accent bar. */
+.g .g-index--plain .g-row { grid-template-columns:1fr; }
+@media (min-width:860px){
+  .g .g-index--plain .g-row { grid-template-columns:minmax(7rem,1fr) minmax(0,1.9fr) 13rem; }
+}
+.g .g-band--navy .g-row, .g .g-band--deep .g-row { border-bottom-color:var(--g-rule-d); }
+.g .g-band--cyan .g-row { border-bottom-color:var(--g-rule-c); }
+.g .g-row-n {
+  font-size:.75rem; font-weight:700; letter-spacing:.1em; color:var(--g-cyan-tx);
+  transition:color var(--g-t) var(--g-hover), transform var(--g-t) var(--g-hover);
+}
+.g .g-band--navy .g-row-n, .g .g-band--deep .g-row-n { color:var(--g-cyan); }
+.g .g-band--cyan .g-row-n { color:var(--g-navy); }
+.g .g-row-t { font-size:1.125rem; font-weight:500; letter-spacing:-.018em; color:var(--g-ink); text-align:left; }
+.g .g-band--navy .g-row-t, .g .g-band--deep .g-row-t { color:#fff; }
+.g .g-band--cyan .g-row-t { color:var(--g-navy); }
+.g .g-row-d { font-size:.9375rem; line-height:1.55; color:var(--g-body); text-align:left; }
+.g .g-band--navy .g-row-d, .g .g-band--deep .g-row-d { color:var(--g-onnavy); }
+.g .g-band--cyan .g-row-d { color:var(--g-navy); }
+.g .g-row-m {
+  font-size:.75rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--g-mute); text-align:right;
+}
+.g .g-band--navy .g-row-m, .g .g-band--deep .g-row-m { color:var(--g-faint); }
+.g .g-band--cyan .g-row-m { color:var(--g-navy); }   /* 68% is 3.13:1 on cyan */
+
+/* ---------- Cards: image over, copy under, no box ---------- */
+
+.g .g-grid { display:grid; gap:2.5rem 2rem; grid-template-columns:1fr; }
+/* Ascending order matters: these have equal specificity, so a wider
+   breakpoint must come last or the narrower rule wins at large sizes. */
+@media (min-width:760px){
+  .g .g-grid--2 { grid-template-columns:repeat(2,1fr); }
+  .g .g-grid--3 { grid-template-columns:repeat(2,1fr); }
+}
+@media (min-width:980px){ .g .g-grid--3 { grid-template-columns:repeat(3,1fr); } }
+
+.g .g-card { display:block; text-decoration:none; }
+.g .g-card-img { display:block; aspect-ratio:4/3; overflow:hidden; background:var(--g-stone); }
+.g .g-card-img img { width:100%; height:100%; object-fit:cover; transition:transform calc(var(--g-t) * 1.55) var(--g-hover); }
+.g .g-card:hover .g-card-img img { transform:scale(1.04); }
+.g .g-card { transition:translate var(--g-t) var(--g-hover); }
+.g .g-card:hover { translate:0 -4px; }
+.g .g-card .g-h3 { transition:color var(--g-t) var(--g-hover); }
+.g .g-card:hover .g-h3 { color:var(--g-cyan-tx); }
+.g .g-card:hover .g-link span { background:var(--g-navy); border-color:var(--g-navy); color:#fff; }
+.g .g-card:hover .g-link span svg { transform:translate(2px,-2px); }
+.g .g-card .g-h3 { margin-top:1.25rem; }
+.g .g-card p { margin-top:.6rem; font-size:.9375rem; line-height:1.6; color:var(--g-body); }
+.g .g-card ul { margin-top:1rem; display:grid; gap:.45rem; list-style:none; padding:0; }
+.g .g-card li {
+  display:flex; gap:.6rem; font-size:.875rem; color:var(--g-body);
+  padding-top:.45rem; border-top:1px solid var(--g-rule);
+}
+.g .g-card li::before { content:""; width:6px; height:6px; margin-top:.5rem; background:var(--g-cyan); flex:none; }
+.g .g-card .g-link { margin-top:1.25rem; }
+
+/* ---------- Stat band ---------- */
+
+.g .g-stats { display:grid; gap:2.5rem 3rem; grid-template-columns:1fr; }
+@media (min-width:680px){ .g .g-stats { grid-template-columns:repeat(2,1fr); } }
+@media (min-width:1000px){ .g .g-stats { grid-template-columns:repeat(4,1fr); } }
+.g .g-stat b {
+  display:block; font-size:clamp(2.75rem,5.4vw,4.25rem); font-weight:400;
+  line-height:.95; letter-spacing:-.03em; color:var(--g-navy);
+}
+.g .g-stat .rule {
+  display:block; height:1px; background:var(--g-rule-c); margin:1.25rem 0 .9rem;
+  transform:scaleX(0); transform-origin:left;
+  transition:transform 1.1s var(--g-out) var(--d,0ms);
+}
+.g .in .rule, .g .g-stat.in .rule { transform:scaleX(1); }
+.g .g-stat span {
+  display:block; font-size:.6875rem; font-weight:700; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--g-navy);   /* 74% is 3.55:1 on cyan */
+}
+
+/* ---------- Compare ---------- */
+
+.g .g-compare { display:grid; gap:2rem; }
+@media (min-width:820px){ .g .g-compare { grid-template-columns:1fr 1fr; } }
+/* Same hover language as the other cards: a small lift on `translate` (the
+   figure also carries .g-rise, which owns `transform`), a slow image push,
+   and the caption coming up to full strength. */
+.g .g-compare figure { margin:0; transition:translate var(--g-t) var(--g-hover); }
+.g .g-compare figure:hover { translate:0 -4px; }
+.g .g-compare-img { display:block; overflow:hidden; }
+.g .g-compare img {
+  width:100%; aspect-ratio:16/10; object-fit:cover; display:block;
+  transition:transform calc(var(--g-t) * 1.55) var(--g-hover);
+}
+.g .g-compare figure:hover img { transform:scale(1.04); }
+.g .g-compare figcaption {
+  margin-top:1.1rem; font-size:.9375rem; line-height:1.6; color:var(--g-body);
+  transition:color var(--g-t) var(--g-hover);
+}
+.g .g-compare figure:hover figcaption { color:var(--g-ink); }
+.g .g-band--navy .g-compare figure:hover figcaption,
+.g .g-band--deep .g-compare figure:hover figcaption { color:#fff; }
+.g .g-band--navy .g-compare figcaption,
+.g .g-band--deep .g-compare figcaption { color:var(--g-onnavy); }
+.g .g-tagline {
+  display:inline-block; margin-bottom:.6rem; padding:.28rem .7rem;
+  font-size:.625rem; font-weight:800; letter-spacing:.14em; text-transform:uppercase;
+}
+.g .g-tagline--bad  { background:rgba(255,255,255,.14); color:#FFC9C4; }
+.g .g-tagline--good { background:var(--g-cyan); color:var(--g-navy); }
+
+/* ---------- Pricing ---------- */
+
+.g .g-price { display:grid; gap:0; border-top:1px solid var(--g-rule); }
+.g .g-price-row {
+  --row-bleed:0px;   /* hover must align with the heading and the rules */
+  position:relative; isolation:isolate;
+  display:grid; gap:1rem 2rem; padding-block:2rem;
+  border-bottom:1px solid var(--g-rule); align-items:center;
+  grid-template-columns:1fr;
+}
+/* Same bleeding hover as the index rows, so every table behaves alike. */
+.g .g-price-row::before {
+  content:""; position:absolute; inset:0; z-index:-1;
+  background:linear-gradient(90deg, rgba(14,56,93,.075) 0%, rgba(14,56,93,.03) 42%, rgba(14,56,93,0) 100%);
+  opacity:0; transition:opacity var(--g-t) var(--g-hover);
+}
+.g .g-price-row:hover::before { opacity:1; }
+.g .g-price-row::after {
+  content:""; position:absolute; top:0; bottom:0; width:2px; left:0;
+  background:var(--g-cyan); transform:scaleY(0); transform-origin:top;
+  transition:transform var(--g-t) var(--g-hover);
+}
+.g .g-price-row:hover::after { transform:scaleY(1); }
+@media (min-width:1000px){ .g .g-price-row { grid-template-columns:1.1fr 1.5fr auto; } }
+.g .g-price-row.is-best::before {
+  opacity:1; background:linear-gradient(90deg, rgba(254,210,0,.16), rgba(254,210,0,0) 58%);
+  transition:background var(--g-t) var(--g-hover);
+}
+.g .g-price-row.is-best:hover::before { background:linear-gradient(90deg, rgba(254,210,0,.30), rgba(254,210,0,.02) 64%); }
+.g .g-price-row.is-best::after { background:var(--g-yellow); }
+.g .g-price-name { display:flex; align-items:baseline; gap:.75rem; flex-wrap:wrap; }
+.g .g-price-name b {
+  display:inline-block; font-size:1.5rem; font-weight:500; letter-spacing:-.022em;
+  color:var(--g-ink); transition:transform var(--g-t) var(--g-hover);
+}
+
+.g .g-badge {
+  padding:.2rem .6rem; background:var(--g-yellow); color:var(--g-navy);
+  font-size:.625rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase;
+}
+.g .g-price-feats { margin-top:.6rem; font-size:.875rem; color:var(--g-mute); }
+.g .g-price-figs { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; }
+.g .g-price-figs b { display:block; font-size:1.375rem; font-weight:400; color:var(--g-ink); letter-spacing:-.02em; }
+.g .g-price-figs .big { font-size:clamp(1.75rem,3vw,2.375rem); color:var(--g-cyan-tx); }
+.g .g-price-figs i {
+  display:block; margin-top:.2rem; font-style:normal;
+  font-size:.6875rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--g-mute);
+}
+
+/* ---------- Quotes ---------- */
+
+.g .g-quotes { display:grid; gap:2rem; grid-template-columns:1fr; }
+@media (min-width:860px){ .g .g-quotes { grid-template-columns:repeat(3,1fr); } }
+/* A card in giga's language: square, flat fill, hairline, one accent rule
+   across the top. No radius, no shadow. */
+.g .g-quote {
+  display:flex; flex-direction:column; margin:0;
+  background:#fff; border:1px solid var(--g-rule); border-top:2px solid var(--g-cyan);
+  padding:1.75rem; position:relative;
+  transition:translate var(--g-t) var(--g-hover), border-color var(--g-t) var(--g-hover);
+}
+/* The card is not a link, so the hover stays quiet: a small lift, a firmer
+   edge, and the cyan rule growing into the card rather than any colour wash. */
+.g .g-quote::after {
+  content:""; position:absolute; left:-1px; right:-1px; top:-2px; height:2px;
+  background:var(--g-cyan); transform:scaleY(1); transform-origin:top;
+  transition:transform var(--g-t) var(--g-hover);
+}
+.g .g-quote:hover { translate:0 -4px; border-color:var(--g-rule-h); }
+.g .g-quote:hover::after { transform:scaleY(2.5); }
+.g .g-quote figcaption img { transition:transform var(--g-t) var(--g-hover); }
+.g .g-quote:hover figcaption img { transform:scale(1.06); }
+.g .g-quote blockquote { flex:1; margin:0; font-size:1.0625rem; line-height:1.55; color:var(--g-ink); letter-spacing:-.012em; }
+.g .g-quote figcaption {
+  display:flex; align-items:center; gap:.9rem;
+  margin-top:1.75rem; padding-top:1.25rem; border-top:1px solid var(--g-rule);
+}
+.g .g-quote figcaption img {
+  /* The page is otherwise square by design; the avatar is the one
+     deliberate exception. This beats the blanket `.g *` radius reset on
+     specificity, so no !important is needed. */
+  width:54px; height:54px; flex:none; object-fit:cover; border-radius:50%;
+  background:var(--g-stone);
+}
+.g .g-who { display:block; min-width:0; }
+.g .g-who b { display:block; font-size:.9375rem; font-weight:600; color:var(--g-ink); }
+.g .g-who span {
+  display:block; margin-top:.15rem; font-size:.6875rem; font-weight:700;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--g-mute);
+}
+
+/* ---------- Regions ---------- */
+
+.g .g-regions { border-top:1px solid var(--g-rule); }
+.g .g-region {
+  --row-bleed:0px;   /* hover must align with the heading and the rules */
+  position:relative; isolation:isolate;
+  display:grid; gap:.5rem 2rem; padding-block:1.75rem;
+  border-bottom:1px solid var(--g-rule); align-items:center;
+  grid-template-columns:1fr; text-decoration:none;
+}
+.g .g-region::before {
+  content:""; position:absolute; inset:0; z-index:-1;
+  background:linear-gradient(90deg, rgba(14,56,93,.075) 0%, rgba(14,56,93,.03) 42%, rgba(14,56,93,0) 100%);
+  opacity:0; transition:opacity var(--g-t) var(--g-hover);
+}
+.g .g-region:hover::before { opacity:1; }
+.g .g-region::after {
+  content:""; position:absolute; top:0; bottom:0; width:2px; left:0;
+  background:var(--g-cyan); transform:scaleY(0); transform-origin:top;
+  transition:transform var(--g-t) var(--g-hover);
+}
+.g .g-region:hover::after { transform:scaleY(1); }
+@media (min-width:900px){ .g .g-region { grid-template-columns:1fr 2fr auto; } }
+.g .g-region b {
+  display:inline-block; font-size:1.375rem; font-weight:500; letter-spacing:-.022em;
+  color:var(--g-ink); transition:transform var(--g-t) var(--g-hover);
+}
+
+.g .g-region:hover .g-link span { background:var(--g-navy); border-color:var(--g-navy); color:#fff; }
+.g .g-region p { font-size:.9375rem; color:var(--g-body); margin:0; }
+
+/* ---------- Quote form ---------- */
+
+.g .g-form { display:flex; gap:0; max-width:32rem; border:1px solid var(--g-rule); background:#fff; }
+.g .g-form input {
+  flex:1; min-width:0; border:0; outline:none; background:transparent;
+  font:inherit; font-size:1rem; padding:0 1.25rem; height:52px; color:var(--g-ink);
+}
+.g .g-form input::placeholder { color:var(--g-mute); }
+.g .g-form .g-btn { border-width:0; border-left:1px solid var(--g-rule); }
+.g .g-out { margin-top:1rem; min-height:1.2rem; }
+.g .g-out .quote-ok {
+  background:var(--g-mist); border:0; border-left:3px solid var(--g-cyan);
+  padding:1rem 1.25rem; font-size:.9375rem; color:var(--g-body);
+}
+.g .g-out .quote-ok b { color:var(--g-ink); }
+.g .g-out .quote-err { font-size:.875rem; font-weight:700; color:#B02E22; }
+.g .g-band--navy .g-form, .g .g-band--deep .g-form { border-color:var(--g-rule-d); background:rgba(255,255,255,.06); }
+.g .g-band--navy .g-form input, .g .g-band--deep .g-form input { color:#fff; }
+.g .g-band--navy .g-form input::placeholder, .g .g-band--deep .g-form input::placeholder { color:var(--g-faint); }
+.g .g-band--navy .g-out .quote-ok, .g .g-band--deep .g-out .quote-ok { background:rgba(255,255,255,.08); color:#fff; }
+.g .g-band--navy .g-out .quote-ok b, .g .g-band--deep .g-out .quote-ok b { color:var(--g-cyan); }
+.g .g-band--navy .g-out .quote-err, .g .g-band--deep .g-out .quote-err { color:#FFC9C4; }
+@media (max-width:560px){
+  .g .g-form { flex-direction:column; }
+  .g .g-form .g-btn { border-left:0; border-top:1px solid var(--g-rule); justify-content:space-between; }
+}
+
+/* ---------- Footer ---------- */
+
+.g .g-foot { background:var(--g-navy-x); color:var(--g-onnavy); padding-block:clamp(3.5rem,6vw,5rem) 2rem; }
+.g .g-foot-grid { display:grid; gap:2.5rem; grid-template-columns:1fr; }
+@media (min-width:700px){ .g .g-foot-grid { grid-template-columns:repeat(2,1fr); } }
+@media (min-width:1060px){ .g .g-foot-grid { grid-template-columns:1.5fr repeat(4,.8fr); } }
+
+.g .g-foot-blurb { margin:1.25rem 0 0; max-width:38ch; font-size:.9375rem; line-height:1.6; color:var(--g-onnavy); }
+.g .g-foot ul.g-foot-contact {
+  list-style:none; margin:1.5rem 0 0; padding:0; display:grid; gap:.75rem;
+}
+/* `.g-foot li` sets its own margin and is declared later at the same
+   specificity, so this needs the extra `.g-foot` to win. */
+.g .g-foot .g-foot-contact li,
+.g .g-foot .g-foot-social li { margin-bottom:0; }
+
+.g .g-foot ul.g-foot-social {
+  list-style:none; display:flex; flex-wrap:wrap; gap:.5rem; margin:1.5rem 0 0; padding:0;
+}
+.g .g-foot-social a {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:40px; height:40px; border:1px solid var(--g-rule-d); color:var(--g-onnavy);
+  transition:background-color var(--g-t) var(--g-hover), border-color var(--g-t) var(--g-hover), color var(--g-t) var(--g-hover);
+}
+.g .g-foot-social a:hover { background:var(--g-cyan); border-color:var(--g-cyan); color:var(--g-navy); }
+.g .g-foot-social svg { width:18px; height:18px; }
+.g .g-foot-contact a { display:inline-flex; align-items:center; gap:.6rem; font-size:.9375rem; }
+.g .g-foot-contact svg { width:16px; height:16px; flex:none; color:var(--g-cyan); }
+.g .g-foot h4 {
+  margin:0 0 1rem; font-size:.6875rem; font-weight:700;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--g-cyan);
+}
+.g .g-foot ul { list-style:none; margin:0; padding:0; }
+.g .g-foot li { margin-bottom:.55rem; }
+.g .g-foot a { font-size:.9375rem; color:var(--g-onnavy); text-decoration:none; transition:color var(--g-t) var(--g-hover); }
+.g .g-foot a:hover { color:#fff; }
+.g .g-foot-legal {
+  margin-top:3rem; padding-top:1.5rem; border-top:1px solid var(--g-rule-d);
+  display:flex; flex-wrap:wrap; gap:.75rem 1.75rem; justify-content:space-between;
+  font-size:.8125rem; color:var(--g-faint);
+}
+
+/* ---------- How it works: scroll-driven journey ----------
+   The tall .g-pj-journey is the scroll track; .g-pj-pin sticks inside it and
+   the page's scroll position through that track drives the SVG timeline.
+   Everything here is square, per the rest of the page; the illustration keeps
+   its own rounded shapes because those are SVG rx attributes, not CSS. */
+
+.g .g-pj-tabs {
+  display:inline-flex; gap:1px; margin-top:1.75rem; padding:1px;
+  background:rgba(255,255,255,.45); border:1px solid var(--g-navy);
+}
+.g .g-pj-tabs button {
+  border:0; background:transparent; cursor:pointer; font:600 .8125rem var(--font);
+  letter-spacing:.06em; text-transform:uppercase; color:var(--g-navy);
+  padding:.7rem 1.5rem; transition:background-color var(--g-t) var(--g-hover), color var(--g-t) var(--g-hover);
+}
+.g .g-pj-tabs button:hover { background:rgba(255,255,255,.55); }
+.g .g-pj-tabs button[aria-pressed="true"] { background:var(--g-navy); color:#fff; }
+
+.g .g-pj-journey { position:relative; height:300vh; }
+.g .g-pj-pin {
+  position:sticky; top:var(--g-nav); height:calc(100vh - var(--g-nav));
+  display:grid; grid-template-columns:minmax(260px,360px) 1fr;
+  gap:clamp(1.5rem,3.5vw,3rem); align-items:center;
+  max-width:var(--g-max); margin:0 auto; padding:1.25rem var(--g-gut);
+}
+.g .g-pj-left { position:relative; }
+.g .g-pj-steps { position:relative; display:grid; gap:2px; padding-left:3.25rem; transition:opacity var(--g-t) var(--g-hover); }
+.g .g-pj-rail { position:absolute; left:.9375rem; top:1.4rem; bottom:5.75rem; width:2px; background:var(--g-rule-c); }
+.g .g-pj-rail i { position:absolute; inset:0; background:var(--g-navy); transform-origin:center top; transform:scaleY(0); }
+
+.g .g-pj-step { position:relative; padding:.75rem 0; }
+.g .g-pj-dot {
+  position:absolute; left:-3.25rem; top:.7rem; width:2rem; height:2rem;
+  display:grid; place-items:center; font-size:.8125rem; font-weight:700;
+  background:var(--g-cyan); color:var(--g-navy); border:1px solid var(--g-rule-c);
+  transition:background-color .45s var(--g-hover), color .45s var(--g-hover), border-color .45s var(--g-hover);
+}
+.g .g-pj-step.on .g-pj-dot { background:var(--g-yellow); color:var(--g-navy); border-color:var(--g-navy); }
+.g .g-pj-step.done .g-pj-dot { background:var(--g-navy); color:#fff; border-color:var(--g-navy); }
+.g .g-pj-step h3 {
+  margin:0; font-size:1.375rem; font-weight:500; letter-spacing:-.018em;
+  color:var(--g-navy);
+}
+.g .g-pj-step p {
+  margin:.4rem 0 0; font-size:.9375rem; line-height:1.55; max-width:34ch;
+  color:var(--g-navy);
+}
+.g .g-pj-proof {
+  display:inline-block; margin-top:.6rem; padding-left:1.1rem; position:relative;
+  font-size:.6875rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--g-navy);
+}
+.g .g-pj-proof::before { content:""; position:absolute; left:0; top:.36em; width:6px; height:6px; background:currentColor; }
+.g .g-pj-step.on h3 { font-weight:700; }
+.g .g-pj-cta { display:flex; flex-wrap:wrap; gap:.75rem; margin-top:1.5rem; }
+
+/* The end-of-timeline form sits over the steps column and fades in. */
+.g .g-pj-quote {
+  position:absolute; inset-inline:0; top:50%; transform:translateY(calc(-50% + 40px));
+  opacity:0; pointer-events:none;
+  background:var(--g-navy); border:1px solid var(--g-rule-d); padding:1.75rem;
+  transition:opacity .5s var(--g-hover), transform .5s var(--g-hover);
+}
+.g .g-pj-quote h3 { margin:.35rem 0 1.1rem; font-size:1.375rem; font-weight:600; letter-spacing:-.018em; color:#fff; }
+.g .g-pj-qrow { display:flex; flex-direction:column; gap:0; border:1px solid var(--g-rule-d); background:rgba(255,255,255,.06); }
+.g .g-pj-qrow input {
+  flex:1; min-width:0; border:0; background:transparent; color:#fff;
+  font:500 1rem var(--font); padding:.9rem 1rem;
+}
+.g .g-pj-qrow input::placeholder { color:rgba(255,255,255,.62); }
+.g .g-pj-qrow input:focus-visible { outline:2px solid var(--g-cyan); outline-offset:-2px; }
+.g .g-pj-qrow .g-btn { border-width:0; border-top:1px solid var(--g-rule-d); flex:none; justify-content:space-between; }
+.g .g-pj-quote small { display:block; margin-top:1rem; font-size:.75rem; line-height:1.6; color:var(--g-onnavy); }
+.g .g-pj-quote small a { color:#fff; }
+
+.g .g-pj-stage {
+  position:relative; overflow:hidden; width:100%; justify-self:center;
+  aspect-ratio:1000/560; max-height:72vh;
+  background:#DDF5FD; border:1px solid var(--g-navy);
+}
+.g .g-pj-stage svg { display:block; width:100%; height:100%; }
+.g .g-pj-chip {
+  position:absolute; z-index:3; background:#fff; color:var(--g-navy);
+  border:1px solid var(--g-navy); font-weight:700;
+}
+.g .g-pj-chip--step {
+  top:.9rem; left:.9rem; padding:.4rem .75rem;
+  font-size:.6875rem; letter-spacing:.12em; text-transform:uppercase;
+}
+.g .g-pj-chip--price {
+  top:.9rem; right:.9rem; padding:.5rem .85rem; font-size:.625rem;
+  line-height:1.2; letter-spacing:.1em; text-transform:uppercase;
+  transition:opacity .3s var(--g-hover);
+}
+.g .g-pj-chip--price b { display:block; font-size:1.25rem; letter-spacing:-.02em; text-transform:none; }
+
+@media (max-width:860px){
+  .g .g-pj-journey { height:240vh; }
+  .g .g-pj-pin { grid-template-columns:1fr; align-content:center; gap:1.25rem; }
+  .g .g-pj-stage { order:-1; max-height:none; }
+  .g .g-pj-left { position:static; }
+  .g .g-pj-steps { padding-left:2.75rem; }
+  .g .g-pj-dot { left:-2.75rem; }
+  .g .g-pj-quote { position:static; transform:none; margin-top:1.5rem; }
+}
+
+/* No pinning and no timeline when motion is reduced: the section becomes an
+   ordinary block showing a representative frame. */
+@media (prefers-reduced-motion: reduce){
+  .g .g-pj-journey { height:auto; }
+  .g .g-pj-pin { position:static; height:auto; }
+  .g .g-pj-quote { position:static; transform:none; opacity:1; pointer-events:auto; margin-top:1.5rem; }
+}
+
+/* ---------- Mega menu ----------
+   Storage, Moving and Locations open a panel; the rest stay plain links.
+   The panel is position:fixed so it sits flush under the fixed nav and spans
+   the viewport, rather than hanging off .g-nav-in, whose box is only as tall
+   as its content and is capped at --g-max. */
+
+.g .g-mi { position:static; }
+
+.g .g-menu-t {
+  display:inline-flex; align-items:center; gap:.45rem; white-space:nowrap;
+  border:0; background:none; cursor:pointer; font-family:var(--font);
+  padding:.55rem .85rem; font-size:.75rem; font-weight:500;
+  letter-spacing:.12em; text-transform:uppercase; color:#fff;
+  transition:color var(--g-t) var(--g-hover), background-color var(--g-t) var(--g-hover);
+}
+.g .g-nav.is-stuck .g-menu-t { color:var(--g-navy); }
+.g .g-menu-t:hover, .g .g-menu-t[aria-expanded="true"] { background:rgba(255,255,255,.14); }
+.g .g-nav.is-stuck .g-menu-t:hover,
+.g .g-nav.is-stuck .g-menu-t[aria-expanded="true"] { background:rgba(14,56,93,.12); }
+.g .g-caret { width:10px; height:10px; flex:none; transition:transform var(--g-t) var(--g-hover); }
+.g .g-menu-t[aria-expanded="true"] .g-caret { transform:rotate(180deg); }
+
+.g .g-mega {
+  position:fixed; left:0; right:0; top:var(--g-nav);
+  background:var(--g-navy-x); border-bottom:2px solid var(--g-cyan);
+  box-shadow:none;
+  opacity:0; transform:translateY(-6px);
+  transition:opacity var(--g-t) var(--g-hover), transform var(--g-t) var(--g-hover);
+}
+.g .g-mega[hidden] { display:none; }
+.g .g-mega.is-open { opacity:1; transform:none; }
+.g .g-mega-in {
+  max-width:var(--g-max); margin-inline:auto;
+  padding:2rem var(--g-gut) 2.25rem;
+  display:grid; gap:clamp(1.5rem,3vw,3rem); grid-template-columns:1fr;
+}
+@media (min-width:1180px){ .g .g-mega-in { grid-template-columns:1.85fr .85fr; } }
+
+.g .g-mega-h {
+  margin:0 0 1.1rem; font-size:.6875rem; font-weight:700;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--g-cyan);
+}
+.g .g-mega-links { display:grid; gap:2px; grid-template-columns:1fr; }
+@media (min-width:820px){ .g .g-mega-links { grid-template-columns:repeat(2,1fr); } }
+
+.g .g-mega-l {
+  position:relative; display:grid; grid-template-columns:1fr 26px; gap:.25rem 1rem;
+  align-items:start; padding:.85rem 1rem; text-decoration:none;
+  background:transparent; transition:background-color var(--g-t) var(--g-hover);
+}
+.g .g-mega-l::after {
+  content:""; position:absolute; left:0; top:0; bottom:0; width:2px;
+  background:var(--g-cyan); transform:scaleY(0); transform-origin:top;
+  transition:transform var(--g-t) var(--g-hover);
+}
+.g .g-mega-l:hover { background:rgba(255,255,255,.07); }
+.g .g-mega-l:hover::after { transform:scaleY(1); }
+.g .g-mega-l b {
+  grid-column:1; font-size:.9375rem; font-weight:600; color:#fff;
+  letter-spacing:-.012em;
+}
+.g .g-mega-l span {
+  grid-column:1; font-size:.8125rem; line-height:1.5; color:var(--g-onnavy);
+}
+.g .g-mega-l i {
+  grid-column:2; grid-row:1 / span 2; align-self:center;
+  display:inline-flex; align-items:center; justify-content:center;
+  width:26px; height:26px; border:1px solid var(--g-rule-d); color:#fff;
+  transition:background-color var(--g-t) var(--g-hover), border-color var(--g-t) var(--g-hover), color var(--g-t) var(--g-hover);
+}
+.g .g-mega-l i svg { width:12px; height:12px; }
+.g .g-mega-l:hover i { background:var(--g-cyan); border-color:var(--g-cyan); color:var(--g-navy); }
+
+.g .g-mega-all {
+  display:inline-flex; align-items:center; gap:.5rem; margin-top:1.25rem;
+  padding-inline:1rem; font-size:.75rem; font-weight:700;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--g-cyan);
+  text-decoration:none; transition:color var(--g-t) var(--g-hover);
+}
+.g .g-mega-all span { display:inline-flex; }
+.g .g-mega-all svg { width:14px; height:14px; transition:transform var(--g-t) var(--g-hover); }
+.g .g-mega-all:hover { color:#fff; }
+.g .g-mega-all:hover svg { transform:translate(2px,-2px); }
+
+.g .g-mega-promo {
+  display:block; text-decoration:none;
+  border:1px solid var(--g-rule-d);
+  transition:border-color var(--g-t) var(--g-hover), background-color var(--g-t) var(--g-hover);
+}
+.g .g-mega-promo:hover { border-color:var(--g-cyan); background:rgba(255,255,255,.05); }
+.g .g-mega-promo-img { display:block; overflow:hidden; aspect-ratio:16/9; }
+.g .g-mega-promo-img img {
+  width:100%; height:100%; object-fit:cover; display:block;
+  transition:transform calc(var(--g-t) * 1.55) var(--g-hover);
+}
+.g .g-mega-promo:hover .g-mega-promo-img img { transform:scale(1.04); }
+.g .g-mega-promo-b { display:block; padding:1.1rem 1.15rem 1.25rem; }
+.g .g-mega-promo-b b { display:block; font-size:.9375rem; font-weight:600; color:#fff; }
+.g .g-mega-promo-b > span {
+  display:block; margin-top:.35rem; font-size:.8125rem; line-height:1.5; color:var(--g-onnavy);
+}
+.g .g-mega-promo-b em {
+  display:inline-flex; align-items:center; gap:.4rem; margin-top:.85rem;
+  font-style:normal; font-size:.6875rem; font-weight:700;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--g-cyan);
+}
+.g .g-mega-promo-b em svg { width:13px; height:13px; }
+
+/* Grouped drawer on small screens, where the panels do not exist. */
+.g .g-drawer-g { padding-bottom:.5rem; }
+.g .g-drawer-h {
+  margin:1.5rem 0 .35rem; font-size:.6875rem; font-weight:700;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--g-cyan);
+}
+.g .g-drawer-g:first-child .g-drawer-h { margin-top:0; }
+
+@media (prefers-reduced-motion:reduce){
+  .g .g-mega { transition:opacity .01ms; transform:none; }
+  .g .g-mega.is-open { transform:none; }
+  .g .g-mega-l::after, .g .g-mega-promo-img img { transition:none; }
+}
+
+/* ---------- Inner pages ----------
+   The homepage owns its full-height video hero; every other page uses the
+   shorter image hero below. Everything here follows the same rules as the
+   rest of the sheet: square, hairlines, brand tokens, and no faded text on
+   a cyan ground. */
+
+.g .g-phero {
+  position:relative; display:flex; align-items:flex-end;
+  min-height:clamp(26rem,52vh,34rem); padding-top:var(--g-nav);
+  overflow:hidden; background:var(--g-navy-x);
+}
+.g .g-phero--short { min-height:clamp(22rem,44vh,30rem); }
+.g .g-phero-bg { position:absolute; inset:0; }
+.g .g-phero-bg img { width:100%; height:100%; object-fit:cover; object-position:56% 48%; }
+/* Measured against the brightest of the hero photographs: white copy clears
+   AA everywhere it sits. */
+.g .g-phero-bg::after {
+  content:""; position:absolute; inset:0;
+  background:linear-gradient(180deg,
+    rgba(7,30,51,.78) 0%, rgba(7,30,51,.72) 34%,
+    rgba(7,30,51,.86) 68%, rgba(7,30,51,.94) 100%);
+}
+.g .g-phero-in { position:relative; z-index:1; width:100%; padding-block:clamp(2.5rem,5vw,3.75rem); }
+.g .g-phero .g-display { max-width:20ch; }
+.g .g-phero-sub {
+  margin:1.25rem 0 0; max-width:54ch;
+  font-size:clamp(1rem,1.5vw,1.125rem); line-height:1.6; color:rgba(255,255,255,.92);
+}
+.g .g-phero-form { margin-top:2rem; max-width:34rem; }
+
+.g .g-crumb {
+  display:flex; flex-wrap:wrap; align-items:center; gap:.5rem;
+  margin-bottom:1.5rem; font-size:.75rem; font-weight:600;
+  letter-spacing:.12em; text-transform:uppercase;
+}
+/* White, not cyan: cyan is only ~4.1:1 against the brightest scrimmed
+   photography, and this text is 12px so it needs 4.5. */
+.g .g-crumb a { color:#fff; text-decoration:none; }
+.g .g-crumb a:hover { text-decoration:underline; }
+.g .g-crumb span[aria-current] { color:rgba(255,255,255,.86); }
+.g .g-crumb-s { color:rgba(255,255,255,.6); }
+
+/* Proof strip directly under the hero. */
+.g .g-trust { background:var(--g-navy-x); border-top:1px solid var(--g-rule-d); }
+.g .g-trust-in {
+  display:flex; flex-wrap:wrap; gap:1rem clamp(1.5rem,3.5vw,3rem);
+  padding-block:1.1rem; align-items:center;
+}
+.g .g-trust-i {
+  display:inline-flex; align-items:center; gap:.6rem;
+  font-size:.8125rem; font-weight:600; color:rgba(255,255,255,.90);
+}
+.g .g-trust-i svg { width:18px; height:18px; flex:none; color:var(--g-cyan); }
+
+/* Centred statement band. */
+.g .g-said { max-width:58ch; }
+.g .g-said .g-h2 { margin-top:.75rem; }
+
+/* Image beside copy. */
+.g .g-split { display:grid; gap:clamp(2rem,4vw,3.5rem); align-items:center; grid-template-columns:1fr; }
+@media (min-width:900px){ .g .g-split { grid-template-columns:1fr 1fr; } }
+.g .g-split-img { width:100%; aspect-ratio:4/3; object-fit:cover; display:block; }
+.g .g-split-img--tall { aspect-ratio:4/5; }
+/* Charts and diagrams are shown whole, on their own ground. */
+.g .g-split-img--fit {
+  aspect-ratio:auto; height:auto; object-fit:contain;
+  background:#fff; border:1px solid var(--g-rule); padding:1.5rem;
+}
+.g .g-band--navy .g-split-img--fit, .g .g-band--deep .g-split-img--fit { border-color:var(--g-rule-d); }
+.g .g-prose { margin-top:1.25rem; display:grid; gap:.9rem; }
+.g .g-prose p { margin:0; font-size:1rem; line-height:1.65; color:var(--g-body); }
+.g .g-band--navy .g-prose p, .g .g-band--deep .g-prose p { color:var(--g-onnavy); }
+.g .g-band--cyan .g-prose p { color:var(--g-navy); }
+
+/* Icon + copy tiles. */
+.g .g-feat {
+  position:relative; background:#fff; padding:1.75rem;
+  border:1px solid var(--g-rule); border-top:2px solid var(--g-cyan);
+  transition:translate var(--g-t) var(--g-hover), border-color var(--g-t) var(--g-hover);
+}
+.g .g-feat::after {
+  content:""; position:absolute; left:-1px; right:-1px; top:-2px; height:2px;
+  background:var(--g-cyan); transform:scaleY(1); transform-origin:top;
+  transition:transform var(--g-t) var(--g-hover);
+}
+.g .g-feat:hover { translate:0 -4px; border-color:var(--g-rule-h); }
+.g .g-feat:hover::after { transform:scaleY(2.5); }
+.g .g-feat-i { display:block; color:var(--g-cyan-tx); }
+.g .g-feat-i svg { width:26px; height:26px; }
+.g .g-feat .g-h3 { margin-top:.9rem; font-size:1.0625rem; }
+.g .g-feat p { margin:.5rem 0 0; font-size:.9375rem; line-height:1.6; color:var(--g-body); }
+.g .g-band--navy .g-feat, .g .g-band--deep .g-feat {
+  background:rgba(255,255,255,.06); border-color:var(--g-rule-d); border-top-color:var(--g-cyan);
+}
+.g .g-band--navy .g-feat:hover, .g .g-band--deep .g-feat:hover { border-color:rgba(255,255,255,.34); }
+.g .g-band--navy .g-feat-i, .g .g-band--deep .g-feat-i { color:var(--g-cyan); }
+.g .g-band--navy .g-feat p, .g .g-band--deep .g-feat p { color:var(--g-onnavy); }
+.g .g-band--cyan .g-feat { border-color:var(--g-rule-c); border-top-color:var(--g-navy); }
+.g .g-band--cyan .g-feat::after { background:var(--g-navy); }
+.g .g-band--cyan .g-feat-i, .g .g-band--cyan .g-feat p { color:var(--g-navy); }
+
+/* Numbered steps reuse the index rows, with room for the description. */
+@media (min-width:860px){
+  .g .g-index--steps .g-row { grid-template-columns:3.5rem minmax(9rem,1fr) minmax(0,2.2fr); }
+}
+
+/* FAQ: details/summary, so it works with JavaScript off. */
+.g .g-faq-split { display:grid; gap:clamp(2rem,4vw,3.5rem); align-items:start; grid-template-columns:1fr; }
+@media (min-width:900px){ .g .g-faq-split { grid-template-columns:.85fr 1.15fr; } }
+.g .g-faq { border-top:1px solid var(--g-rule); }
+.g .g-faq-i { border-bottom:1px solid var(--g-rule); }
+.g .g-faq-i summary {
+  display:flex; align-items:flex-start; justify-content:space-between; gap:1.5rem;
+  padding:1.35rem 0; cursor:pointer; list-style:none;
+  font-size:1.0625rem; font-weight:600; letter-spacing:-.012em; color:var(--g-ink);
+  transition:color var(--g-t) var(--g-hover);
+}
+.g .g-faq-i summary::-webkit-details-marker { display:none; }
+.g .g-faq-i summary:hover { color:var(--g-cyan-tx); }
+/* A plus that becomes a minus, drawn from two rules. */
+.g .g-faq-i summary i {
+  position:relative; flex:none; width:16px; height:16px; margin-top:.25rem;
+}
+.g .g-faq-i summary i::before, .g .g-faq-i summary i::after {
+  content:""; position:absolute; inset:0; margin:auto;
+  background:currentColor; transition:transform var(--g-t) var(--g-hover), opacity var(--g-t) var(--g-hover);
+}
+.g .g-faq-i summary i::before { width:16px; height:2px; }
+.g .g-faq-i summary i::after  { width:2px; height:16px; }
+.g .g-faq-i[open] summary i::after { transform:scaleY(0); opacity:0; }
+.g .g-faq-a { padding:0 0 1.4rem; max-width:62ch; }
+.g .g-faq-a p { margin:0; font-size:.9375rem; line-height:1.65; color:var(--g-body); }
+
+.g .g-band--navy .g-faq, .g .g-band--deep .g-faq { border-top-color:var(--g-rule-d); }
+.g .g-band--navy .g-faq-i, .g .g-band--deep .g-faq-i { border-bottom-color:var(--g-rule-d); }
+.g .g-band--navy .g-faq-i summary, .g .g-band--deep .g-faq-i summary { color:#fff; }
+.g .g-band--navy .g-faq-i summary:hover, .g .g-band--deep .g-faq-i summary:hover { color:var(--g-cyan); }
+.g .g-band--navy .g-faq-a p, .g .g-band--deep .g-faq-a p { color:var(--g-onnavy); }
+/* Nothing faded on cyan: 80% navy already falls to 3.97:1 there. */
+.g .g-band--cyan .g-faq { border-top-color:var(--g-rule-c); }
+.g .g-band--cyan .g-faq-i { border-bottom-color:var(--g-rule-c); }
+.g .g-band--cyan .g-faq-i summary, .g .g-band--cyan .g-faq-a p { color:var(--g-navy); }
+.g .g-band--cyan .g-faq-i summary:hover { color:var(--g-navy); }
+
+@media (prefers-reduced-motion:reduce){
+  .g .g-faq-i summary i::before, .g .g-faq-i summary i::after { transition:none; }
+}
+
+/* ---------- Contact form ---------- */
+
+.g .g-cform { max-width:56rem; }
+.g .g-cform-grid { display:grid; gap:1.25rem; grid-template-columns:1fr; }
+@media (min-width:720px){
+  .g .g-cform-grid { grid-template-columns:repeat(2,1fr); }
+  .g .g-cform-grid > .g-field { grid-column:1 / -1; }
+  .g .g-cform-grid > .g-field--half { grid-column:auto; }
+}
+.g .g-field { margin:0; display:grid; gap:.45rem; }
+.g .g-field label {
+  font-size:.6875rem; font-weight:700; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--g-ink);
+}
+.g .g-field label span {
+  margin-left:.5rem; font-weight:600; letter-spacing:.06em;
+  text-transform:none; color:var(--g-mute);
+}
+.g .g-cform input, .g .g-cform select, .g .g-cform textarea {
+  width:100%; font:500 1rem var(--font); color:var(--g-ink);
+  background:#fff; border:1px solid var(--g-rule); padding:.8rem 1rem;
+  transition:border-color var(--g-t) var(--g-hover);
+}
+.g .g-cform textarea { resize:vertical; min-height:8rem; line-height:1.55; }
+.g .g-cform select { appearance:none; padding-right:2.5rem;
+  background-image:linear-gradient(45deg,transparent 50%,var(--g-ink) 50%),linear-gradient(135deg,var(--g-ink) 50%,transparent 50%);
+  background-position:calc(100% - 20px) 1.15rem, calc(100% - 14px) 1.15rem;
+  background-size:6px 6px, 6px 6px; background-repeat:no-repeat;
+}
+.g .g-cform input:hover, .g .g-cform select:hover, .g .g-cform textarea:hover { border-color:var(--g-rule-h); }
+.g .g-cform input:focus-visible, .g .g-cform select:focus-visible, .g .g-cform textarea:focus-visible {
+  outline:2px solid var(--g-cyan); outline-offset:-2px; border-color:var(--g-cyan);
+}
+.g .g-cform [aria-invalid="true"] { border-color:#B02E22; }
+
+.g .g-cform-foot {
+  display:flex; flex-wrap:wrap; align-items:center; gap:1rem 1.5rem; margin-top:1.75rem;
+}
+.g .g-cform-note { margin:0; font-size:.8125rem; line-height:1.55; color:var(--g-mute); max-width:34ch; }
+.g .g-cform-msg:empty { display:none; }
+.g .g-cform-msg {
+  margin-top:1.25rem; padding:1rem 1.25rem; font-size:.9375rem; line-height:1.6;
+  background:var(--g-mist); border-left:3px solid var(--g-cyan); color:var(--g-body);
+}
+.g .g-cform-msg.is-err { border-left-color:#B02E22; color:#8E2419; font-weight:600; }
+.g .g-cform-msg b { color:var(--g-ink); }
+
+/* On the dark bands the fields invert with the ground. */
+.g .g-band--navy .g-field label, .g .g-band--deep .g-field label { color:#fff; }
+.g .g-band--navy .g-field label span, .g .g-band--deep .g-field label span { color:var(--g-onnavy); }
+.g .g-band--navy .g-cform input, .g .g-band--deep .g-cform input,
+.g .g-band--navy .g-cform select, .g .g-band--deep .g-cform select,
+.g .g-band--navy .g-cform textarea, .g .g-band--deep .g-cform textarea {
+  background:rgba(255,255,255,.06); border-color:var(--g-rule-d); color:#fff;
+}
+.g .g-band--navy .g-cform-note, .g .g-band--deep .g-cform-note { color:var(--g-onnavy); }
+.g .g-band--navy .g-cform-msg, .g .g-band--deep .g-cform-msg {
+  background:rgba(255,255,255,.08); color:#fff;
+}
+.g .g-band--navy .g-cform-msg b, .g .g-band--deep .g-cform-msg b { color:var(--g-cyan); }
+.g .g-band--navy .g-cform-msg.is-err, .g .g-band--deep .g-cform-msg.is-err { color:#FFC9C4; }
+/* Nothing faded on cyan. */
+.g .g-band--cyan .g-field label, .g .g-band--cyan .g-field label span,
+.g .g-band--cyan .g-cform-note { color:var(--g-navy); }
+
+/* ---------- Quote request form ---------- */
+
+/* One grid governs the whole form. Every field is either a full row or one
+   of two equal columns, so nothing is left stranded at half width, and a
+   single gap keeps the rhythm even. The card gives the block a defined edge
+   instead of it hanging in the middle of the page. */
+.g .g-qform {
+  max-width:62rem; display:grid; align-content:start;
+  grid-template-columns:1fr; gap:1.5rem 1.25rem;
+  background:#fff; border:1px solid var(--g-rule);
+  padding:clamp(1.5rem,3vw,2.5rem);
+}
+@media (min-width:760px){ .g .g-qform { grid-template-columns:repeat(2,1fr); } }
+.g .g-qform > .g-span { grid-column:1 / -1; }
+.g .g-qform > .g-cform-foot { margin-top:.4rem; }
+.g .g-qform > .g-cform-msg { margin-top:0; }
+/* A phone number does not need a 900px box just because its row is full. */
+.g .g-field--cap input { max-width:22rem; }
+.g .g-band--navy .g-qform, .g .g-band--deep .g-qform {
+  background:rgba(255,255,255,.05); border-color:var(--g-rule-d);
+}
+.g .g-fset { border:0; margin:0; padding:0; }
+.g .g-fset legend {
+  padding:0; margin-bottom:.6rem; font-size:.6875rem; font-weight:700;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--g-ink);
+}
+.g .g-radios {
+  display:flex; flex-wrap:wrap; gap:1px;
+  background:var(--g-rule); border:1px solid var(--g-rule); width:max-content; max-width:100%;
+}
+/* The input stays in the accessibility tree and keeps keyboard behaviour;
+   the label is the visible control. It must be properly clipped: at
+   `position:absolute` with no offset the inputs stack on one another and
+   swallow clicks aimed at their neighbours, so a mouse can select the wrong
+   option. Clipped and pointer-inert, the label is the only hit target. */
+.g .g-radios input {
+  position:absolute; width:1px; height:1px; margin:-1px; padding:0; border:0;
+  overflow:hidden; clip:rect(0 0 0 0); clip-path:inset(50%);
+  white-space:nowrap; pointer-events:none;
+}
+.g .g-radios label {
+  display:inline-flex; align-items:center; justify-content:center;
+  padding:.7rem 1.25rem; background:#fff; cursor:pointer;
+  font-size:.8125rem; font-weight:600; color:var(--g-ink);
+  transition:background-color var(--g-t) var(--g-hover), color var(--g-t) var(--g-hover);
+}
+.g .g-radios label:hover { background:var(--g-mist); }
+.g .g-radios input:checked + label { background:var(--g-navy); color:#fff; }
+.g .g-radios input:focus-visible + label { outline:2px solid var(--g-cyan); outline-offset:-2px; }
+.g .g-radios[aria-invalid="true"] { border-color:#B02E22; }
+
+.g .g-field-help { font-size:.8125rem; line-height:1.5; color:var(--g-mute); }
+.g .g-field-help:empty { display:none; }
+.g .g-field-help a { color:var(--g-cyan-tx); }
+.g .g-field-help.is-regional { color:var(--g-ink); font-weight:600; }
+
+.g .g-band--navy .g-fset legend, .g .g-band--deep .g-fset legend { color:#fff; }
+.g .g-band--navy .g-radios, .g .g-band--deep .g-radios { background:var(--g-rule-d); border-color:var(--g-rule-d); }
+.g .g-band--navy .g-radios label, .g .g-band--deep .g-radios label { background:#0B2C49; color:#fff; }
+.g .g-band--navy .g-radios input:checked + label, .g .g-band--deep .g-radios input:checked + label {
+  background:var(--g-cyan); color:var(--g-navy);
+}
+.g .g-band--navy .g-field-help, .g .g-band--deep .g-field-help { color:var(--g-onnavy); }
+.g .g-band--cyan .g-fset legend, .g .g-band--cyan .g-field-help { color:var(--g-navy); }
+
+/* ---------- Motion ---------- */
+
+.g .g-rise { opacity:0; transform:translateY(26px); }
+.g .g-rise.in {
+  opacity:1; transform:none;
+  transition:opacity .95s var(--g-out) var(--d,0ms), transform .95s var(--g-out) var(--d,0ms);
+}
+/* `.g-rise.in` sets `transition` as a shorthand, which replaces the whole
+   transition list on the element. These cards carry both classes, so their
+   hover properties have to be restated here or the lift snaps to its end value
+   while the accent rule and avatar still ease. 0,4,0 beats `.g .g-rise.in`. */
+.g .g-quote.g-rise.in {
+  transition:opacity .95s var(--g-out) var(--d,0ms), transform .95s var(--g-out) var(--d,0ms),
+             translate var(--g-t) var(--g-hover), border-color var(--g-t) var(--g-hover);
+}
+.g .g-feat.g-rise.in {
+  transition:opacity .95s var(--g-out) var(--d,0ms), transform .95s var(--g-out) var(--d,0ms),
+             translate var(--g-t) var(--g-hover), border-color var(--g-t) var(--g-hover);
+}
+.g .g-card.g-rise.in,
+.g .g-compare figure.g-rise.in {
+  transition:opacity .95s var(--g-out) var(--d,0ms), transform .95s var(--g-out) var(--d,0ms),
+             translate var(--g-t) var(--g-hover);
+}
+
+/* Giga wipes its section rules in from the left. */
+.g .g-wipe { transform:scaleX(0); transform-origin:left; }
+.g .g-wipe.in { transform:scaleX(1); transition:transform 1.1s var(--g-out) var(--d,0ms); }
+
+.g .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.g .g-skip{position:absolute;left:var(--g-gut);top:-100px;z-index:200;background:var(--g-yellow);color:var(--g-navy);padding:.85rem 1.4rem;font-weight:700;transition:top .3s var(--g-out)}
+.g .g-skip:focus{top:1rem}
+.g :focus-visible { outline:2px solid var(--g-yellow); outline-offset:3px; }
+.g .g-band--cyan :focus-visible { outline-color:var(--g-navy); }
+
+@media (prefers-reduced-motion:reduce){
+  .g .g-row::after, .g .g-price-row::after, .g .g-region::after { transition:none; transform:scaleY(1); }
+  .g .g-row:hover > *, .g .g-price-row:hover > *, .g .g-region:hover > * { transform:none; }
+  .g .g-quote:hover, .g .g-card:hover, .g .g-feat:hover { translate:none; }
+  .g .g-compare figure:hover { translate:none; }
+  .g .g-compare figure:hover img { transform:none; }
+  .g .g-quote:hover figcaption img { transform:none; }
+  .g .g-row:hover .g-row-n { transform:none; }
+  .g .g-rise { opacity:1 !important; transform:none !important; }
+  .g .g-wipe, .g .g-stat .rule { transform:none !important; }
+  .g .g-card:hover .g-card-img img { transform:none !important; }
+}
+
+/* Ghost CTA on a cyan band: white text would measure 2.05:1. */
+.g .g-band--cyan .g-btn--ghost { color:var(--g-navy); }
+.g .g-band--cyan .g-btn--ghost:hover { background:var(--g-navy); color:#fff; }
+.g .g-band--cyan .g-pj-quote .g-label { color:var(--g-cyan); }
+
+/* The hero is a dark scrim but is not a `g-band`, so the dark-band rule below
+   never reached it and the outline button's navy ink was invisible there. */
+.g .g-phero .g-btn--line { color:#fff; }
+.g .g-phero .g-btn--line:hover { background:#fff; color:var(--g-navy); border-color:#fff; }
+
+/* The outline button carries navy ink, which is 1.40:1 on the dark bands, so
+   it inverts there. The :hover pair needs 0,4,0 to beat `.g .g-btn--line:hover`. */
+.g .g-band--navy .g-btn--line, .g .g-band--deep .g-btn--line { color:#fff; }
+.g .g-band--navy .g-btn--line:hover, .g .g-band--deep .g-btn--line:hover {
+  background:#fff; color:var(--g-navy); border-color:#fff;
+}

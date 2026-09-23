@@ -1,0 +1,45 @@
+# Dependencies
+node_modules
+
+# Generated screenshots from the verification scripts in tools/
+tools/*.png
+
+# Reference material, not site assets.
+# banner.mp4 is the source copy; the one the site actually loads is committed
+# at site/assets/video/banner.mp4. The cartoon file is a screen recording used
+# as a reference while building the scroll journey.
+/banner.mp4
+/cartoon animation when scroll.mp4
+
+# Stale prototype from an early direction. The real homepage is site/index.html,
+# written by the build. Left on disk, kept out of the repo so nobody serves it
+# by mistake (GitHub Pages would pick it up from the root).
+/index.html
+/assets
+
+# Abandoned first direction, superseded by the static build
+_nextjs-draft
+
+# Local tool state
+.impeccable/live
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+
+# Next.js leftovers
+.next
+out
+.env*.local
+*.tsbuildinfo
+next-env.d.ts
+
+# Reference screenshots of other companies' sites, captured while designing
+# (concourse, gigaenergy, primefold, stivio). 56MB, third-party, and not needed
+# to build or run this site. Delete this line to include them.
+research
+
+# Agent + tooling state, not part of the website
+.claude
+.agents
+.impeccable

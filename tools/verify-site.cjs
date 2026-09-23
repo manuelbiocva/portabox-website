@@ -1,0 +1,46 @@
+const { chromium } = require('playwright');
+const fs = require('fs'), path = require('path');
+const BASE = 'http://127.0.0.1:8899/site/';
+const files = fs.readdirSync('site').filter(f=>f.endsWith('.html'));
+(async () => {
+  const b = await chromium.launch();
+  const p = await b.newPage({ viewport:{width:1440,height:1000} });
+  const bad404 = new Set(), errs = [];
+  p.on('response', r => { if (r.status() >= 400) bad404.add(r.status()+' '+r.url().replace(BASE,'')); });
+  p.on('pageerror', e => errs.push(e.message));
+  p.on('console', m => { if (m.type()==='error') errs.push(m.text()); });
+
+  let overflow = [], brokenLinks = new Set(), missingImg = [];
+  for (const f of files) {
+    await p.goto(BASE+f, { waitUntil:'networkidle' });
+    await p.waitForTimeout(700);
+    const r = await p.evaluate(() => {
+      const ov = document.documentElement.scrollWidth - document.documentElement.clientWidth;
+      const imgs = [...document.querySelectorAll('img')].filter(i=>!i.complete||i.naturalWidth===0).map(i=>i.getAttribute('src'));
+      const links = [...document.querySelectorAll('a[href]')].map(a=>a.getAttribute('href'))
+        .filter(h=>h && !/^(https?:|tel:|mailto:|#)/.test(h));
+      return { ov, imgs, links:[...new Set(links)] };
+    });
+    if (r.ov > 0) overflow.push(f+':'+r.ov);
+    r.imgs.forEach(i=>missingImg.push(f+' -> '+i));
+    r.links.forEach(l => { if (!fs.existsSync(path.join('site', l.split('#')[0]))) brokenLinks.add(l+'  (from '+f+')'); });
+  }
+
+  // mobile sweep on 3 representative pages
+  const m = await b.newPage({ viewport:{width:390,height:844}, isMobile:true, hasTouch:true });
+  let movf = [];
+  for (const f of ['index.html','storage-at-your-place.html','victoria.html']) {
+    await m.goto(BASE+f, { waitUntil:'networkidle' }); await m.waitForTimeout(600);
+    const ov = await m.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth);
+    if (ov>0) movf.push(f+':'+ov);
+  }
+
+  console.log('pages checked      :', files.length);
+  console.log('desktop overflow   :', overflow.length?overflow.join(', '):'none');
+  console.log('mobile overflow    :', movf.length?movf.join(', '):'none');
+  console.log('broken local links :', brokenLinks.size?[...brokenLinks].join('\n                     '):'none');
+  console.log('images not loaded  :', missingImg.length?missingImg.slice(0,8).join('\n                     '):'none');
+  console.log('http >=400         :', bad404.size?[...bad404].slice(0,8).join(', '):'none');
+  console.log('js errors          :', errs.length?[...new Set(errs)].slice(0,5).join(' | '):'none');
+  await b.close();
+})();

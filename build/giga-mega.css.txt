@@ -1,0 +1,121 @@
+/* ---------- Mega menu ----------
+   Storage, Moving and Locations open a panel; the rest stay plain links.
+   The panel is position:fixed so it sits flush under the fixed nav and spans
+   the viewport, rather than hanging off .g-nav-in, whose box is only as tall
+   as its content and is capped at --g-max. */
+
+.g .g-mi { position:static; }
+
+.g .g-menu-t {
+  display:inline-flex; align-items:center; gap:.45rem; white-space:nowrap;
+  border:0; background:none; cursor:pointer; font-family:var(--font);
+  padding:.55rem .85rem; font-size:.75rem; font-weight:500;
+  letter-spacing:.12em; text-transform:uppercase; color:#fff;
+  transition:color var(--g-t) var(--g-hover), background-color var(--g-t) var(--g-hover);
+}
+.g .g-nav.is-stuck .g-menu-t { color:var(--g-navy); }
+.g .g-menu-t:hover, .g .g-menu-t[aria-expanded="true"] { background:rgba(255,255,255,.14); }
+.g .g-nav.is-stuck .g-menu-t:hover,
+.g .g-nav.is-stuck .g-menu-t[aria-expanded="true"] { background:rgba(14,56,93,.12); }
+.g .g-caret { width:10px; height:10px; flex:none; transition:transform var(--g-t) var(--g-hover); }
+.g .g-menu-t[aria-expanded="true"] .g-caret { transform:rotate(180deg); }
+
+.g .g-mega {
+  position:fixed; left:0; right:0; top:var(--g-nav);
+  background:var(--g-navy-x); border-bottom:2px solid var(--g-cyan);
+  box-shadow:none;
+  opacity:0; transform:translateY(-6px);
+  transition:opacity var(--g-t) var(--g-hover), transform var(--g-t) var(--g-hover);
+}
+.g .g-mega[hidden] { display:none; }
+.g .g-mega.is-open { opacity:1; transform:none; }
+.g .g-mega-in {
+  max-width:var(--g-max); margin-inline:auto;
+  padding:2rem var(--g-gut) 2.25rem;
+  display:grid; gap:clamp(1.5rem,3vw,3rem); grid-template-columns:1fr;
+}
+@media (min-width:1180px){ .g .g-mega-in { grid-template-columns:1.85fr .85fr; } }
+
+.g .g-mega-h {
+  margin:0 0 1.1rem; font-size:.6875rem; font-weight:700;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--g-cyan);
+}
+.g .g-mega-links { display:grid; gap:2px; grid-template-columns:1fr; }
+@media (min-width:820px){ .g .g-mega-links { grid-template-columns:repeat(2,1fr); } }
+
+.g .g-mega-l {
+  position:relative; display:grid; grid-template-columns:1fr 26px; gap:.25rem 1rem;
+  align-items:start; padding:.85rem 1rem; text-decoration:none;
+  background:transparent; transition:background-color var(--g-t) var(--g-hover);
+}
+.g .g-mega-l::after {
+  content:""; position:absolute; left:0; top:0; bottom:0; width:2px;
+  background:var(--g-cyan); transform:scaleY(0); transform-origin:top;
+  transition:transform var(--g-t) var(--g-hover);
+}
+.g .g-mega-l:hover { background:rgba(255,255,255,.07); }
+.g .g-mega-l:hover::after { transform:scaleY(1); }
+.g .g-mega-l b {
+  grid-column:1; font-size:.9375rem; font-weight:600; color:#fff;
+  letter-spacing:-.012em;
+}
+.g .g-mega-l span {
+  grid-column:1; font-size:.8125rem; line-height:1.5; color:var(--g-onnavy);
+}
+.g .g-mega-l i {
+  grid-column:2; grid-row:1 / span 2; align-self:center;
+  display:inline-flex; align-items:center; justify-content:center;
+  width:26px; height:26px; border:1px solid var(--g-rule-d); color:#fff;
+  transition:background-color var(--g-t) var(--g-hover), border-color var(--g-t) var(--g-hover), color var(--g-t) var(--g-hover);
+}
+.g .g-mega-l i svg { width:12px; height:12px; }
+.g .g-mega-l:hover i { background:var(--g-cyan); border-color:var(--g-cyan); color:var(--g-navy); }
+
+.g .g-mega-all {
+  display:inline-flex; align-items:center; gap:.5rem; margin-top:1.25rem;
+  padding-inline:1rem; font-size:.75rem; font-weight:700;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--g-cyan);
+  text-decoration:none; transition:color var(--g-t) var(--g-hover);
+}
+.g .g-mega-all span { display:inline-flex; }
+.g .g-mega-all svg { width:14px; height:14px; transition:transform var(--g-t) var(--g-hover); }
+.g .g-mega-all:hover { color:#fff; }
+.g .g-mega-all:hover svg { transform:translate(2px,-2px); }
+
+.g .g-mega-promo {
+  display:block; text-decoration:none;
+  border:1px solid var(--g-rule-d);
+  transition:border-color var(--g-t) var(--g-hover), background-color var(--g-t) var(--g-hover);
+}
+.g .g-mega-promo:hover { border-color:var(--g-cyan); background:rgba(255,255,255,.05); }
+.g .g-mega-promo-img { display:block; overflow:hidden; aspect-ratio:16/9; }
+.g .g-mega-promo-img img {
+  width:100%; height:100%; object-fit:cover; display:block;
+  transition:transform calc(var(--g-t) * 1.55) var(--g-hover);
+}
+.g .g-mega-promo:hover .g-mega-promo-img img { transform:scale(1.04); }
+.g .g-mega-promo-b { display:block; padding:1.1rem 1.15rem 1.25rem; }
+.g .g-mega-promo-b b { display:block; font-size:.9375rem; font-weight:600; color:#fff; }
+.g .g-mega-promo-b > span {
+  display:block; margin-top:.35rem; font-size:.8125rem; line-height:1.5; color:var(--g-onnavy);
+}
+.g .g-mega-promo-b em {
+  display:inline-flex; align-items:center; gap:.4rem; margin-top:.85rem;
+  font-style:normal; font-size:.6875rem; font-weight:700;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--g-cyan);
+}
+.g .g-mega-promo-b em svg { width:13px; height:13px; }
+
+/* Grouped drawer on small screens, where the panels do not exist. */
+.g .g-drawer-g { padding-bottom:.5rem; }
+.g .g-drawer-h {
+  margin:1.5rem 0 .35rem; font-size:.6875rem; font-weight:700;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--g-cyan);
+}
+.g .g-drawer-g:first-child .g-drawer-h { margin-top:0; }
+
+@media (prefers-reduced-motion:reduce){
+  .g .g-mega { transition:opacity .01ms; transform:none; }
+  .g .g-mega.is-open { transform:none; }
+  .g .g-mega-l::after, .g .g-mega-promo-img img { transition:none; }
+}

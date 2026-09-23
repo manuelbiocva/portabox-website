@@ -1,0 +1,369 @@
+/* ---------- Section builders ----------
+   Every page now uses the homepage's visual system, so these emit giga markup.
+   The function names and option shapes are unchanged from the previous
+   (portabox.css) implementations, which is why no page entry needed editing.
+
+   These run while PAGES is being built — before the giga block's `const`
+   helpers (gBtn, gLabel, gIntro) are initialised — so this region keeps its
+   own copies instead of calling into them. */
+
+const BANDS = { light: "white", grey: "stone", tint: "mist", cream: "mist", dark: "navy", deep: "deep", cyan: "cyan" };
+const bandOf = (b) => BANDS[b] || "white";
+
+const ARROW = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg>`;
+const HANDSET = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.6 3.5h3.1l1.6 4-2.1 1.3a11.4 11.4 0 0 0 5.9 5.9l1.3-2.1 4 1.6v3.1a1.9 1.9 0 0 1-2.1 1.9A16.4 16.4 0 0 1 3.7 5.6a1.9 1.9 0 0 1 1.9-2.1z"/></svg>`;
+
+/* Old variant names map onto the giga button kinds. */
+const KIND = { primary: "yellow", outline: "line", dark: "solid", light: "line", ghost: "ghost", navsec: "ghost", oncyan: "solid" };
+
+function traceBtn(href, title, text, variant) {
+  const tel = String(href).startsWith("tel:");
+  return `<a class="g-btn g-btn--${KIND[variant] || "line"}${tel ? " g-btn--tel" : ""}" href="${href}"><span>${title}</span><i>${tel ? HANDSET : ARROW}</i></a>`;
+}
+
+function traceSubmit(title, text, done, variant) {
+  return `<button class="g-btn g-btn--${KIND[variant] || "yellow"}" type="submit"><span>${title}</span><i>${ARROW}</i></button>`;
+}
+
+const gl = (t) => `<p class="g-label">${t}</p>`;
+
+const gintro = (chip, h, sub, btns) => `
+    <div class="g-intro">
+      <div class="g-rise">${chip ? gl(chip) : ""}<h2 class="g-h2">${h}</h2></div>
+      <div class="g-rise" style="--d:110ms">
+        ${sub ? `<p class="g-body">${sub}</p>` : ""}
+        ${btns ? `<div class="g-btns" style="margin-top:1.75rem">${btns}</div>` : ""}
+      </div>
+    </div>`;
+
+/* No id/label pair: a page can carry two of these and duplicate ids are invalid.
+   giga.js binds every .quote-form and finds its own .quote-out. */
+const quoteForm = () => `
+      <form class="g-form quote-form" novalidate>
+        <input type="text" inputmode="numeric" maxlength="4" placeholder="Your postcode" aria-label="Delivery postcode">
+        ${traceSubmit("Get my price", "", "", "primary")}
+      </form>
+      <div class="g-out quote-out" aria-live="polite"></div>`;
+
+/* Instant quote request. Mirrors the live Gravity Form at
+   portabox.au/get-a-quote/ — same questions, same options, same order.
+   Validation runs in the browser; see contactForm() in giga.js. There is no
+   endpoint behind it yet (the live one posts to Gravity Forms). */
+function quoteRequest(o) {
+  o = o || {};
+  const radio = (name, id, value, label) =>
+    `<input type="radio" id="${id}" name="${name}" value="${value}" data-group="${name}" required><label for="${id}">${label}</label>`;
+
+  const SPACE = [
+    ["small", "Small container (7&prime;) &mdash; 1 bed home or apartment, up to 10 m&sup3;"],
+    ["medium", "Medium container (12&prime;) &mdash; 2 bed home, 11&ndash;19 m&sup3; (not for interstate moving)"],
+    ["large", "Large container (16&prime;) &mdash; 3 bed home, 20&ndash;25 m&sup3;"],
+    ["combo", "Large + Small combo &mdash; 4 bed home, 26&ndash;35 m&sup3;"],
+    ["two-large", "Two Large containers &mdash; 36&ndash;50 m&sup3;"],
+    ["business", "Business &mdash; Large container (16&prime;)"],
+  ];
+  const TERM = ["2 weeks", "1&ndash;3 months", "4&ndash;11 months", "12 months or more"];
+
+  return `
+<section class="g-band g-band--${bandOf(o.band || "light")}" id="quote-form">
+  <div class="g-wrap">
+    ${gintro("Instant quote", o.h || "Plan your move or storage",
+      "The quote tool covers most metro and surrounding areas within 150&ndash;200 km of our Adelaide, Melbourne, Brisbane and Sydney facilities. Outside that range we still deliver &mdash; call 1800 467 637 about the Regional Solution.")}
+
+    <form class="g-cform g-qform g-rise" novalidate>
+      <fieldset class="g-fset g-span">
+        <legend>How can we help you?</legend>
+        <div class="g-radios">
+          ${radio("help", "q-help-1", "Moving", "Moving")}
+          ${radio("help", "q-help-2", "Storage", "Storage")}
+          ${radio("help", "q-help-3", "Moving &amp; Storage", "Moving &amp; Storage")}
+        </div>
+      </fieldset>
+
+      <fieldset class="g-fset g-span">
+        <legend>Where will you store your containers?</legend>
+        <div class="g-radios">
+          ${radio("where", "q-where-1", "My location", "My location")}
+          ${radio("where", "q-where-2", "Portabox location", "Portabox location")}
+        </div>
+      </fieldset>
+
+      <p class="g-field g-span">
+        <label for="q-space">How much space do you require?</label>
+        <select id="q-space" name="space" required>
+          <option value="">Please select an option</option>
+          ${SPACE.map(([v, t]) => `<option value="${v}">${t}</option>`).join("\n          ")}
+        </select>
+        <span class="g-field-help">Not sure? <a href="pricing.html">Use the space calculator</a> or ring the depot and describe the house.</span>
+      </p>
+
+      <p class="g-field">
+        <label for="q-from">Where do you want to start loading?</label>
+        <input id="q-from" name="from" type="text" inputmode="numeric" maxlength="4" placeholder="Postcode" autocomplete="postal-code" required>
+        <span class="g-field-help" data-depot-for="q-from"></span>
+      </p>
+      <p class="g-field">
+        <label for="q-to">Where do you want to unload?</label>
+        <input id="q-to" name="to" type="text" inputmode="numeric" maxlength="4" placeholder="Postcode" autocomplete="postal-code" required>
+        <span class="g-field-help" data-depot-for="q-to"></span>
+      </p>
+
+      <p class="g-field g-span">
+        <label for="q-term">How long will you need the container?</label>
+        <select id="q-term" name="term" required>
+          <option value="">Please select an option</option>
+          ${TERM.map((t) => `<option>${t}</option>`).join("\n          ")}
+        </select>
+      </p>
+
+      <p class="g-field">
+        <label for="q-email">Email</label>
+        <input id="q-email" name="email" type="email" autocomplete="email" required>
+      </p>
+      <p class="g-field">
+        <label for="q-email2">Confirm email</label>
+        <input id="q-email2" name="email_confirm" type="email" autocomplete="email" required data-match="q-email">
+      </p>
+
+      <p class="g-field g-span g-field--cap">
+        <label for="q-phone">Phone</label>
+        <input id="q-phone" name="phone" type="tel" autocomplete="tel" required>
+      </p>
+
+      <div class="g-cform-foot g-span">
+        ${traceSubmit("Get my quote", "", "", "primary")}
+        <p class="g-cform-note">If the quote is not in your inbox within a minute, check your junk, spam or promotions folder.</p>
+      </div>
+      <div class="g-cform-msg g-span" role="status" aria-live="polite"></div>
+    </form>
+  </div>
+</section>`;
+}
+
+function hero(o) {
+  return `
+<section class="g-phero${o.short ? " g-phero--short" : ""}">
+  <div class="g-phero-bg" aria-hidden="true"><img src="${IMG}${o.img}" alt="" fetchpriority="high"></div>
+  <div class="g-wrap g-phero-in">
+    ${o.crumb ? `<nav class="g-crumb" aria-label="Breadcrumb">${o.crumb}</nav>` : ""}
+    <h1 class="g-display g-rise">${o.h1}</h1>
+    ${o.sub ? `<p class="g-phero-sub g-rise" style="--d:80ms">${o.sub}</p>` : ""}
+    ${o.form ? `<div class="g-phero-form g-rise" style="--d:160ms">${quoteForm()}</div>` : ""}
+    ${o.btns ? `<div class="g-btns g-rise" style="--d:160ms;margin-top:2rem">${o.btns}</div>` : ""}
+  </div>
+</section>`;
+}
+
+const trust = () => `
+<section class="g-trust">
+  <div class="g-wrap g-trust-in">
+    ${[["lift", "Lowered level, never tipped"], ["key", "You hold the only keys"],
+       ["cube", "Priced per cubic metre"], ["globe", "Four depots, Australia-wide"]]
+      .map(([i, t]) => `<span class="g-trust-i">${ICON[i]}${t}</span>`).join("\n    ")}
+  </div>
+</section>`;
+
+function statement(o) {
+  return `
+<section class="g-band g-band--${bandOf(o.band || "dark")}">
+  <div class="g-wrap">
+    <div class="g-said g-rise">
+      ${o.chip ? gl(o.chip) : ""}
+      <h2 class="g-h2">${o.h}</h2>
+      ${o.sub ? `<p class="g-body" style="margin-top:1.25rem">${o.sub}</p>` : ""}
+      ${o.btns ? `<div class="g-btns" style="margin-top:2rem">${o.btns}</div>` : ""}
+    </div>
+  </div>
+</section>`;
+}
+
+function split(o) {
+  /* `fit` is for charts and diagrams, which must not be cropped. */
+  const cls = "g-split-img" + (o.tall ? " g-split-img--tall" : "") + (o.fit ? " g-split-img--fit" : "");
+  const media = `<div class="g-rise"><img class="${cls}" src="${IMG}${o.img}" alt="${o.alt || ""}" loading="lazy"></div>`;
+  const copy = `<div class="g-rise" style="--d:110ms">
+        ${o.chip ? gl(o.chip) : ""}
+        <h2 class="g-h2">${o.h}</h2>
+        <div class="g-prose">${o.body}</div>
+        ${o.btns ? `<div class="g-btns" style="margin-top:1.75rem">${o.btns}</div>` : ""}
+      </div>`;
+  return `
+<section class="g-band g-band--${bandOf(o.band || "light")}">
+  <div class="g-wrap">
+    <div class="g-split">
+      ${o.flip ? copy + media : media + copy}
+    </div>
+  </div>
+</section>`;
+}
+
+function cards(o) {
+  return `
+<section class="g-band g-band--${bandOf(o.band || "light")}"${o.id ? ` id="${o.id}"` : ""}>
+  <div class="g-wrap">
+    ${gintro(o.chip, o.h, o.sub)}
+    <div class="g-grid g-grid--3">
+      ${o.items.map((i, n) => `<a class="g-card g-rise" style="--d:${n * 90}ms" href="${i.slug}.html">
+        <span class="g-card-img"><img src="${IMG}${i.img}" alt="" loading="lazy"></span>
+        <h3 class="g-h3">${i.title}</h3>
+        <p>${i.blurb || i.intro || ""}</p>
+        <span class="g-link">${i.more || "Read more"}<span>${ARROW}</span></span>
+      </a>`).join("\n      ")}
+    </div>
+  </div>
+</section>`;
+}
+
+function featureGrid(o) {
+  return `
+<section class="g-band g-band--${bandOf(o.band || "light")}">
+  <div class="g-wrap">
+    ${gintro(o.chip, o.h, o.sub)}
+    <div class="g-grid g-grid--3">
+      ${o.items.map((f, n) => `<div class="g-feat g-rise" style="--d:${n * 80}ms">
+        <span class="g-feat-i">${ICON[f.ico] || ICON.check}</span>
+        <h3 class="g-h3">${f.t}</h3>
+        <p>${f.b}</p>
+      </div>`).join("\n      ")}
+    </div>
+  </div>
+</section>`;
+}
+
+function steps(o) {
+  return `
+<section class="g-band g-band--${bandOf(o.band || "light")}"${o.id ? ` id="${o.id}"` : ""}>
+  <div class="g-wrap">
+    ${gintro(o.chip, o.h, o.sub)}
+    <div class="g-index g-index--steps">
+      ${o.items.map((s, n) => `<div class="g-row g-rise" style="--d:${n * 70}ms">
+        <span class="g-row-n">0${n + 1}</span>
+        <span class="g-row-t">${s[0]}</span>
+        <span class="g-row-d">${s[1]}</span>
+      </div>`).join("\n      ")}
+    </div>
+  </div>
+</section>`;
+}
+
+function pricing(o) {
+  return `
+<section class="g-band g-band--${bandOf((o && o.band) || "mist")}" id="pricing">
+  <div class="g-wrap">
+    ${gintro("Sizes &amp; pricing", "The number nobody else prints",
+      "Every storage company quotes a monthly rate. Divide it by the cubic metres you actually get and the comparison stops being a matter of opinion. Here is ours, done in the open.")}
+    <div class="g-price">
+      ${C.SIZES.map((s, n) => `<div class="g-price-row g-rise${s.best ? " is-best" : ""}" style="--d:${n * 80}ms">
+        <div>
+          <div class="g-price-name"><b>${s.name}</b>${s.flag ? `<span class="g-badge">${s.flag}</span>` : ""}</div>
+          <p class="g-price-feats">${s.holds}</p>
+        </div>
+        <div class="g-price-figs">
+          <span><b>$${s.rate}</b><i>per month</i></span>
+          <span><b>${s.vol} m³</b><i>total capacity</i></span>
+          <span><b class="big">$${s.per}</b><i>cost per m³</i></span>
+        </div>
+        ${traceBtn(C.CONTACT.quote, "Select " + s.name, "", s.best ? "primary" : "outline")}
+      </div>`).join("\n      ")}
+    </div>
+    <p class="g-body g-rise" style="margin-top:1.75rem;max-width:none">
+      Rates are &ldquo;from&rdquo; prices and vary with location and term. Found a cheaper written
+      quote per cubic metre? <a class="g-link" href="${C.CONTACT.priceMatch}">Get a price match<span>${ARROW}</span></a>
+    </p>
+  </div>
+</section>`;
+}
+
+function earl() {
+  return `
+<section class="g-band g-band--deep" id="earl">
+  <div class="g-wrap">
+    ${gintro("The hydraulic difference", "The hydraulic difference with EARL.",
+      "Most containers are dragged and tilted onto a truck. Ours stay perfectly level from your driveway to the destination.")}
+    <div class="g-compare">
+      <figure class="g-rise">
+        <span class="g-compare-img"><img src="${IMG}tilt-method.png" alt="A tilt-tray truck angling a container off its deck" loading="lazy"></span>
+        <figcaption><span class="g-tagline g-tagline--bad">Traditional tilt method</span>Containers tipped and dragged, so contents move.</figcaption>
+      </figure>
+      <figure class="g-rise" style="--d:110ms">
+        <span class="g-compare-img"><img src="${IMG}earl-hydraulic.png" alt="The EARL hydraulic system lowering a container level to the ground" loading="lazy"></span>
+        <figcaption><span class="g-tagline g-tagline--good">Portabox with EARL</span>Lifted level. Nothing tilts, slides or shifts.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>`;
+}
+
+function testimonials() {
+  return `
+<section class="g-band g-band--stone">
+  <div class="g-wrap">
+    ${gintro("Customers", "What people actually say.")}
+    <div class="g-quotes">
+      ${C.TESTIMONIALS.map((t, n) => `<figure class="g-quote g-rise" style="--d:${n * 90}ms">
+        <blockquote>&ldquo;${t.q}&rdquo;</blockquote>
+        <figcaption>
+          <img src="${IMG}${t.img.replace(".png", "-avatar.jpg")}" alt="" loading="lazy" width="54" height="54">
+          <span class="g-who"><b>${t.n}</b><span>${t.p}</span></span>
+        </figcaption>
+      </figure>`).join("\n      ")}
+    </div>
+  </div>
+</section>`;
+}
+
+function locationList(o) {
+  return `
+<section class="g-band g-band--${bandOf((o && o.band) || "light")}" id="regions">
+  <div class="g-wrap">
+    ${gintro("Coverage", "Four depots, and a long way past them",
+      "Standard runs reach 150&ndash;200 km from each depot. Past that, the Regional Solution goes anywhere in Australia.")}
+    <div class="g-regions">
+      ${C.LOCATIONS.map((l, n) => `<a class="g-region g-rise" style="--d:${n * 70}ms" href="${l.slug}.html">
+        <b>${l.regional ? l.title : l.hub}</b>
+        <p>${l.regional ? "Anywhere in Australia, quoted per run" : l.sats.join(" &middot; ")}</p>
+        <span class="g-link" style="pointer-events:none">Learn more<span>${ARROW}</span></span>
+      </a>`).join("\n      ")}
+    </div>
+  </div>
+</section>`;
+}
+
+/* details/summary so the accordion needs no JavaScript. */
+function faq(items, title, band) {
+  return `
+<section class="g-band g-band--${bandOf(band || "light")}">
+  <div class="g-wrap">
+    <div class="g-faq-split">
+      <div class="g-rise">
+        ${gl("Questions")}
+        <h2 class="g-h2">${title || "Before you book"}</h2>
+        <p class="g-body" style="margin-top:1.25rem">Can&rsquo;t see yours? Ring the depot &mdash; someone who actually does the runs will answer.</p>
+        <div class="g-btns" style="margin-top:1.75rem">${traceBtn(C.CONTACT.tel, "Call " + C.CONTACT.phone, "", "outline")}</div>
+      </div>
+      <div class="g-faq g-rise" style="--d:110ms">
+        ${items.map((q, n) => `<details class="g-faq-i"${n === 0 ? " open" : ""}>
+          <summary>${q[0]}<i aria-hidden="true"></i></summary>
+          <div class="g-faq-a"><p>${q[1]}</p></div>
+        </details>`).join("\n        ")}
+      </div>
+    </div>
+  </div>
+</section>`;
+}
+
+function ctaBand(o) {
+  o = o || {};
+  return `
+<section class="g-band g-band--${o.cyan ? "cyan" : "deep"}" id="quote">
+  <div class="g-wrap">
+    ${gintro("Ready to get started?", o.h || "Put a postcode in and find out",
+      o.sub || "One field, no email address. If we cover you, you will see which depot you are on in about a second.")}
+    <div class="g-rise">
+      ${quoteForm()}
+      <div class="g-btns" style="margin-top:1.75rem">${traceBtn(C.CONTACT.tel, "Call " + C.CONTACT.phone, "", "outline")}</div>
+    </div>
+  </div>
+</section>`;
+}
+

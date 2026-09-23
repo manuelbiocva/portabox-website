@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Portabox Design System</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="portabox-tokens.css">
+<style>
+  body { padding-bottom: var(--pb-24); }
+  .sg-head { background: var(--pb-cyan); color: var(--pb-navy); padding: var(--pb-12) 0; }
+  .sg-block { padding-block: var(--pb-12); border-top: 1px solid var(--pb-hairline); }
+  .sg-block > .pb-container > h2 { margin-bottom: var(--pb-6); }
+  .sg-grid { display: grid; gap: var(--pb-4); grid-template-columns: repeat(auto-fill, minmax(190px,1fr)); }
+  .sw { border-radius: var(--pb-radius-card); overflow: hidden; border: 1px solid var(--pb-hairline); }
+  .sw .chip { height: 92px; display: flex; align-items: flex-end; padding: var(--pb-3); font-size: 13px; font-weight: 600; }
+  .sw .meta { padding: var(--pb-3); font-size: 12px; line-height: 1.5; background: #fff; }
+  .sw .meta b { display: block; font-size: 13px; color: var(--pb-navy); }
+  .sw .meta code { font-family: ui-monospace, monospace; color: var(--pb-ink-muted); }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--pb-hairline); }
+  th { font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: var(--pb-ink-muted); font-weight: 600; }
+  .pass { color: #1E9E5A; font-weight: 600; }
+  .fail { color: var(--pb-error); font-weight: 700; }
+  .row { display: flex; flex-wrap: wrap; gap: var(--pb-3); align-items: center; }
+  .spec { font-size: 12px; color: var(--pb-ink-muted); font-family: ui-monospace, monospace; }
+  .warn { border-left: 4px solid var(--pb-error); background: #fdf3f2; padding: var(--pb-4) var(--pb-6); border-radius: 0 var(--pb-radius-card) var(--pb-radius-card) 0; }
+  .warn p { max-width: none; }
+  ol.fixes { max-width: 70ch; padding-left: 1.25rem; list-style: decimal; }
+  ol.fixes li { margin-bottom: var(--pb-2); }
+  .logo-cell { display:flex; align-items:center; justify-content:center; height:130px; border-radius: var(--pb-radius-card); }
+</style>
+</head>
+<body>
+
+<header class="sg-head">
+  <div class="pb-container">
+    <p class="pb-label">Design system · v1.0 · extracted 21 Sep 2026</p>
+    <h1 class="pb-display" style="color:var(--pb-navy);margin-top:.5rem">Portabox</h1>
+    <p class="pb-lede" style="margin-top:1rem;color:var(--pb-navy)">
+      A cyan field, navy ink, and one yellow button. Every value below is measured
+      off portabox.au or the Netlify build, not invented.
+    </p>
+  </div>
+</header>
+
+<!-- COLOUR -->
+<section class="sg-block">
+  <div class="pb-container">
+    <h2>Colour</h2>
+    <p class="pb-muted" style="margin-bottom:var(--pb-6)">Roles, not swatches. Cyan carries the chrome, navy carries the reading, yellow means "click".</p>
+    <div class="sg-grid">
+      <div class="sw"><div class="chip" style="background:#1EC4F4;color:#0E385D">Brand field</div>
+        <div class="meta"><b>Cyan</b><code>#1EC4F4</code><br>Nav, bars, logo ground, livery</div></div>
+      <div class="sw"><div class="chip" style="background:#0E385D;color:#fff">Ink</div>
+        <div class="meta"><b>Navy</b><code>#0E385D</code><br>All headings, text on cyan/yellow</div></div>
+      <div class="sw"><div class="chip" style="background:#FED200;color:#0E385D">Action</div>
+        <div class="meta"><b>Yellow</b><code>#FED200</code><br>Primary CTAs only. ~5% of a page.</div></div>
+      <div class="sw"><div class="chip" style="background:#111;color:#fff">Body</div>
+        <div class="meta"><b>Ink</b><code>#111111</code><br>Paragraph copy on white</div></div>
+      <div class="sw"><div class="chip" style="background:#5E6A73;color:#fff">Secondary</div>
+        <div class="meta"><b>Muted</b><code>#5E6A73</code><br>Captions, helper, meta</div></div>
+      <div class="sw"><div class="chip" style="background:#EAF8FE;color:#0E385D">Wash</div>
+        <div class="meta"><b>Cyan tint</b><code>#EAF8FE</code><br>Section backgrounds, cards</div></div>
+      <div class="sw"><div class="chip" style="background:#FFF1A8;color:#0E385D">Highlight</div>
+        <div class="meta"><b>Yellow tint</b><code>#FFF1A8</code><br>Callouts</div></div>
+      <div class="sw"><div class="chip" style="background:#1B2F3A;color:#fff">Deep</div>
+        <div class="meta"><b>Navy deep</b><code>#1B2F3A</code><br>Footer, dark sections</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTRAST -->
+<section class="sg-block">
+  <div class="pb-container">
+    <h2>Contrast</h2>
+    <div class="warn" style="margin-bottom:var(--pb-6)">
+      <h4 style="color:var(--pb-error);margin-bottom:.5rem">Cyan is a surface colour, never a text colour</h4>
+      <p style="font-size:15px">
+        <code>#1EC4F4</code> on white measures <b>2.05:1</b>. White on cyan measures the same.
+        Both fail AA for body <em>and</em> large text. Navy on cyan passes at 5.89:1 — that is
+        why the navigation works today. Keep nav links navy, never white.
+      </p>
+    </div>
+    <table>
+      <thead><tr><th>Pair</th><th>Ratio</th><th>AA body</th><th>AA large</th><th>Verdict</th></tr></thead>
+      <tbody>
+        <tr><td>Navy on white</td><td>12.05</td><td class="pass">Pass</td><td class="pass">Pass</td><td>Default heading</td></tr>
+        <tr><td>Ink on white</td><td>18.88</td><td class="pass">Pass</td><td class="pass">Pass</td><td>Body copy</td></tr>
+        <tr><td>Muted on white</td><td>5.55</td><td class="pass">Pass</td><td class="pass">Pass</td><td>Captions</td></tr>
+        <tr><td>Navy on yellow</td><td>8.28</td><td class="pass">Pass</td><td class="pass">Pass</td><td>Primary button</td></tr>
+        <tr><td>White on navy</td><td>12.05</td><td class="pass">Pass</td><td class="pass">Pass</td><td>Dark sections</td></tr>
+        <tr><td>Navy on cyan</td><td>5.89</td><td class="pass">Pass</td><td class="pass">Pass</td><td>Nav links</td></tr>
+        <tr><td>Navy on cyan tint</td><td>11.11</td><td class="pass">Pass</td><td class="pass">Pass</td><td>Washed sections</td></tr>
+        <tr><td><b>Cyan on white</b></td><td><b>2.05</b></td><td class="fail">Fail</td><td class="fail">Fail</td><td class="fail">Never use</td></tr>
+        <tr><td><b>White on cyan</b></td><td><b>2.05</b></td><td class="fail">Fail</td><td class="fail">Fail</td><td class="fail">Never use</td></tr>
+        <tr><td><b>#6EC1E4 on white</b></td><td><b>2.02</b></td><td class="fail">Fail</td><td class="fail">Fail</td><td class="fail">Elementor default — remove</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- TYPE -->
+<section class="sg-block">
+  <div class="pb-container">
+    <h2>Typography</h2>
+    <p class="pb-muted" style="margin-bottom:var(--pb-8)">Montserrat only. The live site also loads Roboto — that is theme leakage, remove it.</p>
+
+    <div style="display:grid;gap:var(--pb-6)">
+      <div><span class="spec">display · 68/38px · 800 · lh 1.10 · -0.015em</span>
+        <p class="pb-display" style="margin-top:.35rem">Storage that stays at your place</p></div>
+      <div><span class="spec">h1 · 56/34px · 800</span><h1 style="margin-top:.35rem">One container, three ways to use it</h1></div>
+      <div><span class="spec">h2 · 42/30px · 800</span><h2 style="margin-top:.35rem">It's simple</h2></div>
+      <div><span class="spec">h3 · 28/24px · 700 — proposed, fills the gap between 42px and 19px</span>
+        <h3 style="margin-top:.35rem">Storage at your place</h3></div>
+      <div><span class="spec">h4 · 19/18px · 700</span><h4 style="margin-top:.35rem">Store with us</h4></div>
+      <div><span class="spec">body-lg · 18px · 400 · lh 1.65</span>
+        <p class="pb-lede" style="margin-top:.35rem">Australia's largest portable storage containers, delivered to your door. No stressful facility trips, no inflated prices.</p></div>
+      <div><span class="spec">body · 16px · 400</span>
+        <p style="margin-top:.35rem">We bring the container to you and set it down level. Load it in your own time, and you hold the only keys. Measure caps at 62 characters so long lines never get tiring to read on a wide screen.</p></div>
+      <div><span class="spec">body-sm · 14px · 400</span>
+        <p class="pb-small pb-muted" style="margin-top:.35rem">Rates are "from" prices and vary with location and term.</p></div>
+      <div><span class="spec">label · 13px · 600 · 0.04em · caps</span>
+        <p class="pb-label" style="margin-top:.35rem;color:var(--pb-navy)">Delivery postcode</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- BUTTONS -->
+<section class="sg-block">
+  <div class="pb-container">
+    <h2>Buttons</h2>
+    <p class="pb-muted" style="margin-bottom:var(--pb-6)">Full pills. 48px min height, 15px / 600. One primary per viewport — the live site currently shows three at once.</p>
+
+    <div class="row" style="margin-bottom:var(--pb-6)">
+      <a class="pb-btn pb-btn--primary" href="#">Instant Quote</a>
+      <a class="pb-btn pb-btn--secondary" href="#">Book Now</a>
+      <span class="spec">primary + secondary, on white</span>
+    </div>
+
+    <div class="pb-on-navy" style="padding:var(--pb-8);border-radius:var(--pb-radius-card)">
+      <div class="row">
+        <a class="pb-btn pb-btn--primary" href="#">Instant Quote</a>
+        <a class="pb-btn pb-btn--inverse" href="#">See How It Works</a>
+        <span class="spec" style="color:#AFC4D4">on navy or over photography</span>
+      </div>
+    </div>
+
+    <div class="pb-on-cyan" style="padding:var(--pb-8);border-radius:var(--pb-radius-card);margin-top:var(--pb-4)">
+      <div class="row">
+        <a class="pb-btn pb-btn--primary" href="#">Instant Quote</a>
+        <a class="pb-btn pb-btn--secondary" href="#">Book Now</a>
+        <span class="spec" style="color:var(--pb-navy)">on the cyan brand field</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FORMS -->
+<section class="sg-block">
+  <div class="pb-container">
+    <h2>Forms</h2>
+    <p class="pb-muted" style="margin-bottom:var(--pb-6)">The inline quote pill is the strongest pattern either build ships. Keep it.</p>
+    <div class="pb-inline-quote" style="margin-bottom:var(--pb-6)">
+      <input type="text" placeholder="Enter your postcode or suburb" aria-label="Postcode or suburb">
+      <button class="pb-btn pb-btn--primary" style="width:auto">Get My Instant Quote</button>
+    </div>
+    <div style="display:grid;gap:var(--pb-3);max-width:24rem">
+      <label class="pb-label" for="pc" style="color:var(--pb-navy)">Delivery postcode</label>
+      <input class="pb-input" id="pc" placeholder="3121">
+      <input class="pb-input" aria-invalid="true" value="12" aria-label="Invalid example">
+      <span class="pb-small" style="color:var(--pb-error)">An Australian postcode is four digits.</span>
+    </div>
+  </div>
+</section>
+
+<!-- SHAPE -->
+<section class="sg-block">
+  <div class="pb-container">
+    <h2>Shape &amp; elevation</h2>
+    <p class="pb-muted" style="margin-bottom:var(--pb-6)">Production ships six radii. Four is enough. Declare elevation once — a border or a shadow, never both.</p>
+    <div class="sg-grid">
+      <div class="pb-card"><b>Soft — default</b><p class="pb-small pb-muted">0 18px 40px -24px navy/35</p></div>
+      <div class="pb-card pb-card--outlined"><b>Outlined</b><p class="pb-small pb-muted">1px hairline, no shadow</p></div>
+      <div class="pb-card pb-card--block"><b>Hard block — accent</b><p class="pb-small pb-muted">0 6px 0 0 navy. One or two per page.</p></div>
+    </div>
+    <table style="margin-top:var(--pb-8)">
+      <thead><tr><th>Token</th><th>Value</th><th>Use</th></tr></thead>
+      <tbody>
+        <tr><td>radius-pill</td><td>999px</td><td>Buttons, chips, inputs</td></tr>
+        <tr><td>radius-card</td><td>16px</td><td>Cards, panels</td></tr>
+        <tr><td>radius-media</td><td>24px</td><td>Photography, video</td></tr>
+        <tr><td>radius-control</td><td>4px</td><td>Checkboxes, small inputs</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- LOGO -->
+<section class="sg-block">
+  <div class="pb-container">
+    <h2>Logo</h2>
+    <p class="pb-muted" style="margin-bottom:var(--pb-6)">
+      <code>logoo.png</code> has the cyan background <strong>baked in</strong> rather than transparent.
+      It only works because it sits on a cyan nav — and on the Netlify build the two cyans differ
+      slightly, which shows as a faint rectangle. Three transparent SVGs are needed.
+    </p>
+    <div class="sg-grid">
+      <div class="sw"><div class="logo-cell" style="background:#1EC4F4"><img src="../brand-audit/logo.png" alt="Portabox logo" style="max-width:82%"></div>
+        <div class="meta"><b>Current PNG on cyan</b>Works — because the baked background matches.</div></div>
+      <div class="sw"><div class="logo-cell" style="background:#fff;border-bottom:1px solid var(--pb-hairline)"><img src="../brand-audit/logo.png" alt="Portabox logo on white" style="max-width:82%"></div>
+        <div class="meta"><b>Same PNG on white</b><span style="color:var(--pb-error);font-weight:600">Broken.</span> The cyan block is visible.</div></div>
+      <div class="sw"><div class="logo-cell" style="background:#0E385D"><img src="../brand-audit/logo.png" alt="Portabox logo on navy" style="max-width:82%"></div>
+        <div class="meta"><b>Same PNG on navy</b><span style="color:var(--pb-error);font-weight:600">Broken.</span> Needs an all-white SVG.</div></div>
+    </div>
+    <p class="pb-small pb-muted" style="margin-top:var(--pb-4)">
+      Clear space: the height of the <b>b</b> on all sides. Minimum width 140px digital, 30mm print.
+    </p>
+  </div>
+</section>
+
+<!-- FIXES -->
+<section class="sg-block">
+  <div class="pb-container">
+    <h2>What to fix, in order</h2>
+    <ol class="fixes">
+      <li><b>Cyan text fails contrast</b> at 2.05:1. Anywhere cyan is text on white, or white is text on cyan, it is unreadable for a real share of customers.</li>
+      <li><b>Two yellows.</b> <code>#FED200</code> everywhere, but the form Submit is <code>#FED203</code> on <code>#373737</code>. Consolidate.</li>
+      <li><b>Roboto is loading</b> alongside Montserrat on the live site. Theme leakage — remove.</li>
+      <li><b>#6EC1E4</b> is an Elementor default blue, not a brand colour, and fails at 2.02:1.</li>
+      <li><b>Button text at 12–13px</b>, weight split 500 / 600 across builds. Standardise at 15px / 600.</li>
+      <li><b>Six border radii.</b> Reduce to four.</li>
+      <li><b>No H3 tier</b> — the scale falls from 42px straight to 19px.</li>
+      <li><b>Three simultaneous primary CTAs</b> in one viewport.</li>
+      <li><b>Logo has a baked-in background.</b> Needs three transparent SVGs.</li>
+      <li><b>Icons are 60×60 PNGs.</b> Convert to SVG at one stroke weight in navy.</li>
+    </ol>
+  </div>
+</section>
+
+<footer class="sg-block pb-on-navy" style="border:0">
+  <div class="pb-container">
+    <p class="pb-label" style="color:#AFC4D4">Portabox design system v1.0</p>
+    <p style="margin-top:.75rem;color:#fff">
+      Extracted from portabox.au and portabox.netlify.app. Facebook was behind a login wall
+      and contributed nothing. Full rationale in <code>DESIGN.md</code>; tokens in
+      <code>portabox-tokens.css</code>.
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>

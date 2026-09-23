@@ -1,0 +1,743 @@
+/* =================================================================
+   HOMEPAGE — after gigaenergy.com
+   Standalone: its own stylesheet, its own script, its own nav and
+   footer. Shares nothing with the other homepage.
+   Copy follows portabox.netlify.app section for section.
+   ================================================================= */
+
+const gArrow = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg>`;
+
+const gPhone = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.6 3.5h3.1l1.6 4-2.1 1.3a11.4 11.4 0 0 0 5.9 5.9l1.3-2.1 4 1.6v3.1a1.9 1.9 0 0 1-2.1 1.9A16.4 16.4 0 0 1 3.7 5.6a1.9 1.9 0 0 1 1.9-2.1z"/></svg>`;
+
+/* A phone number gets a handset, not the go-somewhere arrow. */
+const gSocial = {
+  Facebook: `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 21v-7.5H16l.4-3h-2.9V8.6c0-.87.24-1.46 1.49-1.46h1.51V4.46A20.6 20.6 0 0 0 14.2 4.3c-2.3 0-3.9 1.4-3.9 4v2.2H7.8v3h2.5V21z"/></svg>`,
+  Instagram: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><rect x="3.2" y="3.2" width="17.6" height="17.6" rx="5"/><circle cx="12" cy="12" r="4.1"/><circle cx="17.1" cy="6.9" r="1.25" fill="currentColor" stroke="none"/></svg>`,
+  LinkedIn: `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 3.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM3 9.6h4V21H3zm6 0h3.8v1.6h.05c.53-.95 1.83-1.95 3.77-1.95 4.03 0 4.78 2.5 4.78 5.75V21h-4v-5.3c0-1.3-.03-2.96-1.85-2.96-1.85 0-2.13 1.4-2.13 2.86V21H9z"/></svg>`,
+};
+
+const gMail = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5.5" width="18" height="13" rx="1"/><path d="m3.5 7 8.5 6 8.5-6"/></svg>`;
+
+const gBtn = (href, text, kind) => {
+  const tel = String(href).startsWith("tel:");
+  return `<a class="g-btn g-btn--${kind}${tel ? " g-btn--tel" : ""}" href="${href}"><span>${text}</span><i>${tel ? gPhone : gArrow}</i></a>`;
+};
+
+const gLink = (href, text) =>
+  `<a class="g-link" href="${href}">${text}<span>${gArrow}</span></a>`;
+
+/* Same thing as a non-interactive element, for use INSIDE a card that is
+   itself a link. Nested anchors are invalid and the parser will split them. */
+const gLinkTag = (text) =>
+  `<span class="g-link">${text}<span>${gArrow}</span></span>`;
+
+const gLabel = (t) => `<p class="g-label">${t}</p>`;
+
+/* Split intro: display left, body right. */
+const gIntro = (label, h, body, btns) => `
+    <div class="g-intro">
+      <div class="g-rise">${gLabel(label)}<h2 class="g-h2">${h}</h2></div>
+      <div class="g-rise" style="--d:110ms">
+        ${body ? `<p class="g-body">${body}</p>` : ""}
+        ${btns ? `<div class="g-btns" style="margin-top:1.75rem">${btns}</div>` : ""}
+      </div>
+    </div>`;
+
+/* ---- Nav ---- */
+function gNav() {
+  const caret = `<svg class="g-caret" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m2.5 4.5 3.5 3.5 3.5-3.5"/></svg>`;
+
+  /* Each group gets a promo card so the panel has somewhere to send people
+     who do not want to choose from the list. */
+  const GROUPS = [
+    { id: "storage", label: "Storage", href: "storage-services.html", all: "All storage services",
+      items: C.STORAGE_SERVICES.map((s) => [s.title, s.slug + ".html", s.blurb]),
+      promo: ["facility-lot.png", "Not sure which one?", "All four storage options side by side, with what each one suits."] },
+    { id: "moving", label: "Moving", href: "moving-services.html", all: "All moving services",
+      items: C.MOVING_SERVICES.map((s) => [s.title, s.slug + ".html", s.blurb]),
+      promo: ["two-containers.jpeg", "Moving soon?", "Local, interstate or regional &mdash; see how a container move runs."] },
+    { id: "locations", label: "Locations", href: "locations.html", all: "All locations",
+      items: C.LOCATIONS.map((l) => [l.title, l.slug + ".html",
+        l.regional ? "Anywhere in Australia, quoted per run." : `${l.hub} depot &middot; ${l.sats.slice(0, 3).join(", ")}`]),
+      promo: ["truck-coastal.png", "Check your postcode", "Four depots, 150&ndash;200 km each, plus regional runs anywhere."] },
+  ];
+
+  const FLAT = [
+    ["Pricing", "pricing.html"],
+    ["How it works", "how-it-works.html"],
+    ["About us", "about-us.html"],
+    ["Contact us", "contact-us.html"],
+  ];
+
+  /* A button, not a link: it toggles a panel. The hub page is reachable from
+     the "All ..." link inside, so nothing is lost to keyboard or screen reader. */
+  const group = (g) => `<div class="g-mi">
+        <button class="g-menu-t" type="button" aria-expanded="false" aria-controls="g-mega-${g.id}">${g.label}${caret}</button>
+        <div class="g-mega" id="g-mega-${g.id}" hidden>
+          <div class="g-mega-in">
+            <div class="g-mega-col">
+              <p class="g-mega-h">${g.label}</p>
+              <div class="g-mega-links">
+                ${g.items.map(([t, h, b]) => `<a class="g-mega-l" href="${h}">
+                  <b>${t}</b>
+                  <span>${b || ""}</span>
+                  <i aria-hidden="true">${gArrow}</i>
+                </a>`).join("\n                ")}
+              </div>
+              <a class="g-mega-all" href="${g.href}">${g.all}<span aria-hidden="true">${gArrow}</span></a>
+            </div>
+            <a class="g-mega-promo" href="${g.href}">
+              <span class="g-mega-promo-img"><img src="${IMG}${g.promo[0]}" alt="" loading="lazy"></span>
+              <span class="g-mega-promo-b">
+                <b>${g.promo[1]}</b>
+                <span>${g.promo[2]}</span>
+                <em aria-hidden="true">See all${gArrow}</em>
+              </span>
+            </a>
+          </div>
+        </div>
+      </div>`;
+
+  return `
+<header class="g-nav">
+  <div class="g-nav-in">
+    <a class="g-brand" href="index.html" aria-label="Portabox home">
+      <img class="on-dark-logo" src="${IMG}logo-white.png" alt="Portabox" width="120" height="26">
+      <img class="on-cyan-logo" src="${IMG}logo.png" alt="" aria-hidden="true" width="120" height="34">
+    </a>
+    <nav class="g-menu" aria-label="Primary">
+      ${GROUPS.map(group).join("\n      ")}
+      ${FLAT.map(([t, h]) => `<a class="g-menu-l" href="${h}">${t}</a>`).join("\n      ")}
+    </nav>
+    <div class="g-nav-cta">
+      ${gBtn(C.CONTACT.tel, C.CONTACT.phone, "ghost")}
+      ${gBtn(C.CONTACT.quote, "Instant Quote", "yellow")}
+    </div>
+    <button class="g-burger" type="button" aria-expanded="false" aria-controls="g-drawer" aria-label="Open menu"><b></b></button>
+  </div>
+</header>
+<div class="g-drawer" id="g-drawer">
+  ${GROUPS.map((g) => `<div class="g-drawer-g">
+    <p class="g-drawer-h">${g.label}</p>
+    <a href="${g.href}">${g.all}</a>
+    ${g.items.map(([t, h]) => `<a href="${h}">${t}</a>`).join("\n    ")}
+  </div>`).join("\n  ")}
+  <div class="g-drawer-g">
+    ${FLAT.map(([t, h]) => `<a href="${h}">${t}</a>`).join("\n    ")}
+  </div>
+  <div class="g-btns">
+    ${gBtn(C.CONTACT.quote, "Instant Quote", "yellow")}
+    ${gBtn(C.CONTACT.tel, "Call " + C.CONTACT.phone, "ghost")}
+  </div>
+</div>`;
+}
+
+/* ---- Hero ---- */
+function gHero() {
+  return `
+<section class="g-hero">
+  <div class="g-hero-media" aria-hidden="true">
+    <video class="hero-video" playsinline muted loop preload="none"
+           poster="${IMG}banner-poster.jpg" data-src="assets/video/banner.mp4"></video>
+  </div>
+  <div class="g-hero-in">
+    <div class="g-wrap">
+      <a class="g-flag g-rise" href="pricing.html"><b>From $209</b><span>per month &mdash; see sizes &amp; pricing</span></a>
+      <div class="g-hero-grid">
+        <h1 class="g-display g-rise" style="--d:80ms">Storage that stays at your place.</h1>
+        <div class="g-rise" style="--d:160ms">
+          <p class="g-hero-body">Australia&rsquo;s largest portable storage containers. Delivered to your door. No stressful facility trips, no inflated prices.</p>
+          <div class="g-btns" style="margin-top:1.75rem">
+            ${gBtn(C.CONTACT.quote, "Get my instant quote", "yellow")}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>`;
+}
+
+/* ---- Three service options ---- */
+function gServices() {
+  const items = [
+    { slug: "storage-at-your-place", img: "doorstep-delivery.jpg", t: "Storage at Your Place",
+      d: "We deliver the container to your driveway. You load it whenever suits you.",
+      f: ["Delivered to your door", "Access day or night", "Discreet white design", "Ideal for renos and house sales"],
+      cta: "Explore storage" },
+    { slug: "store-with-us", img: "store-with-us.jpg", t: "Store With Us",
+      d: "Pack at home, then we collect it and keep it at our secure facility until you need it.",
+      f: ["Pack once, no double handling", "24 hour facility security", "Access with 48 hours notice", "Short or long term"],
+      cta: "Store with us" },
+    { slug: "moving-services", img: "two-containers.jpeg", t: "Moving &amp; Regional",
+      d: "Load at your old place and unload at your new one. Across town, interstate or regional.",
+      f: ["Local and interstate moves", "Regional Solution Australia wide", "Store between homes", "EARL keeps it level on the road"],
+      cta: "Plan my move" },
+  ];
+  return `
+<section class="g-band g-band--white">
+  <div class="g-wrap">
+    ${gIntro("One container, three ways", "One container.<br>Three ways to use it.",
+      "The same container does all three. Switch from storing to moving later without repacking a single box.")}
+    <div class="g-grid g-grid--3">
+      ${items.map((i, n) => `<a class="g-card g-rise" style="--d:${n * 90}ms" href="${i.slug}.html">
+        <span class="g-card-img"><img src="${IMG}${i.img}" alt="" loading="lazy"></span>
+        <h3 class="g-h3">${i.t}</h3>
+        <p>${i.d}</p>
+        <ul>${i.f.map((x) => `<li><span>${x}</span></li>`).join("")}</ul>
+        ${gLinkTag(i.cta)}
+      </a>`).join("\n      ")}
+    </div>
+  </div>
+</section>`;
+}
+
+/* ---- How it works, as an index ---- */
+function gJourney() {
+  const steps = [
+    ["We deliver", "Your Portabox arrives on a scheduled date and our hydraulic lift lowers it level where you need it.", "No tilting, no jolting"],
+    ["You pack", "Load at your own pace. It&rsquo;s right there at your place, and you hold the keys.", "You keep the only keys"],
+    ["We store it", "We collect it level and take it to our secure Portabox facility.", "Adelaide, Melbourne, Brisbane, Sydney"],
+  ];
+  /* The stage is driven entirely by scroll position; see journey() in giga.js.
+     Every id below is a handle that timeline reads, so they are not cosmetic. */
+  return `
+<section class="g-band g-band--cyan g-pj" id="how">
+  <div class="g-wrap">
+    ${gIntro("How it works", "Three steps. You only do one of them.",
+      "The only part you do is the packing, and you do that standing on your own driveway with the doors at waist height.")}
+    <div class="g-pj-tabs g-rise" role="group" aria-label="What do you need?">
+      <button type="button" aria-pressed="true" data-mode="storage">Storage</button>
+      <button type="button" aria-pressed="false" data-mode="moving">Moving</button>
+    </div>
+  </div>
+
+  <div class="g-pj-journey" id="pj-journey">
+    <div class="g-pj-pin">
+      <div class="g-pj-left">
+        <div class="g-pj-steps" id="pj-stepsCol">
+          <span class="g-pj-rail"><i id="pj-rail"></i></span>
+          ${steps.map((s, n) => `<div class="g-pj-step${n === 0 ? " on" : ""}">
+            <span class="g-pj-dot">${n + 1}</span>
+            <h3${n === 2 ? ` id="pj-s3h"` : ""}>${s[0]}</h3>
+            <p${n === 2 ? ` id="pj-s3p"` : ""}>${s[1]}</p>
+            <span class="g-pj-proof"${n === 2 ? ` id="pj-s3proof"` : ""}>${s[2]}</span>
+          </div>`).join("")}
+          <div class="g-pj-cta">${gBtn(C.CONTACT.quote, "Instant quote", "yellow")}${gBtn("how-it-works.html", "See how it works", "ghost")}</div>
+        </div>
+
+        <form class="g-pj-quote quote-form" id="pj-quote" novalidate>
+          ${gLabel("Your turn")}
+          <h3 id="pj-qh">Where should we drop your Portabox?</h3>
+          <div class="g-pj-qrow">
+            <input name="postcode" inputmode="numeric" maxlength="4" placeholder="Your postcode" aria-label="Your postcode">
+            <button class="g-btn g-btn--yellow" type="submit"><span>Get my quote</span><i>${gArrow}</i></button>
+          </div>
+          <div class="g-out quote-out" aria-live="polite"></div>
+          <small>From $209 per month, priced by the cubic metre. Or call <a href="${C.CONTACT.tel}">${C.CONTACT.phone}</a></small>
+        </form>
+      </div>
+
+      <div class="g-pj-stage">
+        <span class="g-pj-chip g-pj-chip--step" id="pj-chipStep">Step 1 of 3</span>
+        <span class="g-pj-chip g-pj-chip--price" id="pj-chipPrice">From <b>$209/mo</b></span>
+        <svg viewBox="0 0 1000 560" role="img" aria-label="A Portabox truck delivers a container, it is packed with boxes, locked, lifted back onto the truck and driven away">
+        <defs>
+          <linearGradient id="pj-skyG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#B9EBFB"></stop><stop offset="1" stop-color="#E9F9FE"></stop></linearGradient>
+          <clipPath id="pj-doorClip"><rect x="14" y="22" width="212" height="126" rx="4"></rect></clipPath>
+          <g id="pj-cbox">
+            <rect x="0" y="0" width="44" height="40" rx="5" fill="#E2AE6C" stroke="#0E385D" stroke-width="3"></rect>
+            <rect x="16" y="0" width="12" height="40" fill="#F3D39C"></rect>
+            <rect x="0" y="0" width="44" height="40" rx="5" fill="none" stroke="#0E385D" stroke-width="3"></rect>
+            <path d="M6 30h10" stroke="#0E385D" stroke-width="2.5" stroke-linecap="round"></path>
+          </g>
+          <g id="pj-cloud"><path d="M20 50 a22 22 0 0 1 8-40 a30 30 0 0 1 54 4 a20 20 0 0 1 22 36 z" fill="#fff" stroke="#0E385D" stroke-width="3" stroke-linejoin="round"></path></g>
+        </defs>
+
+        <rect width="1000" height="560" fill="url(#pj-skyG)"></rect>
+        <g id="pj-sun"><circle cx="880" cy="92" r="46" fill="#FED200" stroke="#0E385D" stroke-width="3"></circle><circle cx="880" cy="92" r="64" fill="#FED200" opacity=".25"></circle></g>
+
+        <!-- parallax: clouds -->
+        <g id="pj-clouds" transform="translate(0.0,0)">
+          <use href="#pj-cloud" x="90" y="60"></use>
+          <use href="#pj-cloud" x="520" y="100" transform="scale(.8)"></use>
+          <use href="#pj-cloud" x="1250" y="50"></use>
+          <use href="#pj-cloud" x="1800" y="90" transform="scale(.85)"></use>
+          <use href="#pj-cloud" x="2300" y="40"></use>
+        </g>
+        <!-- parallax: hills -->
+        <g id="pj-hills" transform="translate(0.0,0)">
+          <path d="M-100 440 Q 100 300 300 440 Q 480 330 700 440 Q 900 310 1100 440 Q 1300 330 1500 440 Q 1700 300 1900 440 Q 2100 340 2300 440 Z" fill="#9EDFF5" stroke="#0E385D" stroke-width="3" stroke-linejoin="round"></path>
+        </g>
+
+        <!-- world (camera pans this) -->
+        <g id="pj-world" transform="translate(0.0,0)">
+          <!-- road -->
+          <rect x="-200" y="440" width="3000" height="140" fill="#2B4B66"></rect>
+          <rect x="-200" y="436" width="3000" height="14" fill="#6BCB77" stroke="#0E385D" stroke-width="3"></rect>
+          <g fill="#FED200">
+            <rect x="0" y="508" width="60" height="8" rx="4"></rect><rect x="130" y="508" width="60" height="8" rx="4"></rect><rect x="260" y="508" width="60" height="8" rx="4"></rect><rect x="390" y="508" width="60" height="8" rx="4"></rect><rect x="520" y="508" width="60" height="8" rx="4"></rect><rect x="650" y="508" width="60" height="8" rx="4"></rect><rect x="780" y="508" width="60" height="8" rx="4"></rect><rect x="910" y="508" width="60" height="8" rx="4"></rect><rect x="1040" y="508" width="60" height="8" rx="4"></rect><rect x="1170" y="508" width="60" height="8" rx="4"></rect><rect x="1300" y="508" width="60" height="8" rx="4"></rect><rect x="1430" y="508" width="60" height="8" rx="4"></rect><rect x="1560" y="508" width="60" height="8" rx="4"></rect><rect x="1690" y="508" width="60" height="8" rx="4"></rect><rect x="1820" y="508" width="60" height="8" rx="4"></rect><rect x="1950" y="508" width="60" height="8" rx="4"></rect>
+          </g>
+          <!-- driveway -->
+          <path d="M360 440 L660 440 L700 470 L330 470 Z" fill="#C9D3DB" stroke="#0E385D" stroke-width="3" stroke-linejoin="round"></path>
+
+          <!-- tree -->
+          <g>
+            <rect x="22" y="330" width="16" height="110" rx="6" fill="#8A5A3B" stroke="#0E385D" stroke-width="3"></rect>
+            <circle cx="30" cy="300" r="46" fill="#4FBF6B" stroke="#0E385D" stroke-width="3"></circle>
+            <circle cx="6" cy="330" r="28" fill="#4FBF6B" stroke="#0E385D" stroke-width="3"></circle>
+            <circle cx="56" cy="326" r="26" fill="#4FBF6B" stroke="#0E385D" stroke-width="3"></circle>
+            <circle cx="40" cy="290" r="10" fill="#7ED68F"></circle>
+          </g>
+
+          <!-- origin house -->
+          <g id="pj-house">
+            <rect x="228" y="212" width="30" height="60" rx="4" fill="#13628A" stroke="#0E385D" stroke-width="3"></rect>
+            <rect x="84" y="290" width="236" height="150" rx="10" fill="#FFFFFF" stroke="#0E385D" stroke-width="3.5"></rect>
+            <path d="M62 300 Q62 292 70 286 L194 212 Q202 207 210 212 L334 286 Q342 292 342 300 Z" fill="#0E385D"></path>
+            <path d="M92 292 L202 226 L312 292" fill="none" stroke="#1EC4F4" stroke-width="5" stroke-linecap="round"></path>
+            <!-- windows -->
+            <g stroke="#0E385D" stroke-width="3">
+              <rect x="106" y="318" width="54" height="48" rx="6" fill="#9EE3F8"></rect>
+              <path d="M133 318v48M106 342h54"></path>
+              <rect x="244" y="318" width="54" height="48" rx="6" fill="#9EE3F8"></rect>
+              <path d="M271 318v48M244 342h54"></path>
+            </g>
+            <path d="M112 326 l14 -6" stroke="#fff" stroke-width="4" stroke-linecap="round"></path>
+            <path d="M250 326 l14 -6" stroke="#fff" stroke-width="4" stroke-linecap="round"></path>
+            <rect x="102" y="366" width="62" height="12" rx="4" fill="#13628A" stroke="#0E385D" stroke-width="3"></rect>
+            <rect x="240" y="366" width="62" height="12" rx="4" fill="#13628A" stroke="#0E385D" stroke-width="3"></rect>
+            <g fill="#FED200" stroke="#0E385D" stroke-width="2"><circle cx="114" cy="364" r="5"></circle><circle cx="133" cy="362" r="5"></circle><circle cx="152" cy="364" r="5"></circle><circle cx="252" cy="364" r="5"></circle><circle cx="271" cy="362" r="5"></circle><circle cx="290" cy="364" r="5"></circle></g>
+            <!-- door -->
+            <path d="M180 440 V384 a22 22 0 0 1 44 0 V440 Z" fill="#FED200" stroke="#0E385D" stroke-width="3.5"></path>
+            <circle cx="214" cy="414" r="3.5" fill="#0E385D"></circle>
+            <!-- bushes -->
+            <g fill="#4FBF6B" stroke="#0E385D" stroke-width="3">
+              <circle cx="92" cy="432" r="18"></circle><circle cx="118" cy="436" r="14"></circle>
+              <circle cx="296" cy="434" r="16"></circle><circle cx="320" cy="438" r="12"></circle>
+            </g>
+            <!-- letterbox -->
+            <rect x="338" y="400" width="6" height="40" fill="#0E385D"></rect>
+            <rect x="326" y="388" width="30" height="20" rx="8" fill="#1EC4F4" stroke="#0E385D" stroke-width="3"></rect>
+          </g>
+
+          <!-- destination: storage facility -->
+          <g id="pj-facility" style="opacity: 1;">
+            <rect x="1030" y="250" width="400" height="190" rx="10" fill="#0E385D"></rect>
+            <path d="M1016 262 L1230 196 L1444 262 Z" fill="#13628A" stroke="#0E385D" stroke-width="3.5" stroke-linejoin="round"></path>
+            <rect x="1080" y="204" width="300" height="52" rx="12" fill="#FFFFFF" stroke="#0E385D" stroke-width="3.5"></rect>
+            <text x="1230" y="241" text-anchor="middle" font-family="Montserrat,sans-serif" font-weight="800" font-size="26" fill="#0E385D">porta<tspan fill="#1EC4F4">box</tspan> <tspan font-size="14" font-weight="700">STORAGE</tspan></text>
+            <g stroke="#0E385D" stroke-width="3">
+              <rect x="1052" y="296" width="104" height="144" rx="4" fill="#E8EDF1"></rect>
+              <rect x="1178" y="296" width="104" height="144" rx="4" fill="#0A2A46"></rect>
+              <rect x="1304" y="296" width="104" height="144" rx="4" fill="#E8EDF1"></rect>
+            </g>
+            <g stroke="#B5C2CC" stroke-width="3"><path d="M1056 316h96M1056 336h96M1056 356h96M1056 376h96M1056 396h96M1056 416h96M1308 316h96M1308 336h96M1308 356h96M1308 376h96M1308 396h96M1308 416h96"></path></g>
+            <circle cx="1418" cy="270" r="7" fill="#FED200" stroke="#0E385D" stroke-width="2"></circle>
+            <rect x="1440" y="330" width="10" height="110" fill="#0E385D"></rect>
+            <rect x="1426" y="308" width="38" height="30" rx="6" fill="#FED200" stroke="#0E385D" stroke-width="3"></rect>
+            <path d="M1438 323h14" stroke="#0E385D" stroke-width="3" stroke-linecap="round"></path>
+          </g>
+
+          <!-- destination: new home -->
+          <g id="pj-newhome" opacity="0" style="opacity: 0;">
+            <rect x="1060" y="280" width="300" height="160" rx="10" fill="#FED200" stroke="#0E385D" stroke-width="3.5"></rect>
+            <path d="M1036 292 L1210 196 L1384 292 Z" fill="#1EC4F4" stroke="#0E385D" stroke-width="3.5" stroke-linejoin="round"></path>
+            <g stroke="#0E385D" stroke-width="3">
+              <rect x="1090" y="310" width="60" height="50" rx="6" fill="#FFFFFF"></rect>
+              <rect x="1270" y="310" width="60" height="50" rx="6" fill="#FFFFFF"></rect>
+            </g>
+            <path d="M1186 440 V384 a24 24 0 0 1 48 0 V440 Z" fill="#0E385D"></path>
+            <circle cx="1224" cy="414" r="3.5" fill="#FED200"></circle>
+            <rect x="1408" y="360" width="8" height="80" fill="#0E385D"></rect>
+            <rect x="1376" y="330" width="80" height="44" rx="8" fill="#FFFFFF" stroke="#0E385D" stroke-width="3"></rect>
+            <text x="1416" y="359" text-anchor="middle" font-family="Montserrat,sans-serif" font-weight="900" font-size="18" fill="#0E385D">SOLD</text>
+            <g fill="#4FBF6B" stroke="#0E385D" stroke-width="3"><circle cx="1070" cy="432" r="18"></circle><circle cx="1350" cy="432" r="18"></circle></g>
+          </g>
+
+          <!-- truck -->
+          <g id="pj-truck" transform="translate(-460.0,0)">
+            <g id="pj-truckBody" transform="translate(0,-1.6)">
+              <!-- exhaust puffs -->
+              <g id="pj-puffs" fill="#FFFFFF" stroke="#0E385D" stroke-width="2.5" transform="translate(3.4,0)" style="opacity: 1;">
+                <circle cx="-14" cy="404" r="8"></circle><circle cx="-32" cy="396" r="11"></circle><circle cx="-54" cy="388" r="14"></circle>
+              </g>
+              <rect x="-6" y="380" width="290" height="18" rx="4" fill="#13628A" stroke="#0E385D" stroke-width="3"></rect>
+              <rect x="10" y="398" width="380" height="16" rx="4" fill="#0E385D"></rect>
+              <!-- hydraulic arms -->
+              <g id="pj-arms" stroke="#0E385D" stroke-width="3" transform="translate(0,0.0)">
+                <rect x="30" y="360" width="14" height="24" rx="3" fill="#FED200"></rect>
+                <rect x="236" y="360" width="14" height="24" rx="3" fill="#FED200"></rect>
+              </g>
+              <!-- cab -->
+              <path d="M286 414 V318 Q286 300 304 300 H356 Q372 300 380 316 L398 356 Q402 364 402 374 V414 Z" fill="#1EC4F4" stroke="#0E385D" stroke-width="3.5" stroke-linejoin="round"></path>
+              <path d="M320 314 H352 Q362 314 367 324 L380 352 H320 Z" fill="#DDF5FD" stroke="#0E385D" stroke-width="3" stroke-linejoin="round"></path>
+              <path d="M330 322 l16 -4" stroke="#fff" stroke-width="4" stroke-linecap="round"></path>
+              <rect x="286" y="368" width="116" height="12" fill="#0E385D"></rect>
+              <text x="342" y="400" text-anchor="middle" font-family="Montserrat,sans-serif" font-weight="800" font-size="14" fill="#0E385D">porta<tspan fill="#FFFFFF">box</tspan></text>
+              <rect x="394" y="382" width="12" height="10" rx="3" fill="#FED200" stroke="#0E385D" stroke-width="2.5"></rect>
+              <rect x="300" y="330" width="8" height="30" rx="3" fill="#0E385D"></rect>
+            </g>
+            <g class="pj-wheel" transform="translate(60,420) rotate(-1104.0)"><circle r="24" fill="#0E385D"></circle><circle r="11" fill="#DDF5FD" stroke="#0E385D" stroke-width="3"></circle><rect x="-2" y="-10" width="4" height="8" fill="#0E385D"></rect></g>
+            <g class="pj-wheel" transform="translate(220,420) rotate(-1104.0)"><circle r="24" fill="#0E385D"></circle><circle r="11" fill="#DDF5FD" stroke="#0E385D" stroke-width="3"></circle><rect x="-2" y="-10" width="4" height="8" fill="#0E385D"></rect></g>
+            <g class="pj-wheel" transform="translate(350,420) rotate(-1104.0)"><circle r="24" fill="#0E385D"></circle><circle r="11" fill="#DDF5FD" stroke="#0E385D" stroke-width="3"></circle><rect x="-2" y="-10" width="4" height="8" fill="#0E385D"></rect></g>
+          </g>
+
+          <!-- container -->
+          <g id="pj-container" transform="translate(-440.0,228.4) scale(1.000,1.000)">
+            <!-- legs -->
+            <g id="pj-legs" style="opacity: 0;">
+              <rect id="pj-legL" x="-12" y="150" width="10" height="61.6" fill="#FED200" stroke="#0E385D" stroke-width="2.5"></rect>
+              <rect id="pj-legR" x="242" y="150" width="10" height="61.6" fill="#FED200" stroke="#0E385D" stroke-width="2.5"></rect>
+              <rect id="pj-footL" x="-20" y="206.6" width="26" height="6" rx="2" fill="#0E385D"></rect>
+              <rect id="pj-footR" x="234" y="206.6" width="26" height="6" rx="2" fill="#0E385D"></rect>
+              <rect x="-14" y="120" width="14" height="30" rx="3" fill="#13628A" stroke="#0E385D" stroke-width="2.5"></rect>
+              <rect x="240" y="120" width="14" height="30" rx="3" fill="#13628A" stroke="#0E385D" stroke-width="2.5"></rect>
+            </g>
+            <g id="pj-cbody">
+              <rect x="0" y="0" width="240" height="150" rx="8" fill="#F4F6F8" stroke="#0E385D" stroke-width="3.5"></rect>
+              <rect x="14" y="22" width="212" height="126" rx="4" fill="#0A2A46"></rect>
+              <g id="pj-items">
+                <use href="#pj-cbox" data-x="22" data-y="106" x="0" y="0" transform="translate(-210.0,100.0) rotate(160.0 22 20)" style="opacity: 0;"></use>
+                <use href="#pj-cbox" data-x="70" data-y="106" x="0" y="0" transform="translate(-210.0,100.0) rotate(-160.0 22 20)" style="opacity: 0;"></use>
+                <use href="#pj-cbox" data-x="126" data-y="106" x="0" y="0" transform="translate(-210.0,100.0) rotate(160.0 22 20)" style="opacity: 0;"></use>
+                <use href="#pj-cbox" data-x="174" data-y="106" x="0" y="0" transform="translate(-210.0,100.0) rotate(-160.0 22 20)" style="opacity: 0;"></use>
+              </g>
+              <g clip-path="url(#pj-doorClip)">
+                <g id="pj-door" transform="translate(0,0.0)">
+                  <rect x="14" y="22" width="212" height="126" fill="#E4EAEF"></rect>
+                  <g stroke="#B5C2CC" stroke-width="3"><path d="M14 38h212M14 54h212M14 70h212M14 86h212M14 102h212M14 118h212M14 134h212"></path></g>
+                  <rect x="100" y="140" width="40" height="8" rx="3" fill="#0E385D"></rect>
+                </g>
+              </g>
+              <!-- header strip with logo -->
+              <rect x="0" y="0" width="240" height="22" rx="8" fill="#FFFFFF" stroke="#0E385D" stroke-width="3.5"></rect>
+              <text x="120" y="17" text-anchor="middle" font-family="Montserrat,sans-serif" font-weight="800" font-size="15" fill="#0E385D">porta<tspan fill="#1EC4F4">box</tspan></text>
+              <circle cx="10" cy="11" r="3" fill="#0E385D"></circle><circle cx="230" cy="11" r="3" fill="#0E385D"></circle>
+              <g id="pj-lock" transform="translate(120,128) scale(0.000)">
+                <path id="pj-shackle" d="M-9 -2 v-8 a9 9 0 0 1 18 0 v8" fill="none" stroke="#0E385D" stroke-width="4.5" transform="translate(0,-7.0)"></path>
+                <rect x="-15" y="-4" width="30" height="24" rx="6" fill="#FED200" stroke="#0E385D" stroke-width="3"></rect>
+                <circle cx="0" cy="7" r="3.5" fill="#0E385D"></circle>
+              </g>
+            </g>
+          </g>
+        </g>
+      </svg>
+      </div>
+    </div>
+  </div>
+</section>`;
+}
+
+/* ---- Why we're different ---- */
+function gWhy() {
+  const rows = [
+    ["Largest moving containers in Australia", "20 to 30% larger than competitors. Fewer containers, lower cost.", "25 m³ largest"],
+    ["The hydraulic difference with EARL", "Perfectly level loading and unloading. No tilting, no sliding, no damage.", "EARL"],
+    ["Best value per cubic metre", "The cheapest in the market once you calculate cost per cubic metre.", "$8.76 / m³"],
+    ["Discreet white design", "No neon colours or massive logos on your front yard.", "Unbranded"],
+    ["You control access", "You get the only keys. Your belongings, your control.", "One key"],
+  ];
+  return `
+<section class="g-band g-band--stone">
+  <div class="g-wrap">
+    ${gIntro("Why we're different", "Don&rsquo;t just compare monthly rates.",
+      "Compare what you&rsquo;re actually getting. Five things that change the arithmetic.")}
+    <div class="g-index g-index--plain">
+      ${rows.map((r, n) => `<div class="g-row g-rise" style="--d:${n * 70}ms">
+        <span class="g-row-t">${r[0]}</span>
+        <span class="g-row-d">${r[1]}</span>
+        <span class="g-row-m">${r[2]}</span>
+      </div>`).join("\n      ")}
+    </div>
+  </div>
+</section>`;
+}
+
+/* ---- EARL ---- */
+function gEarl() {
+  return `
+<section class="g-band g-band--deep" id="earl">
+  <div class="g-wrap">
+    ${gIntro("The hydraulic difference", "The hydraulic difference with EARL.",
+      "Most containers are dragged and tilted onto a truck. Ours stay perfectly level from your driveway to the destination.")}
+    <div class="g-compare">
+      <figure class="g-rise">
+        <span class="g-compare-img"><img src="${IMG}tilt-method.png" alt="A tilt-tray truck angling a container off its deck" loading="lazy"></span>
+        <figcaption><span class="g-tagline g-tagline--bad">Traditional tilt method</span>Containers tipped and dragged, so contents move.</figcaption>
+      </figure>
+      <figure class="g-rise" style="--d:110ms">
+        <span class="g-compare-img"><img src="${IMG}earl-hydraulic.png" alt="The EARL hydraulic system lowering a container level to the ground" loading="lazy"></span>
+        <figcaption><span class="g-tagline g-tagline--good">Portabox with EARL</span>Lifted level. Nothing tilts, slides or shifts.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>`;
+}
+
+/* ---- Build and specs ---- */
+function gSpecs() {
+  const items = [
+    { img: "clearance.jpg", t: "External clearances", d: "See exactly how much space the Small, Medium or Large container needs on your driveway or street." },
+    { img: "facility-lot.png", t: "Premium build", d: "Heavy duty security for your belongings, engineered to withstand the elements." },
+    { img: "size-large.jpg", t: "Internal dimensions", d: "Flat interior walls designed for floor to ceiling loading." },
+  ];
+  return `
+<section class="g-band g-band--white">
+  <div class="g-wrap">
+    ${gIntro("Container build &amp; specs", "Built to fit. Engineered to protect.",
+      "Explore our purpose built moving and storage containers.")}
+    <div class="g-grid g-grid--3">
+      ${items.map((i, n) => `<div class="g-card g-rise" style="--d:${n * 90}ms">
+        <span class="g-card-img"><img src="${IMG}${i.img}" alt="" loading="lazy"></span>
+        <h3 class="g-h3">${i.t}</h3>
+        <p>${i.d}</p>
+      </div>`).join("\n      ")}
+    </div>
+  </div>
+</section>`;
+}
+
+/* ---- Pricing ---- */
+function gPricing() {
+  const feats = {
+    small:  ["Secure storage at your location", "Discreet white design"],
+    medium: ["Perfectly level hydraulic system", "You keep the only keys"],
+    large:  ["Largest containers available", "Weather proof construction"],
+  };
+  return `
+<section class="g-band g-band--mist" id="pricing">
+  <div class="g-wrap">
+    ${gIntro("Pricing", "Have space at yours?<br>Save a bucket-load.",
+      "Simple, upfront pricing with more space for your money. Here&rsquo;s what you pay per cubic metre.")}
+    <div class="g-price">
+      ${C.SIZES.map((s, n) => `<div class="g-price-row g-rise${s.best ? " is-best" : ""}" style="--d:${n * 80}ms">
+        <div>
+          <div class="g-price-name"><b>${s.name}</b>${s.flag ? `<span class="g-badge">${s.flag}</span>` : ""}</div>
+          <p class="g-price-feats">${feats[s.id].join(" &middot; ")}</p>
+        </div>
+        <div class="g-price-figs">
+          <span><b>$${s.rate}</b><i>per month</i></span>
+          <span><b>${s.vol} m³</b><i>total capacity</i></span>
+          <span><b class="big">$${s.per}</b><i>cost per m³</i></span>
+        </div>
+        ${gBtn(C.CONTACT.quote, "Select " + s.name, s.best ? "yellow" : "line")}
+      </div>`).join("\n      ")}
+    </div>
+    <p class="g-body g-rise" style="margin-top:1.75rem;max-width:none">Not sure which size? ${gLink("pricing.html", "Use the space calculator")}</p>
+  </div>
+</section>`;
+}
+
+/* ---- The cyan band: giga's brand-colour stat panel ---- */
+function gStats() {
+  const stats = [
+    ["25", "m³ largest container"],
+    ["$8.76", "lowest cost per cubic metre"],
+    ["4", "secure facility cities"],
+    ["150–200", "km delivery radius per depot"],
+  ];
+  return `
+<section class="g-band g-band--cyan">
+  <div class="g-wrap">
+    <div class="g-intro">
+      <div class="g-rise">${gLabel("By the numbers")}<h2 class="g-h2">More space for your money.</h2></div>
+      <div class="g-rise" style="--d:110ms">
+        <p class="g-body">Every figure here is published. Divide any competitor&rsquo;s monthly rate by the cubic metres they actually give you, then compare.</p>
+      </div>
+    </div>
+    <div class="g-stats">
+      ${stats.map((s, n) => `<div class="g-stat g-rise" style="--d:${n * 90}ms">
+        <b>${s[0]}</b><span class="rule g-wipe" style="--d:${n * 90 + 200}ms"></span><span>${s[1]}</span>
+      </div>`).join("\n      ")}
+    </div>
+  </div>
+</section>`;
+}
+
+/* ---- Price match ---- */
+function gPriceMatch() {
+  return `
+<section class="g-band g-band--white">
+  <div class="g-wrap">
+    ${gIntro("Price match guarantee", "We guarantee to beat any competitor&rsquo;s quote.",
+      "Found a better deal? Bring us a valid quote from any major competitor, and we&rsquo;ll not only match it but beat it.",
+      gBtn(C.CONTACT.priceMatch, "Submit competitor quote", "solid") + gBtn(C.CONTACT.quote, "Instant quote", "line"))}
+  </div>
+</section>`;
+}
+
+/* ---- Testimonials ---- */
+function gQuotes() {
+  const items = [
+    ["Finally, a storage company that doesn&rsquo;t rip you off. Worked out the maths and Portabox was 40% cheaper per cubic metre.", "Bridget", "Adelaide", "person-bridget-avatar.jpg"],
+    ["The hydraulic system is brilliant. My furniture arrived without a scratch. Wendy and the team were brilliant.", "Dean", "Sydney to Brisbane", "person-dean-avatar.jpg"],
+    ["Love that I have the only keys. My stuff in my front yard and I can jump in to sort it out whenever I need to.", "Steve", "Melbourne", "person-steve-avatar.jpg"],
+  ];
+  return `
+<section class="g-band g-band--stone">
+  <div class="g-wrap">
+    ${gIntro("Customers", "What people actually say.", "")}
+    <div class="g-quotes">
+      ${items.map((q, n) => `<figure class="g-quote g-rise" style="--d:${n * 90}ms">
+        <blockquote>&ldquo;${q[0]}&rdquo;</blockquote>
+        <figcaption>
+          <img src="${IMG}${q[3]}" alt="" loading="lazy" width="52" height="52">
+          <span class="g-who"><b>${q[1]}</b><span>${q[2]}</span></span>
+        </figcaption>
+      </figure>`).join("\n      ")}
+    </div>
+  </div>
+</section>`;
+}
+
+/* ---- Store with us ---- */
+function gStoreWithUs() {
+  return `
+<section class="g-band g-band--navy">
+  <div class="g-wrap">
+    <div class="g-intro" style="margin-bottom:0">
+      <div class="g-rise">
+        ${gLabel("Store with us")}
+        <h2 class="g-h2">Store with us today.</h2>
+        <p class="g-body" style="margin-top:1.5rem">Whether you&rsquo;re moving home, decluttering, storing business inventory, or need extra space during renovations, Portabox provides a simple and secure storage solution.</p>
+        <div class="g-index" style="margin-top:2rem;border-top-color:var(--g-rule-d)">
+          ${[["24 hour monitored facilities", "Security"], ["You keep the only keys", "Access"], ["Access with 48 hours notice", "Notice"]]
+            .map((r, n) => `<div class="g-row g-rise" style="--d:${n * 70}ms;grid-template-columns:1fr auto">
+            <span class="g-row-t" style="font-size:1rem">${r[0]}</span>
+            <span class="g-row-m">${r[1]}</span>
+          </div>`).join("\n          ")}
+        </div>
+        <div class="g-btns" style="margin-top:2rem">${gBtn("store-with-us.html", "Learn more", "yellow")}</div>
+      </div>
+      <div class="g-rise" style="--d:110ms">
+        <img src="${IMG}facility-lot.png" alt="Portabox containers at a secure monitored facility" loading="lazy" style="width:100%;aspect-ratio:4/5;object-fit:cover">
+      </div>
+    </div>
+  </div>
+</section>`;
+}
+
+/* ---- Regions ---- */
+function gRegions() {
+  return `
+<section class="g-band g-band--white" id="regions">
+  <div class="g-wrap">
+    ${gIntro("Regions we service", "Regions we service.",
+      "Secure storage at your location, or store with us.")}
+    <div class="g-regions">
+      ${C.LOCATIONS.filter((l) => !l.regional).map((l, n) => `<a class="g-region g-rise" style="--d:${n * 70}ms" href="${l.slug}.html">
+        <b>${l.hub}</b>
+        <p>${l.sats.join(" &middot; ")}</p>
+        <span class="g-link" style="pointer-events:none">Learn more<span>${gArrow}</span></span>
+      </a>`).join("\n      ")}
+    </div>
+  </div>
+</section>`;
+}
+
+/* ---- Regional + final CTA ---- */
+function gFinal() {
+  return `
+<section class="g-band g-band--deep">
+  <div class="g-wrap">
+    ${gIntro("Regional moving", "Moving regionally? We can get you anywhere in Australia.",
+      `Call ${C.CONTACT.phone} or email ${C.CONTACT.email} to see how we can get you there and save thousands on traditional moving companies.`,
+      gBtn("regional-australia.html", "Portabox Regional Solution", "yellow"))}
+  </div>
+</section>
+
+<section class="g-band g-band--cyan" id="quote">
+  <div class="g-wrap">
+    <div class="g-intro" style="margin-bottom:2.5rem">
+      <div class="g-rise">${gLabel("Ready to get started?")}<h2 class="g-h2">Get your free quote today.</h2></div>
+      <div class="g-rise" style="--d:110ms">
+        <p class="g-body">See how much you can save. One field, no email address &mdash; we will tell you which depot covers you.</p>
+      </div>
+    </div>
+    <div class="g-rise">
+      <form class="g-form quote-form" novalidate>
+        <label class="sr-only" for="g-pc">Delivery postcode</label>
+        <input id="g-pc" type="text" inputmode="numeric" maxlength="4" placeholder="Your postcode">
+        <button class="g-btn g-btn--yellow" type="submit"><span>Get my price</span><i>${gArrow}</i></button>
+      </form>
+      <div class="g-out quote-out" aria-live="polite"></div>
+      <div class="g-btns" style="margin-top:1.75rem">${gBtn(C.CONTACT.tel, "Call " + C.CONTACT.phone, "line")}</div>
+    </div>
+  </div>
+</section>`;
+}
+
+/* ---- Footer ---- */
+function gFooter() {
+  const col = (h, links) =>
+    `<div><h4>${h}</h4><ul>${links.map(([t, u]) => `<li><a href="${u}">${t}</a></li>`).join("")}</ul></div>`;
+  return `
+<footer class="g-foot">
+  <div class="g-wrap">
+    <div class="g-foot-grid">
+      <div class="g-foot-brand">
+        <img src="${IMG}logo-white.png" alt="Portabox" width="150" height="33" style="height:33px;width:auto">
+        <p class="g-foot-blurb">
+          Australia&rsquo;s largest portable storage containers. Better value per cubic metre.
+          Hydraulic lift system. You keep the only keys.
+        </p>
+        <ul class="g-foot-contact">
+          <li><a href="${C.CONTACT.tel}">${gPhone}<span>${C.CONTACT.phone}</span></a></li>
+          <li><a href="${C.CONTACT.mailto}">${gMail}<span>${C.CONTACT.email}</span></a></li>
+        </ul>
+        <ul class="g-foot-social">
+          ${C.CONTACT.social.map(([name, url]) =>
+            `<li><a href="${url}" aria-label="Portabox on ${name}" rel="noopener">${gSocial[name] || ""}</a></li>`).join("\n          ")}
+        </ul>
+      </div>
+      ${col("Company", [
+        ["Home", "index.html"],
+        ["About us", "about-us.html"],
+        ["How it works", "how-it-works.html"],
+        ["Instant quote", C.CONTACT.quote],
+        ["Contact us", "contact-us.html"],
+      ])}
+      ${col("Storage services", C.STORAGE_SERVICES.map((s) => [s.title, s.slug + ".html"]).concat([["Pricing &amp; sizes", "pricing.html"]]))}
+      ${col("Moving services", C.MOVING_SERVICES.map((s) => [s.title, s.slug + ".html"]))}
+      ${col("Locations", C.LOCATIONS.map((l) => [l.title, l.slug + ".html"]))}
+    </div>
+    <div class="g-foot-legal">
+      <p>&copy; <span class="yr">2026</span> portabox.au. All rights reserved.</p>
+      <p style="display:flex;gap:1.5rem;flex-wrap:wrap">
+        <a href="https://portabox.au/terms-and-conditions/">Terms and Conditions</a>
+        <a href="https://portabox.au/privacy-policy/">Privacy Policy</a>
+      </p>
+    </div>
+  </div>
+</footer>`;
+}
+
+/* ---- Page ---- */
+PAGES.push({
+  file: "index.html",
+  standalone: true,
+  bodyClass: "g",
+  css: "giga.css",
+  js: "giga.js",
+  title: "Portabox — Storage That Stays at Your Place",
+  desc: "Australia's largest portable storage containers. Delivered to your door. No stressful facility trips, no inflated prices. From $209 per month.",
+  body: [
+    gNav(),
+    `<main id="main">`,
+    gHero(),
+    gServices(),
+    gJourney(),
+    gWhy(),
+    gEarl(),
+    gSpecs(),
+    gPricing(),
+    gStats(),
+    gPriceMatch(),
+    gQuotes(),
+    gStoreWithUs(),
+    gRegions(),
+    gFinal(),
+    `</main>`,
+    gFooter(),
+  ].join("\n"),
+});

@@ -1,0 +1,39 @@
+/* Contact form. Fields mirror the enquiry form on portabox.au/contact/.
+   It validates in the browser but has nowhere to post yet — see contactForm()
+   in giga.js and the note in WORDPRESS.md for wiring it to a real endpoint. */
+function contactForm(o) {
+  o = o || {};
+  const field = (id, label, input, half) =>
+    `<p class="g-field${half ? " g-field--half" : ""}"><label for="${id}">${label}</label>${input}</p>`;
+
+  const TOPICS = ["General enquiry", "Quote request", "Invoice enquiry",
+                  "Customer service enquiry", "Price match"];
+
+  return `
+<section class="g-band g-band--${bandOf(o.band || "grey")}" id="contact-form">
+  <div class="g-wrap">
+    ${gintro("Send us a message", o.h || "Tell us what you need",
+      o.sub || "Fill this in and the depot that covers your postcode will come back to you. Prefer to talk? Call 1800 467 637.")}
+    <form class="g-cform g-rise" novalidate>
+      <div class="g-cform-grid">
+        ${field("cf-first", "First name", `<input id="cf-first" name="first" type="text" autocomplete="given-name" required>`, true)}
+        ${field("cf-last", "Last name", `<input id="cf-last" name="last" type="text" autocomplete="family-name" required>`, true)}
+        ${field("cf-email", "Email", `<input id="cf-email" name="email" type="email" autocomplete="email" required>`, true)}
+        ${field("cf-phone", "Phone", `<input id="cf-phone" name="phone" type="tel" autocomplete="tel" required>`, true)}
+        ${field("cf-postcode", "Postcode", `<input id="cf-postcode" name="postcode" type="text" inputmode="numeric" maxlength="4" autocomplete="postal-code">`, true)}
+        ${field("cf-account", "Account number <span>optional</span>", `<input id="cf-account" name="account" type="text">`, true)}
+        ${field("cf-topic", "What do you need help with?",
+          `<select id="cf-topic" name="topic" required>${TOPICS.map((t) => `<option>${t}</option>`).join("")}</select>`)}
+        ${field("cf-msg", "How can we help?",
+          `<textarea id="cf-msg" name="message" rows="5" required></textarea>`)}
+      </div>
+      <div class="g-cform-foot">
+        ${traceSubmit("Send message", "", "", "primary")}
+        <p class="g-cform-note">We reply during business hours. Nothing here is shared outside Portabox.</p>
+      </div>
+      <div class="g-cform-msg" role="status" aria-live="polite"></div>
+    </form>
+  </div>
+</section>`;
+}
+

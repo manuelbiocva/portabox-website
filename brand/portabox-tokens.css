@@ -1,0 +1,286 @@
+/* =================================================================
+   PORTABOX DESIGN TOKENS  v1.0
+   Extracted from portabox.au and portabox.netlify.app, 21 Sep 2026.
+   Values are what production ships unless commented "proposed".
+
+   Load Montserrat before this file:
+   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+   ================================================================= */
+
+:root {
+  /* ---------- Brand ---------- */
+  --pb-cyan:            #1EC4F4;  /* brand field: chrome, bars, logo ground  */
+  --pb-cyan-deep:       #0FA8D6;  /* proposed: cyan hover / pressed          */
+  --pb-navy:            #0E385D;  /* the ink                                 */
+  --pb-navy-deep:       #1B2F3A;  /* footer, dark sections                   */
+  --pb-yellow:          #FED200;  /* ACTION ONLY                             */
+  --pb-yellow-deep:     #E8BF00;  /* proposed: primary button hover          */
+
+  /* ---------- Ink ---------- */
+  --pb-ink:             #111111;  /* body copy on white          18.88:1     */
+  --pb-ink-muted:       #5E6A73;  /* captions, helper text        5.55:1     */
+  --pb-ink-on-brand:    #0E385D;  /* text on cyan (5.89) or yellow (8.28)    */
+  --pb-ink-inverse:     #FFFFFF;  /* text on navy                12.05:1     */
+
+  /* ---------- Surfaces ---------- */
+  --pb-canvas:          #FFFFFF;
+  --pb-tint-cyan:       #EAF8FE;  /* section wash, cards                     */
+  --pb-tint-yellow:     #FFF1A8;  /* highlight / callout                     */
+  --pb-surface-navy:    #0E385D;
+  --pb-surface-dark:    #1B2F3A;
+
+  /* ---------- Lines ---------- */
+  --pb-hairline:        #D6E3EC;
+  --pb-hairline-strong: #AFC4D4;
+
+  /* ---------- State ---------- */
+  --pb-focus:           #FED200;
+  --pb-focus-on-yellow: #0E385D;  /* yellow ring is invisible on a yellow button */
+  --pb-success:         #1E9E5A;
+  --pb-error:           #C4372C;
+
+  /* ---------- Type ---------- */
+  --pb-font:            "Montserrat", "Helvetica Neue", Arial, sans-serif;
+
+  --pb-display:         clamp(2.375rem, 5.4vw, 4.25rem);  /* 38 -> 68 */
+  --pb-h1:              clamp(2.125rem, 4.4vw, 3.5rem);   /* 34 -> 56 */
+  --pb-h2:              clamp(1.875rem, 3.3vw, 2.625rem); /* 30 -> 42 */
+  --pb-h3:              clamp(1.5rem,   2.1vw, 1.75rem);  /* 24 -> 28  proposed */
+  --pb-h4:              clamp(1.125rem, 1.4vw, 1.1875rem);/* 18 -> 19 */
+  --pb-body-lg:         1.125rem;
+  --pb-body:            1rem;
+  --pb-body-sm:         0.875rem;
+  --pb-label:           0.8125rem;
+
+  --pb-w-regular:       400;
+  --pb-w-medium:        500;
+  --pb-w-semibold:      600;
+  --pb-w-bold:          700;
+  --pb-w-black:         800;
+
+  --pb-lh-display:      1.10;
+  --pb-lh-heading:      1.15;
+  --pb-lh-body:         1.65;
+  --pb-tracking-display:-0.015em;
+  --pb-tracking-heading:-0.01em;
+  --pb-tracking-label:  0.04em;
+  --pb-measure:         62ch;
+
+  /* ---------- Shape ---------- */
+  --pb-radius-pill:     999px;
+  --pb-radius-card:     16px;
+  --pb-radius-media:    24px;
+  --pb-radius-control:  4px;
+  --pb-border:          2px;
+
+  /* ---------- Elevation ---------- */
+  --pb-shadow-card:     0 18px 40px -24px rgba(14, 56, 93, 0.35);
+  --pb-shadow-lift:     0 24px 50px -28px rgba(14, 56, 93, 0.55);
+  --pb-shadow-block:    0 6px 0 0 #0E385D;   /* accent only, 1-2 per page */
+
+  /* ---------- Spacing (8px base, proposed) ---------- */
+  --pb-1:  0.25rem;  --pb-2:  0.5rem;   --pb-3:  0.75rem;
+  --pb-4:  1rem;     --pb-6:  1.5rem;   --pb-8:  2rem;
+  --pb-12: 3rem;     --pb-16: 4rem;     --pb-24: 6rem;    --pb-32: 8rem;
+
+  --pb-section-y:       clamp(3.5rem, 7vw, 6rem);
+  --pb-gutter:          clamp(1rem, 3vw, 1.5rem);
+  --pb-container:       1200px;
+
+  /* ---------- Motion ---------- */
+  --pb-ease:            cubic-bezier(0.16, 1, 0.3, 1);
+  --pb-fast:            160ms;
+  --pb-base:            240ms;
+  --pb-slow:            400ms;
+}
+
+/* =================================================================
+   Base
+   ================================================================= */
+
+body {
+  font-family: var(--pb-font);
+  font-size: var(--pb-body);
+  line-height: var(--pb-lh-body);
+  color: var(--pb-ink);
+  background: var(--pb-canvas);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--pb-font);
+  color: var(--pb-navy);
+  line-height: var(--pb-lh-heading);
+  letter-spacing: var(--pb-tracking-heading);
+  text-wrap: balance;
+}
+
+h1 { font-size: var(--pb-h1); font-weight: var(--pb-w-black); }
+h2 { font-size: var(--pb-h2); font-weight: var(--pb-w-black); }
+h3 { font-size: var(--pb-h3); font-weight: var(--pb-w-bold); }
+h4 { font-size: var(--pb-h4); font-weight: var(--pb-w-bold); }
+
+.pb-display {
+  font-size: var(--pb-display);
+  font-weight: var(--pb-w-black);
+  line-height: var(--pb-lh-display);
+  letter-spacing: var(--pb-tracking-display);
+}
+
+p { max-width: var(--pb-measure); }
+.pb-lede { font-size: var(--pb-body-lg); }
+.pb-muted { color: var(--pb-ink-muted); }
+.pb-small { font-size: var(--pb-body-sm); }
+
+.pb-label {
+  font-size: var(--pb-label);
+  font-weight: var(--pb-w-semibold);
+  letter-spacing: var(--pb-tracking-label);
+  text-transform: uppercase;
+}
+
+:focus-visible {
+  outline: 3px solid var(--pb-focus);
+  outline-offset: 2px;
+}
+
+/* =================================================================
+   Layout
+   ================================================================= */
+
+.pb-container {
+  max-width: var(--pb-container);
+  margin-inline: auto;
+  padding-inline: var(--pb-gutter);
+}
+.pb-section { padding-block: var(--pb-section-y); }
+
+.pb-on-navy  { background: var(--pb-surface-navy); color: var(--pb-ink-inverse); }
+.pb-on-navy  h1, .pb-on-navy h2, .pb-on-navy h3, .pb-on-navy h4 { color: var(--pb-ink-inverse); }
+.pb-on-cyan  { background: var(--pb-cyan); color: var(--pb-ink-on-brand); }
+.pb-on-cyan  h1, .pb-on-cyan h2, .pb-on-cyan h3, .pb-on-cyan h4 { color: var(--pb-navy); }
+.pb-on-tint  { background: var(--pb-tint-cyan); }
+
+/* =================================================================
+   Buttons
+   ================================================================= */
+
+.pb-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--pb-2);
+  min-height: 48px;
+  padding: 14px 28px;
+  border: var(--pb-border) solid transparent;
+  border-radius: var(--pb-radius-pill);
+  font-family: var(--pb-font);
+  font-size: 0.9375rem;          /* 15px */
+  font-weight: var(--pb-w-semibold);
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color var(--pb-base) var(--pb-ease),
+              color var(--pb-base) var(--pb-ease),
+              border-color var(--pb-base) var(--pb-ease),
+              transform var(--pb-fast) var(--pb-ease);
+}
+@media (max-width: 640px) { .pb-btn { min-height: 52px; width: 100%; } }
+
+.pb-btn:hover  { transform: translateY(-1px); }
+.pb-btn:active { transform: translateY(1px); }
+
+/* Primary — the one action on the screen. */
+.pb-btn--primary {
+  background: var(--pb-yellow);
+  color: var(--pb-ink-on-brand);
+}
+.pb-btn--primary:hover { background: var(--pb-yellow-deep); }
+/* A yellow focus ring on a yellow button is invisible. */
+.pb-btn--primary:focus-visible { outline-color: var(--pb-focus-on-yellow); }
+
+/* Secondary */
+.pb-btn--secondary {
+  background: transparent;
+  color: var(--pb-navy);
+  border-color: var(--pb-navy);
+}
+.pb-btn--secondary:hover { background: var(--pb-navy); color: var(--pb-ink-inverse); }
+
+/* Over photography or on navy */
+.pb-btn--inverse {
+  background: transparent;
+  color: var(--pb-ink-inverse);
+  border-color: var(--pb-ink-inverse);
+}
+.pb-btn--inverse:hover { background: var(--pb-ink-inverse); color: var(--pb-navy); }
+
+/* =================================================================
+   Forms
+   ================================================================= */
+
+.pb-input {
+  min-height: 48px;
+  padding: 12px 20px;
+  border: var(--pb-border) solid var(--pb-hairline-strong);
+  border-radius: var(--pb-radius-pill);
+  background: var(--pb-canvas);
+  font-family: var(--pb-font);
+  font-size: var(--pb-body);
+  color: var(--pb-ink);
+  transition: border-color var(--pb-base) var(--pb-ease);
+}
+.pb-input::placeholder { color: var(--pb-ink-muted); }
+.pb-input:focus { border-color: var(--pb-cyan); outline: none; }
+.pb-input[aria-invalid="true"] { border-color: var(--pb-error); }
+
+/* The inline postcode pattern: white pill holding a yellow submit. */
+.pb-inline-quote {
+  display: flex;
+  align-items: center;
+  gap: var(--pb-2);
+  padding: 6px 6px 6px var(--pb-6);
+  background: var(--pb-canvas);
+  border-radius: var(--pb-radius-pill);
+  box-shadow: var(--pb-shadow-card);
+  max-width: 34rem;
+}
+.pb-inline-quote input { flex: 1; min-width: 0; border: 0; outline: none; font: inherit; }
+
+/* =================================================================
+   Cards and media
+   ================================================================= */
+
+.pb-card {
+  padding: var(--pb-8);
+  background: var(--pb-canvas);
+  border-radius: var(--pb-radius-card);
+  box-shadow: var(--pb-shadow-card);
+}
+/* Declare elevation once: a border OR a shadow, never both. */
+.pb-card--outlined { box-shadow: none; border: 1px solid var(--pb-hairline); }
+.pb-card--block    { box-shadow: var(--pb-shadow-block); }
+
+.pb-media { border-radius: var(--pb-radius-media); overflow: hidden; }
+.pb-scrim { position: relative; }
+.pb-scrim::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(90deg, rgba(14,56,93,.62), rgba(14,56,93,.15));
+}
+.pb-scrim > * { position: relative; z-index: 1; }
+
+/* =================================================================
+   Guardrails — these combinations fail WCAG AA. See DESIGN.md §2.
+   Cyan on white is 2.05:1. Never use cyan as a text colour on white,
+   and never put white text on a cyan background.
+   ================================================================= */
+
+.pb-DANGER-cyan-text-on-white { color: var(--pb-cyan); }  /* 2.05:1 — do not use */
+.pb-DANGER-white-on-cyan      { background: var(--pb-cyan); color: #fff; } /* 2.05:1 */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    transition-duration: .001ms !important;
+  }
+}

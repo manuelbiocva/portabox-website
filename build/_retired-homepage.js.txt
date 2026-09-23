@@ -1,0 +1,54 @@
+/* The previous (stivio-style) homepage, retired 2026-09-23 when the
+   gigaenergy-style page was chosen. Paste back into build.js above the
+   giga block to restore it -- note both cannot claim index.html. */
+
+/* ---- Homepage ---- */
+PAGES.push({
+  file: "index.html", active: "index.html",
+  title: "Portabox — Portable storage & moving containers delivered to your door",
+  desc: "Australia's largest portable storage containers, delivered level to your address. 25 m³ from $279 a month — $8.76 per cubic metre. Brisbane, Sydney, Melbourne, Adelaide.",
+  body: [
+    heroC({
+      h1: "Storage that stays at your place.",
+      sub: "Portabox delivers the container to your address and sets it down level — no tilting, no ramp, no driving across town. You load it in your own time, and you hold the only keys.",
+      img: "hero-customer.jpg",
+      alt: "A customer leaning on their Portabox container in the driveway",
+    }),
+    trust("cyan"),
+    ruledColumns({
+      chip: "What you actually get",
+      h: "Six reasons the sums come out in your favour",
+      sub: "Nothing here is a slogan. Each one is either a published number or a physical fact about the container.",
+      items: C.WHY,
+    }),
+    quietStatement({
+      h: "Self-storage was designed around the warehouse. The drive, the trolley, the roller door, the spare key behind the counter — all of it exists because the box cannot come to you. Ours can.",
+      btns: traceBtn(C.CONTACT.quote, "Get a price", "Let's go", "primary"),
+    }),
+    ruledServices({
+      chip: "One container, three ways to use it",
+      h: "Pick the job, not the product",
+      sub: "The same container does all three. If your plans change halfway through, we move it rather than making you repack.",
+      items: [
+        { slug: "storage-at-your-place", title: "Storage at Your Place", img: "doorstep-delivery.jpg", blurb: "Delivered to your address and left there, with access whenever you like.", more: "Storage at your place" },
+        { slug: "store-with-us", title: "Store With Us", img: "store-with-us.jpg", blurb: "We collect the loaded container and keep it in a monitored facility. You still hold the only keys.", more: "Store with us" },
+        { slug: "moving-services", title: "Moving & Regional", img: "two-containers.jpeg", blurb: "Door to door between the capitals, or anywhere in Australia on a regional quote.", more: "Moving services" },
+      ],
+    }),
+    earlLight(),
+    ruledPricing(),
+    steps({
+      band: "cream", id: "how", chip: "How it works", h: "Three moves, and none of them are yours",
+      items: [
+        ["It arrives and comes down level", "We deliver to your address and set the container flat on your driveway, lawn or hardstand. You do not need to be home for a standard placement."],
+        ["You load it in your own time", "Ground level, no ramp, no truck to climb. Take an afternoon or take a fortnight — it is sitting at your place, and you hold the keys."],
+        ["It stays, or it goes", "Leave it where it is with access whenever you want it, or we collect it and store it in a monitored facility on 48 hours notice."],
+      ],
+    }),
+    featuredQuote(),
+    locationList({ band: "cream" }),
+    faq(C.FAQ_GENERAL, "Before you book", "cream"),
+    ctaBand({ trace: true, cyan: true }),
+  ].join("\n"),
+});
+

@@ -1,0 +1,124 @@
+/* ---------- Inner pages ----------
+   The homepage owns its full-height video hero; every other page uses the
+   shorter image hero below. Everything here follows the same rules as the
+   rest of the sheet: square, hairlines, brand tokens, and no faded text on
+   a cyan ground. */
+
+.g .g-phero {
+  position:relative; display:flex; align-items:flex-end;
+  min-height:clamp(26rem,52vh,34rem); padding-top:var(--g-nav);
+  overflow:hidden; background:var(--g-navy-x);
+}
+.g .g-phero--short { min-height:clamp(22rem,44vh,30rem); }
+.g .g-phero-bg { position:absolute; inset:0; }
+.g .g-phero-bg img { width:100%; height:100%; object-fit:cover; object-position:56% 48%; }
+/* Measured against the brightest of the hero photographs: white copy clears
+   AA everywhere it sits. */
+.g .g-phero-bg::after {
+  content:""; position:absolute; inset:0;
+  background:linear-gradient(180deg,
+    rgba(7,30,51,.62) 0%, rgba(7,30,51,.56) 34%,
+    rgba(7,30,51,.80) 68%, rgba(7,30,51,.92) 100%);
+}
+.g .g-phero-in { position:relative; z-index:1; width:100%; padding-block:clamp(2.5rem,5vw,3.75rem); }
+.g .g-phero .g-display { max-width:20ch; }
+.g .g-phero-sub {
+  margin:1.25rem 0 0; max-width:54ch;
+  font-size:clamp(1rem,1.5vw,1.125rem); line-height:1.6; color:rgba(255,255,255,.92);
+}
+.g .g-phero-form { margin-top:2rem; max-width:34rem; }
+
+.g .g-crumb {
+  display:flex; flex-wrap:wrap; align-items:center; gap:.5rem;
+  margin-bottom:1.5rem; font-size:.75rem; font-weight:600;
+  letter-spacing:.12em; text-transform:uppercase;
+}
+.g .g-crumb a { color:var(--g-cyan); text-decoration:none; }
+.g .g-crumb a:hover { color:#fff; }
+.g .g-crumb span[aria-current] { color:rgba(255,255,255,.86); }
+.g .g-crumb-s { color:rgba(255,255,255,.45); }
+
+/* Proof strip directly under the hero. */
+.g .g-trust { background:var(--g-navy-x); border-top:1px solid var(--g-rule-d); }
+.g .g-trust-in {
+  display:flex; flex-wrap:wrap; gap:1rem clamp(1.5rem,3.5vw,3rem);
+  padding-block:1.1rem; align-items:center;
+}
+.g .g-trust-i {
+  display:inline-flex; align-items:center; gap:.6rem;
+  font-size:.8125rem; font-weight:600; color:rgba(255,255,255,.90);
+}
+.g .g-trust-i svg { width:18px; height:18px; flex:none; color:var(--g-cyan); }
+
+/* Centred statement band. */
+.g .g-said { max-width:58ch; }
+.g .g-said .g-h2 { margin-top:.75rem; }
+
+/* Image beside copy. */
+.g .g-split { display:grid; gap:clamp(2rem,4vw,3.5rem); align-items:center; grid-template-columns:1fr; }
+@media (min-width:900px){ .g .g-split { grid-template-columns:1fr 1fr; } }
+.g .g-split-img { width:100%; aspect-ratio:4/3; object-fit:cover; display:block; }
+.g .g-split-img--tall { aspect-ratio:4/5; }
+.g .g-prose { margin-top:1.25rem; display:grid; gap:.9rem; }
+.g .g-prose p { margin:0; font-size:1rem; line-height:1.65; color:var(--g-body); }
+.g .g-band--navy .g-prose p, .g .g-band--deep .g-prose p { color:var(--g-onnavy); }
+.g .g-band--cyan .g-prose p { color:var(--g-navy); }
+
+/* Icon + copy tiles. */
+.g .g-feat { border-top:2px solid var(--g-cyan); padding-top:1.25rem; }
+.g .g-feat-i { display:block; color:var(--g-cyan-tx); }
+.g .g-feat-i svg { width:26px; height:26px; }
+.g .g-feat .g-h3 { margin-top:.9rem; font-size:1.0625rem; }
+.g .g-feat p { margin:.5rem 0 0; font-size:.9375rem; line-height:1.6; color:var(--g-body); }
+.g .g-band--navy .g-feat, .g .g-band--deep .g-feat { border-top-color:var(--g-cyan); }
+.g .g-band--navy .g-feat-i, .g .g-band--deep .g-feat-i { color:var(--g-cyan); }
+.g .g-band--navy .g-feat p, .g .g-band--deep .g-feat p { color:var(--g-onnavy); }
+.g .g-band--cyan .g-feat { border-top-color:var(--g-navy); }
+.g .g-band--cyan .g-feat-i, .g .g-band--cyan .g-feat p { color:var(--g-navy); }
+
+/* Numbered steps reuse the index rows, with room for the description. */
+@media (min-width:860px){
+  .g .g-index--steps .g-row { grid-template-columns:3.5rem minmax(9rem,1fr) minmax(0,2.2fr); }
+}
+
+/* FAQ: details/summary, so it works with JavaScript off. */
+.g .g-faq-split { display:grid; gap:clamp(2rem,4vw,3.5rem); align-items:start; grid-template-columns:1fr; }
+@media (min-width:900px){ .g .g-faq-split { grid-template-columns:.85fr 1.15fr; } }
+.g .g-faq { border-top:1px solid var(--g-rule); }
+.g .g-faq-i { border-bottom:1px solid var(--g-rule); }
+.g .g-faq-i summary {
+  display:flex; align-items:flex-start; justify-content:space-between; gap:1.5rem;
+  padding:1.35rem 0; cursor:pointer; list-style:none;
+  font-size:1.0625rem; font-weight:600; letter-spacing:-.012em; color:var(--g-ink);
+  transition:color var(--g-t) var(--g-hover);
+}
+.g .g-faq-i summary::-webkit-details-marker { display:none; }
+.g .g-faq-i summary:hover { color:var(--g-cyan-tx); }
+/* A plus that becomes a minus, drawn from two rules. */
+.g .g-faq-i summary i {
+  position:relative; flex:none; width:16px; height:16px; margin-top:.25rem;
+}
+.g .g-faq-i summary i::before, .g .g-faq-i summary i::after {
+  content:""; position:absolute; inset:0; margin:auto;
+  background:currentColor; transition:transform var(--g-t) var(--g-hover), opacity var(--g-t) var(--g-hover);
+}
+.g .g-faq-i summary i::before { width:16px; height:2px; }
+.g .g-faq-i summary i::after  { width:2px; height:16px; }
+.g .g-faq-i[open] summary i::after { transform:scaleY(0); opacity:0; }
+.g .g-faq-a { padding:0 0 1.4rem; max-width:62ch; }
+.g .g-faq-a p { margin:0; font-size:.9375rem; line-height:1.65; color:var(--g-body); }
+
+.g .g-band--navy .g-faq, .g .g-band--deep .g-faq { border-top-color:var(--g-rule-d); }
+.g .g-band--navy .g-faq-i, .g .g-band--deep .g-faq-i { border-bottom-color:var(--g-rule-d); }
+.g .g-band--navy .g-faq-i summary, .g .g-band--deep .g-faq-i summary { color:#fff; }
+.g .g-band--navy .g-faq-i summary:hover, .g .g-band--deep .g-faq-i summary:hover { color:var(--g-cyan); }
+.g .g-band--navy .g-faq-a p, .g .g-band--deep .g-faq-a p { color:var(--g-onnavy); }
+/* Nothing faded on cyan: 80% navy already falls to 3.97:1 there. */
+.g .g-band--cyan .g-faq { border-top-color:var(--g-rule-c); }
+.g .g-band--cyan .g-faq-i { border-bottom-color:var(--g-rule-c); }
+.g .g-band--cyan .g-faq-i summary, .g .g-band--cyan .g-faq-a p { color:var(--g-navy); }
+.g .g-band--cyan .g-faq-i summary:hover { color:var(--g-navy); }
+
+@media (prefers-reduced-motion:reduce){
+  .g .g-faq-i summary i::before, .g .g-faq-i summary i::after { transition:none; }
+}

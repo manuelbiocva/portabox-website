@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Portabox — colour palette</title>
+<meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root { --navy:#0E385D; --ink:#111; --muted:#5E6A73; --line:#D6E3EC; --cream:#F1EFEA; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:Montserrat,Arial,sans-serif; color:var(--ink); background:#fff; line-height:1.6; }
+  .wrap { max-width:1320px; margin-inline:auto; padding-inline:clamp(1.25rem,4vw,3rem); }
+  header { background:#071E33; color:#fff; padding:clamp(3rem,7vw,4.5rem) 0 clamp(2.5rem,5vw,3.5rem); }
+  header h1 { font-size:clamp(2rem,4.6vw,3.25rem); font-weight:800; letter-spacing:-.025em; line-height:1.05; margin:0; }
+  header p { max-width:64ch; margin:1.25rem 0 0; color:rgba(255,255,255,.75); }
+  .kicker { font-size:.75rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#1EC4F4; margin:0 0 .75rem; }
+  .pg { padding-block:clamp(2.5rem,5vw,4rem); border-bottom:1px solid var(--line); }
+  .pg h2 { font-size:clamp(1.25rem,2.2vw,1.75rem); font-weight:800; letter-spacing:-.02em; color:var(--navy); margin:0; }
+  .note { color:var(--muted); margin:.5rem 0 2rem; max-width:72ch; font-size:.9375rem; }
+  .sw-grid { display:grid; gap:1.25rem; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); }
+  .sw-grid--big { grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); }
+  .sw { border:1px solid var(--line); overflow:hidden; }
+  .sw-chip { height:118px; padding:1rem; display:flex; flex-direction:column; justify-content:space-between; }
+  .sw--big .sw-chip { height:170px; }
+  .sw-role { font-size:.6875rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; opacity:.9; }
+  .sw-hex { font-size:1.0625rem; font-weight:700; letter-spacing:.04em; }
+  .sw-meta { padding:.9rem 1rem 1.1rem; }
+  .sw-meta b { display:block; color:var(--navy); font-size:.9375rem; }
+  .sw-meta p { margin:.3rem 0 0; font-size:.8125rem; color:var(--muted); line-height:1.5; }
+  .sw-cr { margin-top:.5rem !important; font-size:.75rem !important; }
+  .sw-cr b { display:inline; color:var(--ink); }
+  .warn { border-left:4px solid #C4372C; background:#fdf3f2; padding:1rem 1.25rem; margin-top:1.5rem; }
+  .warn p { margin:0; font-size:.9375rem; }
+  footer { padding:2.5rem 0 4rem; color:var(--muted); font-size:.875rem; }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <p class="kicker">Portabox &middot; colour</p>
+    <h1>Your palette, as the site actually ships it</h1>
+    <p>Every value below is read straight out of <code>site/assets/css/portabox.css</code>.
+       Contrast is measured, not estimated. Tell me which one you want and what for.</p>
+  </div>
+</header>
+<main>
+  <section class="pg">
+    <div class="wrap">
+      <h2>The three that carry the brand</h2>
+      <p class="note">Everything else supports these. If you are picking one, it is almost certainly one of these three.</p>
+      <div class="sw-grid sw-grid--big">
+        <div class="sw sw--big">
+          <div class="sw-chip" style="background:#1EC4F4;color:#0E385D">
+            <span class="sw-role">Brand field</span>
+            <span class="sw-hex">#1EC4F4</span>
+          </div>
+          <div class="sw-meta">
+            <b>Cyan</b>
+            <p>Logo ground, container livery, trace edges on dark, accent labels</p>
+            <p class="sw-cr">on white <b>2.0</b> &middot; on navy <b>5.9</b></p>
+          </div>
+        </div>
+        <div class="sw sw--big">
+          <div class="sw-chip" style="background:#0E385D;color:#FFFFFF">
+            <span class="sw-role">The ink</span>
+            <span class="sw-hex">#0E385D</span>
+          </div>
+          <div class="sw-meta">
+            <b>Navy</b>
+            <p>Every heading, body text on cyan and yellow, nav bar</p>
+            <p class="sw-cr">on white <b>12.1</b> &middot; on navy <b>1.0</b></p>
+          </div>
+        </div>
+        <div class="sw sw--big">
+          <div class="sw-chip" style="background:#FED200;color:#0E385D">
+            <span class="sw-role">Action</span>
+            <span class="sw-hex">#FED200</span>
+          </div>
+          <div class="sw-meta">
+            <b>Yellow</b>
+            <p>Primary CTAs only. Roughly 5% of any page</p>
+            <p class="sw-cr">on white <b>1.5</b> &middot; on navy <b>8.3</b></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="pg">
+    <div class="wrap">
+      <h2>Deeper shades</h2>
+      <p class="note">Darker relatives of the brand three. The two 'hover only' values are surfaces, never text.</p>
+      <div class="sw-grid">
+        <div class="sw">
+          <div class="sw-chip" style="background:#0A2A47;color:#FFFFFF">
+            <span class="sw-role">Dark band</span>
+            <span class="sw-hex">#0A2A47</span>
+          </div>
+          <div class="sw-meta">
+            <b>Navy deep</b>
+            <p>Section bands, hero panel</p>
+            <p class="sw-cr">on white <b>14.6</b> &middot; on navy <b>1.2</b></p>
+          </div>
+        </div>
+        <div class="sw">
+          <div class="sw-chip" style="background:#071E33;color:#FFFFFF">
+            <span class="sw-role">Deepest</span>
+            <span class="sw-hex">#071E33</span>
+          </div>
+          <div class="sw-meta">
+            <b>Coal</b>
+            <p>Homepage hero panel, quiet statement band, footer</p>
+            <p class="sw-cr">on white <b>16.9</b> &middot; on navy <b>1.4</b></p>
+          </div>
+        </div>
+        <div class="sw">
+          <div class="sw-chip" style="background:#0FA8D6;color:#0E385D">
+            <span class="sw-role">Hover only</span>
+            <span class="sw-hex">#0FA8D6</span>
+          </div>
+          <div class="sw-meta">
+            <b>Cyan deep</b>
+            <p>Cyan surfaces on hover. Not a text colour</p>
+            <p class="sw-cr">on white <b>2.8</b> &middot; on navy <b>4.4</b></p>
+          </div>
+        </div>
+        <div class="sw">
+          <div class="sw-chip" style="background:#E8BF00;color:#0E385D">
+            <span class="sw-role">Hover only</span>
+            <span class="sw-hex">#E8BF00</span>
+          </div>
+          <div class="sw-meta">
+            <b>Yellow deep</b>
+            <p>Primary button hover</p>
+            <p class="sw-cr">on white <b>1.8</b> &middot; on navy <b>6.8</b></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="pg">
+    <div class="wrap">
+      <h2>Text colours</h2>
+      <p class="note">Cyan as text on a light ground must be #0A6F8E — the brand cyan measures 2.05:1 on white and fails.</p>
+      <div class="sw-grid">
+        <div class="sw">
+          <div class="sw-chip" style="background:#111111;color:#FFFFFF">
+            <span class="sw-role">Body copy</span>
+            <span class="sw-hex">#111111</span>
+          </div>
+          <div class="sw-meta">
+            <b>Ink</b>
+            <p>Paragraphs on white. 18.9:1</p>
+            <p class="sw-cr">on white <b>18.9</b> &middot; on navy <b>1.6</b></p>
+          </div>
+        </div>
+        <div class="sw">
+          <div class="sw-chip" style="background:#5E6A73;color:#FFFFFF">
+            <span class="sw-role">Secondary</span>
+            <span class="sw-hex">#5E6A73</span>
+          </div>
+          <div class="sw-meta">
+            <b>Ink muted</b>
+            <p>Captions, helper text. 5.6:1 on white</p>
+            <p class="sw-cr">on white <b>5.5</b> &middot; on navy <b>2.2</b></p>
+          </div>
+        </div>
+        <div class="sw">
+          <div class="sw-chip" style="background:#0A6F8E;color:#FFFFFF">
+            <span class="sw-role">Cyan as text</span>
+            <span class="sw-hex">#0A6F8E</span>
+          </div>
+          <div class="sw-meta">
+            <b>Cyan text</b>
+            <p>The only legal cyan for text on light. 5.7:1</p>
+            <p class="sw-cr">on white <b>5.7</b> &middot; on navy <b>2.1</b></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="pg">
+    <div class="wrap">
+      <h2>Surfaces</h2>
+      <p class="note">Grounds a whole section can sit on. The homepage uses cream; the inner pages use white and cool grey.</p>
+      <div class="sw-grid">
+        <div class="sw">
+          <div class="sw-chip" style="background:#FFFFFF;color:#0E385D">
+            <span class="sw-role">Default</span>
+            <span class="sw-hex">#FFFFFF</span>
+          </div>
+          <div class="sw-meta">
+            <b>Canvas</b>
+            <p>Inner pages</p>
+            <p class="sw-cr">on white <b>1.0</b> &middot; on navy <b>12.1</b></p>
+          </div>
+        </div>
+        <div class="sw">
+          <div class="sw-chip" style="background:#F1EFEA;color:#0E385D">
+            <span class="sw-role">Warm ground</span>
+            <span class="sw-hex">#F1EFEA</span>
+          </div>
+          <div class="sw-meta">
+            <b>Cream</b>
+            <p>Homepage light bands</p>
+            <p class="sw-cr">on white <b>1.1</b> &middot; on navy <b>10.5</b></p>
+          </div>
+        </div>
+        <div class="sw">
+          <div class="sw-chip" style="background:#E9E6DF;color:#0E385D">
+            <span class="sw-role">Warm inset</span>
+            <span class="sw-hex">#E9E6DF</span>
+          </div>
+          <div class="sw-meta">
+            <b>Cream 2</b>
+            <p>Chips on cream</p>
+            <p class="sw-cr">on white <b>1.2</b> &middot; on navy <b>9.7</b></p>
+          </div>
+        </div>
+        <div class="sw">
+          <div class="sw-chip" style="background:#F4F7F9;color:#0E385D">
+            <span class="sw-role">Cool wash</span>
+            <span class="sw-hex">#F4F7F9</span>
+          </div>
+          <div class="sw-meta">
+            <b>Tint grey</b>
+            <p>Alternate light bands</p>
+            <p class="sw-cr">on white <b>1.1</b> &middot; on navy <b>11.2</b></p>
+          </div>
+        </div>
+        <div class="sw">
+          <div class="sw-chip" style="background:#EAF8FE;color:#0E385D">
+            <span class="sw-role">Cyan wash</span>
+            <span class="sw-hex">#EAF8FE</span>
+          </div>
+          <div class="sw-meta">
+            <b>Tint cyan</b>
+            <p>Icon tiles, chips</p>
+            <p class="sw-cr">on white <b>1.1</b> &middot; on navy <b>11.1</b></p>
+          </div>
+        </div>
+        <div class="sw">
+          <div class="sw-chip" style="background:#FFF1A8;color:#0E385D">
+            <span class="sw-role">Highlight</span>
+            <span class="sw-hex">#FFF1A8</span>
+          </div>
+          <div class="sw-meta">
+            <b>Tint yellow</b>
+            <p>Callouts</p>
+            <p class="sw-cr">on white <b>1.1</b> &middot; on navy <b>10.6</b></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="pg">
+    <div class="wrap">
+      <h2>Rules</h2>
+      <p class="note">One-pixel lines. Warm rules belong on cream, cool rules on white.</p>
+      <div class="sw-grid">
+        <div class="sw">
+          <div class="sw-chip" style="background:#D6E3EC;color:#0E385D">
+            <span class="sw-role">Cool rule</span>
+            <span class="sw-hex">#D6E3EC</span>
+          </div>
+          <div class="sw-meta">
+            <b>Hairline</b>
+            <p>Card borders, dividers</p>
+            <p class="sw-cr">on white <b>1.3</b> &middot; on navy <b>9.2</b></p>
+          </div>
+        </div>
+        <div class="sw">
+          <div class="sw-chip" style="background:#D8D3C9;color:#0E385D">
+            <span class="sw-role">Warm rule</span>
+            <span class="sw-hex">#D8D3C9</span>
+          </div>
+          <div class="sw-meta">
+            <b>Line warm</b>
+            <p>Ruled columns on cream</p>
+            <p class="sw-cr">on white <b>1.5</b> &middot; on navy <b>8.1</b></p>
+          </div>
+        </div>
+        <div class="sw">
+          <div class="sw-chip" style="background:#AFC4D4;color:#0E385D">
+            <span class="sw-role">Stronger</span>
+            <span class="sw-hex">#AFC4D4</span>
+          </div>
+          <div class="sw-meta">
+            <b>Hairline+</b>
+            <p>Input borders</p>
+            <p class="sw-cr">on white <b>1.8</b> &middot; on navy <b>6.7</b></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="pg">
+    <div class="wrap">
+      <h2>State</h2>
+      <p class="note">Reserved. Neither is a brand colour and neither should be used decoratively.</p>
+      <div class="sw-grid">
+        <div class="sw">
+          <div class="sw-chip" style="background:#1E9E5A;color:#0E385D">
+            <span class="sw-role">Success</span>
+            <span class="sw-hex">#1E9E5A</span>
+          </div>
+          <div class="sw-meta">
+            <b>Success</b>
+            <p>Form success state</p>
+            <p class="sw-cr">on white <b>3.4</b> &middot; on navy <b>3.5</b></p>
+          </div>
+        </div>
+        <div class="sw">
+          <div class="sw-chip" style="background:#C4372C;color:#FFFFFF">
+            <span class="sw-role">Error</span>
+            <span class="sw-hex">#C4372C</span>
+          </div>
+          <div class="sw-meta">
+            <b>Error</b>
+            <p>Validation messages</p>
+            <p class="sw-cr">on white <b>5.3</b> &middot; on navy <b>2.3</b></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="pg" style="border:0">
+    <div class="wrap">
+      <h2>One rule worth repeating</h2>
+      <div class="warn">
+        <p><b>Brand cyan <code>#1EC4F4</code> is a surface, never text on white.</b>
+        It measures 2.05:1, which fails for body and large text alike. When cyan has to be
+        text on a light ground, it becomes <code>#0A6F8E</code> (5.7:1). On navy the brand
+        cyan is fine at 5.9:1.</p>
+      </div>
+    </div>
+  </section>
+</main>
+<footer><div class="wrap">Generated from the live stylesheet.</div></footer>
+</body>
+</html>
