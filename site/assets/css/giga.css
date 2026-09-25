@@ -131,7 +131,10 @@ body.g { box-sizing:border-box; font-family:var(--font, "Montserrat", Arial, san
 .g .g-band--cyan .g-label { color:var(--g-navy); }
 
 /* The split intro: display left, body right. */
-.g .g-intro { display:grid; gap:1.75rem 4rem; margin-bottom:clamp(2.5rem,5vw,4.5rem); }
+.g .g-intro {
+  display:grid; grid-template-columns:minmax(0,1fr);
+  gap:1.75rem 4rem; margin-bottom:clamp(2.5rem,5vw,4.5rem);
+}
 @media (min-width:980px){ .g .g-intro { grid-template-columns:1.15fr .85fr; align-items:end; } }
 .g .g-intro .g-body { max-width:44ch; }
 
@@ -219,7 +222,7 @@ body.g { box-sizing:border-box; font-family:var(--font, "Montserrat", Arial, san
 .g .g-nav.is-stuck .on-cyan-logo { display:block; }
 
 .g .g-menu { display:none; margin-left:auto; align-items:center; gap:.25rem; }
-@media (min-width:1100px){ .g .g-menu { display:flex; } }
+@media (min-width:1280px){ .g .g-menu { display:flex; } }
 .g .g-menu-l {
   /* Multi-word labels ("How it works", "About us") broke mid-label once the
      row got tight, leaving links at different heights. */
@@ -233,7 +236,7 @@ body.g { box-sizing:border-box; font-family:var(--font, "Montserrat", Arial, san
 .g .g-nav.is-stuck .g-menu-l:hover { background:rgba(14,56,93,.12); }
 
 .g .g-nav-cta { margin-left:auto; display:none; }
-@media (min-width:1100px){ .g .g-nav-cta { display:flex; margin-left:1rem; gap:.5rem; } }
+@media (min-width:1280px){ .g .g-nav-cta { display:flex; margin-left:1rem; gap:.5rem; } }
 .g .g-nav-cta .g-btn { height:42px; font-size:.6875rem; }
 .g .g-nav-cta .g-btn i { width:42px; margin-left:1.1rem; }
 .g .g-nav .g-btn--ghost { color:#fff; }
@@ -250,7 +253,7 @@ body.g { box-sizing:border-box; font-family:var(--font, "Montserrat", Arial, san
   align-items:center; justify-content:center; cursor:pointer;
   border:1px solid rgba(255,255,255,.34); color:#fff; background:none;
 }
-@media (min-width:1100px){ .g .g-burger { display:none; } }
+@media (min-width:1280px){ .g .g-burger { display:none; } }
 .g .g-nav.is-stuck .g-burger { color:var(--g-navy); border-color:var(--g-rule-c); }
 .g .g-burger b { display:block; width:17px; height:1.5px; background:currentColor; position:relative; transition:background-color .3s; }
 .g .g-burger b::before, .g .g-burger b::after {
@@ -269,13 +272,72 @@ body.g { box-sizing:border-box; font-family:var(--font, "Montserrat", Arial, san
   transition:opacity var(--g-t) var(--g-hover), transform var(--g-t) var(--g-hover), visibility .5s;
 }
 .g .g-drawer.is-open { opacity:1; visibility:visible; transform:none; }
-@media (min-width:1100px){ .g .g-drawer { display:none; } }
-.g .g-drawer a {
+@media (min-width:1280px){ .g .g-drawer { display:none; } }
+
+/* At full spacing the bar needs about 1484px (brand 114 + menu 828 + CTAs 380,
+   plus gaps and gutters) but the content column caps at 1440 — so it spilled
+   outside the grid and the CTA stopped aligning with the page. These gaps are
+   tightened at every desktop size to bring it back inside the column. */
+@media (min-width:1280px){
+  .g .g-nav-in { gap:1rem; }
+  .g .g-menu { gap:0; }
+  .g .g-menu-l, .g .g-menu-t { padding-inline:.6rem; }
+  .g .g-nav-cta { gap:.35rem; }
+}
+
+/* Below 1520 that is still not enough, so the phone number collapses to its
+   handset. The label is clipped rather than hidden, so the link is still
+   announced as "1800 467 637". */
+@media (min-width:1280px) and (max-width:1519px){
+  .g .g-nav-cta .g-btn--tel { padding-left:0; }
+  .g .g-nav-cta .g-btn--tel > span {
+    position:absolute; width:1px; height:1px; overflow:hidden;
+    clip:rect(0 0 0 0); clip-path:inset(50%); white-space:nowrap;
+  }
+  .g .g-nav-cta .g-btn--tel i { margin-left:0; border-left:0; }
+}
+.g .g-drawer a:not(.g-btn) {
   display:block; padding:1rem 0; border-bottom:1px solid var(--g-rule-d);
   color:#fff; text-decoration:none;
   font-size:.875rem; font-weight:500; letter-spacing:.12em; text-transform:uppercase;
 }
 .g .g-drawer .g-btns { margin-top:1.75rem; }
+
+/* The drawer listed all 21 links expanded, so most of the menu sat below the
+   fold. The three groups collapse; details/summary needs no JavaScript. */
+.g .g-dgroup { border-bottom:1px solid var(--g-rule-d); }
+.g .g-dgroup summary {
+  display:flex; align-items:center; justify-content:space-between; gap:1rem;
+  padding:1rem 0; cursor:pointer; list-style:none; min-height:48px;
+  color:#fff; font-size:.875rem; font-weight:500;
+  letter-spacing:.12em; text-transform:uppercase;
+}
+.g .g-dgroup summary::-webkit-details-marker { display:none; }
+.g .g-dgroup summary i { position:relative; flex:none; width:14px; height:14px; }
+.g .g-dgroup summary i::before, .g .g-dgroup summary i::after {
+  content:""; position:absolute; inset:0; margin:auto; background:var(--g-cyan);
+  transition:transform var(--g-t) var(--g-hover), opacity var(--g-t) var(--g-hover);
+}
+.g .g-dgroup summary i::before { width:14px; height:2px; }
+.g .g-dgroup summary i::after  { width:2px; height:14px; }
+.g .g-dgroup[open] summary i::after { transform:scaleY(0); opacity:0; }
+.g .g-dgroup[open] summary { color:var(--g-cyan); }
+.g .g-dsub { padding:0 0 .5rem 1rem; border-left:2px solid var(--g-rule-d); margin-bottom:.75rem; }
+.g .g-drawer .g-dsub a { border-bottom:0; padding:.6rem 0; font-size:.8125rem; color:var(--g-onnavy); }
+.g .g-drawer .g-dsub a:hover { color:#fff; }
+.g .g-drawer .g-dlink { border-bottom:1px solid var(--g-rule-d); }
+
+/* On a short phone the eight rows plus both CTAs ran a few pixels past the
+   fold. Rows keep their 48px target; the savings come from the surrounds. */
+@media (max-height:700px){
+  .g .g-drawer { padding-top:1rem; }
+  .g .g-drawer .g-btns { margin-top:1.25rem; }
+  .g .g-drawer a:not(.g-btn), .g .g-dgroup summary { padding-block:.75rem; }
+}
+
+@media (prefers-reduced-motion:reduce){
+  .g .g-dgroup summary i::before, .g .g-dgroup summary i::after { transition:none; }
+}
 
 /* ---------- Hero ---------- */
 
@@ -372,6 +434,13 @@ body.g { box-sizing:border-box; font-family:var(--font, "Montserrat", Arial, san
   background:linear-gradient(90deg, rgba(14,56,93,.13) 0%, rgba(14,56,93,.05) 42%, rgba(14,56,93,0) 100%);
 }
 .g .g-band--cyan .g-row:hover .g-row-n { color:var(--g-navy); }
+/* Below the two-column layout these rows stack. The `auto 1fr` default put
+   the number in a 249px track sized by the description, and squeezed the
+   title into the 69px left over on the right. */
+@media (max-width:859px){
+  .g .g-row { grid-template-columns:1fr; gap:.35rem; }
+  .g .g-row-m { text-align:left; margin-top:.2rem; }
+}
 @media (min-width:860px){ .g .g-row { grid-template-columns:3.5rem minmax(7rem,1fr) minmax(0,1.9fr) 13rem; align-items:start; } }
 /* An index without leading numbers: the title column takes the left edge so
    it still lines up with the section heading and the hover accent bar. */
@@ -770,12 +839,35 @@ body.g { box-sizing:border-box; font-family:var(--font, "Montserrat", Arial, san
 
 @media (max-width:860px){
   .g .g-pj-journey { height:240vh; }
-  .g .g-pj-pin { grid-template-columns:1fr; align-content:center; gap:1.25rem; }
+  .g .g-pj-pin {
+    grid-template-columns:1fr; gap:1rem;
+    /* `center` overflows a too-short pin in BOTH directions, which put the
+       illustration on top of the tabs above it. `start` keeps any residual
+       overflow below. dvh accounts for the mobile browser chrome. */
+    align-content:start;
+    /* The stage sizes itself from aspect-ratio, which does not count towards
+       its min-content height — so its row collapsed under a fixed-height pin
+       while the illustration kept its size, and it bled over the steps.
+       max-content rows cannot be compressed, so nothing can overlap. */
+    grid-auto-rows:max-content;
+    height:calc(100dvh - var(--g-nav));
+  }
   .g .g-pj-stage { order:-1; max-height:none; }
   .g .g-pj-left { position:static; }
   .g .g-pj-steps { padding-left:2.75rem; }
   .g .g-pj-dot { left:-2.75rem; }
-  .g .g-pj-quote { position:static; transform:none; margin-top:1.5rem; }
+  /* The quote panel stays an overlay at this size. In the flow it added 378px
+     to a fixed-height pin and the whole column overflowed by 438px. The
+     timeline slides it up from translateY(120%); see render() in giga.js. */
+  .g .g-pj-step { padding:.5rem 0; }
+  .g .g-pj-cta { gap:.5rem; margin-top:1rem; }
+}
+
+/* Two stacked buttons are 112px the pinned column does not have on a phone.
+   The quote panel that slides up at the end carries the form and the call
+   button, and the drawer keeps a persistent Instant Quote. */
+@media (max-width:560px){
+  .g .g-pj-cta { display:none; }
 }
 
 /* No pinning and no timeline when motion is reduced: the section becomes an
@@ -1142,7 +1234,10 @@ body.g { box-sizing:border-box; font-family:var(--font, "Montserrat", Arial, san
 .g .g-band--navy .g-qform, .g .g-band--deep .g-qform {
   background:rgba(255,255,255,.05); border-color:var(--g-rule-d);
 }
-.g .g-fset { border:0; margin:0; padding:0; }
+/* A fieldset carries `min-inline-size:min-content` in the UA stylesheet, so
+   it refuses to shrink below its widest row — the three-chip radio group
+   pushed it 29px past a 360px screen. */
+.g .g-fset { border:0; margin:0; padding:0; min-inline-size:0; }
 .g .g-fset legend {
   padding:0; margin-bottom:.6rem; font-size:.6875rem; font-weight:700;
   letter-spacing:.12em; text-transform:uppercase; color:var(--g-ink);
@@ -1185,6 +1280,119 @@ body.g { box-sizing:border-box; font-family:var(--font, "Montserrat", Arial, san
 }
 .g .g-band--navy .g-field-help, .g .g-band--deep .g-field-help { color:var(--g-onnavy); }
 .g .g-band--cyan .g-fset legend, .g .g-band--cyan .g-field-help { color:var(--g-navy); }
+
+/* ---------- Phone and tablet ----------
+   Measured with tools/g-responsive.cjs across 360 / 390 / 414 / 768 / 820 /
+   1024 / 1180. Three things: nothing interactive below ~44px, no text below
+   12px, and the layouts that had room to do better on a tablet doing so. */
+
+/* In a column flex container `flex:1` sets flex-basis:0 on the BLOCK axis,
+   which overrode height:52px and collapsed the stacked postcode field to
+   19px — on every page's closing CTA below 560px. */
+@media (max-width:560px){
+  .g .g-form input { flex:none; width:100%; }
+
+  /* The chips sit on a container background that shows through the 1px gaps
+     as separators. Wrapped onto two rows they left the rest of the row as a
+     grey block, so on a phone they stack and fill the width instead. */
+  .g .g-radios { width:100%; display:grid; grid-template-columns:1fr; }
+  .g .g-radios label { justify-content:flex-start; padding-inline:1rem; }
+
+  /* Buttons stack but keep their own width: `stretch` made every one of them
+     span the screen. They hug their label and only reach the full width when
+     a long one ("Portabox Regional Solution") has to wrap. */
+  .g .g-btns { flex-direction:column; align-items:flex-start; }
+  .g .g-btns .g-btn { width:auto; max-width:100%; }
+  .g .g-btn { height:auto; min-height:52px; white-space:normal; padding-block:.85rem; }
+
+  /* Grid items stretch by default, which made every Select button span the
+     row. They size to their label like the rest. */
+  .g .g-price-row .g-btn { justify-self:start; }
+
+  /* The eyebrow's two halves side by side are wider than the screen, so the
+     caption wraps and the box filled the width with it. Capping the caption
+     lets the whole flag shrink back to its content. */
+  .g .g-flag { max-width:100%; }
+  .g .g-flag span { max-width:17ch; }
+}
+
+/* Tablet portrait has room for two testimonials and two feature cards
+   abreast; one column wasted most of the width. */
+@media (min-width:640px) and (max-width:859px){
+  .g .g-quotes { grid-template-columns:repeat(2,1fr); }
+}
+
+/* Width alone misses a tablet in landscape (iPad Pro is 1180 wide), so any
+   coarse pointer gets the same treatment whatever the width. */
+@media (max-width:1024px), (pointer:coarse){
+  /* --- Text floor. Ten- and eleven-pixel uppercase with wide tracking is
+     legible on a desktop monitor and not on a phone held at arm's length. --- */
+  .g .g-flag b,
+  .g .g-stat span,
+  .g .g-tagline,
+  .g .g-badge,
+  .g .g-who span,
+  .g .g-foot h4,
+  .g .g-pj-proof,
+  .g .g-pj-chip--step,
+  .g .g-mega-h,
+  .g .g-mega-promo-b em,
+  .g .g-drawer-h,
+  .g .g-price-figs i,
+  .g .g-field label,
+  .g .g-field label span,
+  .g .g-fset legend { font-size:.75rem; }
+  .g .g-pj-chip--price { font-size:.6875rem; }
+  .g .g-pj-chip--price b { font-size:1.125rem; }
+
+  /* --- Tap targets. Standalone controls reach 44px; links inside running
+     prose are left alone, because padding them out damages the line box for
+     a target people reach by tapping the word itself. --- */
+  .g .g-brand { min-height:44px; }
+  .g .g-flag { min-height:44px; }
+  .g .g-pj-tabs button { min-height:44px; }
+
+  .g .g-foot ul li { margin-bottom:0; }
+  .g .g-foot ul li a {
+    display:inline-flex; align-items:center; min-height:44px;
+  }
+  .g .g-foot ul.g-foot-contact { gap:0; }
+  .g .g-foot ul.g-foot-social { gap:.5rem; margin-top:1rem; }
+  .g .g-foot-social a { width:44px; height:44px; }
+  .g .g-foot-legal a { display:inline-flex; align-items:center; min-height:44px; }
+  .g .g-foot-legal { gap:0 1.75rem; }
+
+  .g .g-crumb a, .g .g-crumb span[aria-current] {
+    display:inline-flex; align-items:center; min-height:36px;
+  }
+  .g .g-crumb { margin-bottom:1rem; }
+
+  /* The drawer is the whole navigation on these widths, so its rows get the
+     most generous targets on the page. */
+  .g .g-drawer a { min-height:48px; display:flex; align-items:center; }
+}
+
+/* A short phone cannot hold the illustration and three steps in one viewport
+   (a 667px screen offers 603px and the content needs 658px), so below this
+   height the section runs as an ordinary block rather than pinning. Taller
+   phones — 780px and up — keep the pinned animation. */
+@media (max-width:860px) and (max-height:760px){
+  .g .g-pj-journey { height:auto; }
+  .g .g-pj-pin { position:static; height:auto; padding-block:2.5rem; }
+  .g .g-pj-quote { position:static; transform:none; opacity:1; pointer-events:auto; margin-top:1.5rem; }
+  .g .g-pj-cta { display:flex; }
+}
+
+/* Landscape phones: the pinned journey had less height than the stage needed,
+   so the illustration was cropped and the steps pushed off screen. Below this
+   height it runs as an ordinary block instead of pinning. */
+@media (max-height:520px) and (orientation:landscape){
+  .g .g-pj-journey { height:auto; }
+  .g .g-pj-pin { position:static; height:auto; padding-block:2.5rem; }
+  .g .g-pj-quote { position:static; transform:none; opacity:1; pointer-events:auto; margin-top:1.5rem; }
+  .g .g-hero { min-height:0; padding-block:calc(var(--g-nav) + 2rem) 3rem; }
+  .g .g-phero { min-height:0; padding-block:calc(var(--g-nav) + 2rem) 2.5rem; }
+}
 
 /* ---------- Motion ---------- */
 

@@ -1,0 +1,75 @@
+/* ---------- Phone and tablet ----------
+   Measured with tools/g-responsive.cjs across 360 / 390 / 414 / 768 / 820 /
+   1024 / 1180. Three things: nothing interactive below ~44px, no text below
+   12px, and the layouts that had room to do better on a tablet doing so. */
+
+/* In a column flex container `flex:1` sets flex-basis:0 on the BLOCK axis,
+   which overrode height:52px and collapsed the stacked postcode field to
+   19px — on every page's closing CTA below 560px. */
+@media (max-width:560px){
+  .g .g-form input { flex:none; width:100%; }
+}
+
+/* Tablet portrait has room for two testimonials and two feature cards
+   abreast; one column wasted most of the width. */
+@media (min-width:640px) and (max-width:859px){
+  .g .g-quotes { grid-template-columns:repeat(2,1fr); }
+}
+
+@media (max-width:1024px){
+  /* --- Text floor. Ten- and eleven-pixel uppercase with wide tracking is
+     legible on a desktop monitor and not on a phone held at arm's length. --- */
+  .g .g-flag b,
+  .g .g-stat span,
+  .g .g-tagline,
+  .g .g-badge,
+  .g .g-who span,
+  .g .g-foot h4,
+  .g .g-pj-proof,
+  .g .g-pj-chip--step,
+  .g .g-mega-h,
+  .g .g-mega-promo-b em,
+  .g .g-drawer-h,
+  .g .g-field label,
+  .g .g-field label span,
+  .g .g-fset legend { font-size:.75rem; }
+  .g .g-pj-chip--price { font-size:.6875rem; }
+  .g .g-pj-chip--price b { font-size:1.125rem; }
+
+  /* --- Tap targets. Standalone controls reach 44px; links inside running
+     prose are left alone, because padding them out damages the line box for
+     a target people reach by tapping the word itself. --- */
+  .g .g-brand { min-height:44px; }
+  .g .g-flag { min-height:44px; }
+  .g .g-pj-tabs button { min-height:44px; }
+
+  .g .g-foot ul li { margin-bottom:0; }
+  .g .g-foot ul li a {
+    display:inline-flex; align-items:center; min-height:44px;
+  }
+  .g .g-foot ul.g-foot-contact { gap:0; }
+  .g .g-foot ul.g-foot-social { gap:.5rem; margin-top:1rem; }
+  .g .g-foot-social a { width:44px; height:44px; }
+  .g .g-foot-legal a { display:inline-flex; align-items:center; min-height:44px; }
+  .g .g-foot-legal { gap:0 1.75rem; }
+
+  .g .g-crumb a, .g .g-crumb span[aria-current] {
+    display:inline-flex; align-items:center; min-height:36px;
+  }
+  .g .g-crumb { margin-bottom:1rem; }
+
+  /* The drawer is the whole navigation on these widths, so its rows get the
+     most generous targets on the page. */
+  .g .g-drawer a { min-height:48px; display:flex; align-items:center; }
+}
+
+/* Landscape phones: the pinned journey had less height than the stage needed,
+   so the illustration was cropped and the steps pushed off screen. Below this
+   height it runs as an ordinary block instead of pinning. */
+@media (max-height:520px) and (orientation:landscape){
+  .g .g-pj-journey { height:auto; }
+  .g .g-pj-pin { position:static; height:auto; padding-block:2.5rem; }
+  .g .g-pj-quote { position:static; transform:none; opacity:1; pointer-events:auto; margin-top:1.5rem; }
+  .g .g-hero { min-height:0; padding-block:calc(var(--g-nav) + 2rem) 3rem; }
+  .g .g-phero { min-height:0; padding-block:calc(var(--g-nav) + 2rem) 2.5rem; }
+}

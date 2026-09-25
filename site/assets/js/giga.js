@@ -305,7 +305,7 @@
   function heroVideo() {
     var v = document.querySelector(".hero-video");
     if (!v) return;
-    var small = window.matchMedia("(max-width: 767px)").matches;
+    var small = window.matchMedia("(max-width: 767px), (max-height: 520px)").matches;
     var save = navigator.connection && navigator.connection.saveData;
     if (reduce || small || save) return;
 
@@ -506,13 +506,18 @@
       el.steps.forEach(function (st, i) { st.classList.toggle("on", i === active); st.classList.toggle("done", i < active); });
       el.rail.style.transform = "scaleY(" + clamp(p / T.off[1]) + ")";
 
-      /* Under reduced motion the CSS makes the form a static block, so the
-         timeline must not drive its opacity or the reveal would undo that. */
-      if (reduce) {
+      /* Reduced motion, and short landscape, both make the form a static
+         block in CSS — the timeline must not drive its opacity or the reveal
+         would undo that. */
+      // Matches the CSS that unpins the section: short landscape, and short
+      // phones. In both the quote panel is a static block owned by CSS.
+      var flat = (window.innerHeight <= 520 && window.innerWidth > window.innerHeight) ||
+                 (window.innerWidth <= 860 && window.innerHeight <= 760);
+      if (reduce || flat) {
         el.chipStep.textContent = "Step " + (active + 1) + " of 3";
       } else {
         var qp = eo(seg(p, T.quote[0], T.quote[1]));
-        var narrow = window.innerWidth <= 860;
+        var narrow = window.innerWidth <= 860 || window.innerHeight <= 520;
         el.quote.style.opacity = qp;
         el.quote.style.transform = narrow
           ? "translateY(" + (120 * (1 - qp)) + "%)"

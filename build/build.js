@@ -1580,14 +1580,17 @@ function gNav() {
   </div>
 </header>
 <div class="g-drawer" id="g-drawer">
-  ${GROUPS.map((g) => `<div class="g-drawer-g">
-    <p class="g-drawer-h">${g.label}</p>
-    <a href="${g.href}">${g.all}</a>
-    ${g.items.map(([t, h]) => `<a href="${h}">${t}</a>`).join("\n    ")}
-  </div>`).join("\n  ")}
-  <div class="g-drawer-g">
-    ${FLAT.map(([t, h]) => `<a href="${h}">${t}</a>`).join("\n    ")}
-  </div>
+  <!-- The desktop bar uses the logo for this and has no room to spare; the
+       drawer has both the room and the need for an explicit Home. -->
+  <a class="g-dlink" href="index.html">Home</a>
+  ${GROUPS.map((g) => `<details class="g-dgroup">
+    <summary>${g.label}<i aria-hidden="true"></i></summary>
+    <div class="g-dsub">
+      <a href="${g.href}">${g.all}</a>
+      ${g.items.map(([t, h]) => `<a href="${h}">${t}</a>`).join("")}
+    </div>
+  </details>`).join("")}
+  ${FLAT.map(([t, h]) => `<a class="g-dlink" href="${h}">${t}</a>`).join("")}
   <div class="g-btns">
     ${gBtn(C.CONTACT.quote, "Instant Quote", "yellow")}
     ${gBtn(C.CONTACT.tel, "Call " + C.CONTACT.phone, "ghost")}
