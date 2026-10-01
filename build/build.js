@@ -269,7 +269,7 @@ const gintro = (chip, h, sub, btns) => `
 const quoteForm = () => `
       <form class="g-form quote-form" novalidate>
         <input type="text" inputmode="numeric" maxlength="4" placeholder="Your postcode" aria-label="Delivery postcode">
-        ${traceSubmit("Get my price", "", "", "primary")}
+        ${traceSubmit("Get my instant quote", "", "", "primary")}
       </form>
       <div class="g-out quote-out" aria-live="polite"></div>`;
 
@@ -731,11 +731,12 @@ PAGES.push({
   desc: "Portable storage at your address or in a monitored Portabox facility. Priced per cubic metre from $8.76/m³, delivered level, and you hold the only keys.",
   body: [
     hero({
+      form: true,
       short: true, img: "facility-lot.png", alt: "Portabox containers lined up at a secure facility",
       crumb: crumb([["Home", url("index")], ["Storage Services"]]),
       h1: "Storage services",
       sub: "Whether it sits in your driveway or in our facility, it is the same container, the same keys and the same per-cubic-metre rate.",
-      btns: traceBtn(C.CONTACT.quote, "Instant Quote", "No email needed", "primary") + traceBtn(url("pricing"), "See pricing", "From $209", "dark"),
+      btns: traceBtn(url("pricing"), "See pricing", "From $209", "dark"),
     }),
     trust(),
     cards({ band: "light", chip: "Storage", h: "Four ways people use it", items: C.STORAGE_SERVICES, cols: "g-4", more: "Read more" }),
@@ -757,11 +758,12 @@ PAGES.push({
   desc: "Door-to-door moving between Brisbane, Sydney, Melbourne and Adelaide, or anywhere in Australia on a regional quote. Load once, at your own pace.",
   body: [
     hero({
+      form: true,
       short: true, img: "two-containers.jpeg", alt: "Two Portabox containers ready for a move",
       crumb: crumb([["Home", url("index")], ["Moving Services"]]),
       h1: "Moving services",
       sub: "Pack it once, properly, instead of racing a removalist's clock. We carry the sealed container and lower it flat at the other end.",
-      btns: traceBtn(C.CONTACT.quote, "Instant Quote", "No email needed", "primary") + traceBtn(url("locations"), "Where we go", "Four depots", "dark"),
+      btns: traceBtn(url("locations"), "Where we go", "Four depots", "dark"),
     }),
     trust(),
     cards({ band: "light", chip: "Moving", h: "Three kinds of run", items: C.MOVING_SERVICES }),
@@ -786,11 +788,11 @@ PAGES.push({
   desc: "Portabox delivers from depots in Brisbane, Sydney, Melbourne and Adelaide, 150–200 km out, plus regional jobs anywhere in Australia.",
   body: [
     hero({
+      form: true,
       short: true, img: "truck-coastal.png", alt: "A Portabox truck on a coastal road",
       crumb: crumb([["Home", url("index")], ["Locations"]]),
       h1: "Where we go",
       sub: "Four depots covering the capitals and 150–200 km around each of them — and regional runs anywhere else in the country.",
-      btns: traceBtn(C.CONTACT.quote, "Check my postcode", "Four digits", "primary"),
     }),
     trust(),
     cards({ band: "light", chip: "Coverage", h: "Pick your region", items: C.LOCATIONS, cols: "g-3", more: "See coverage" }),
@@ -811,11 +813,12 @@ PAGES.push({
   desc: "Three container sizes: 10 m³ from $209, 19 m³ and 25 m³ from $219 a month. Priced per cubic metre — $8.76/m³ on the Large.",
   body: [
     hero({
+      form: true,
       short: true, img: "clearance.jpg", alt: "External clearance dimensions for the Small, Medium and Large Portabox containers",
       crumb: crumb([["Home", url("index")], ["Pricing"]]),
       h1: "Pricing and sizes",
       sub: "Three sizes, published volumes, and the per-cubic-metre rate printed next to each one so you can actually compare us to anybody else.",
-      btns: traceBtn(C.CONTACT.quote, "Instant Quote", "No email needed", "primary") + traceBtn(C.CONTACT.priceMatch, "Get a price match", "We\u2019ll beat it", "dark"),
+      btns: traceBtn(C.CONTACT.priceMatch, "Get a price match", "We\u2019ll beat it", "dark"),
     }),
     trust(),
     pricing({ band: "light" }),
@@ -842,11 +845,11 @@ PAGES.push({
   desc: "Delivered level on the EARL hydraulic lift, loaded at ground level in your own time, then left at your place or stored in a monitored facility.",
   body: [
     hero({
+      form: true,
       short: true, img: "man-with-customer.png", alt: "A Portabox team member handing over keys to a customer",
       crumb: crumb([["Home", url("index")], ["How it works"]]),
       h1: "How it works",
       sub: "Three moves, and none of them are yours. The only part you do is the packing.",
-      btns: traceBtn(C.CONTACT.quote, "Instant Quote", "No email needed", "primary"),
     }),
     trust(),
     // gJourney() cannot run here -- it uses consts the giga block initialises
@@ -1038,10 +1041,11 @@ Object.keys(SERVICE_DETAIL).forEach((slug) => {
     desc: d.sub,
     body: [
       hero({
+      form: true,
         short: true, img: d.hero, alt: d.heroAlt,
         crumb: crumb([["Home", url("index")], d.parent, [d.h1]]),
         h1: d.h1, sub: d.sub,
-        btns: traceBtn(C.CONTACT.quote, "Instant Quote", "No email needed", "primary") + traceBtn(C.CONTACT.tel, "Call the depot", C.CONTACT.phone, "dark"),
+        btns: traceBtn(C.CONTACT.tel, "Call the depot", C.CONTACT.phone, "dark"),
       }),
       trust(),
       split({
@@ -1310,13 +1314,13 @@ PAGES.push({
   desc: "External dimensions, floor area and door clearances for every Portabox container, from 10 m³ to 50 m³. Check it fits your driveway before you book.",
   body: [
     hero({
+      form: true,
       short: true, img: "clearance.jpg",
       alt: "Portabox containers side by side showing their external dimensions",
       crumb: crumb([["Home", url("index")], ["Container sizes"]]),
       h1: "Container sizes",
       sub: "Three container sizes and two combinations, with the external dimensions you need to check the space before it arrives.",
-      btns: traceBtn(C.CONTACT.quote, "Instant Quote", "No email needed", "primary") +
-            traceBtn(url("pricing"), "See pricing", "From $209", "outline"),
+      btns: traceBtn(url("pricing"), "See pricing", "From $209", "outline"),
     }),
     trust(),
     specCards({ band: "light" }),
@@ -1403,13 +1407,13 @@ PAGES.push({
   desc: "Portabox delivers Australia's largest portable storage containers to your address, level on a hydraulic lift, priced per cubic metre. You keep the only keys.",
   body: [
     hero({
+      form: true,
       short: true, img: "hero-customer.jpg",
       alt: "A customer beside their Portabox container in the driveway",
       crumb: crumb([["Home", url("index")], ["About us"]]),
       h1: "About Portabox",
       sub: "We bring the container to you, set it down level, and hand you the only keys. That is the whole idea.",
-      btns: traceBtn(C.CONTACT.quote, "Instant Quote", "No email needed", "primary") +
-            traceBtn(C.CONTACT.tel, "Call " + C.CONTACT.phone, "Talk to a depot", "outline"),
+      btns: traceBtn(C.CONTACT.tel, "Call " + C.CONTACT.phone, "Talk to a depot", "outline"),
     }),
     trust(),
     split({
@@ -1688,7 +1692,7 @@ function gHero() {
 <section class="g-hero">
   <div class="g-hero-media" aria-hidden="true">
     <video class="hero-video" playsinline muted loop preload="none"
-           poster="${IMG}banner-poster.jpg" data-src="assets/video/banner.mp4"></video>
+           poster="${IMG}banner-poster.jpg" data-src="/assets/video/banner.mp4"></video>
   </div>
   <div class="g-hero-in">
     <div class="g-wrap">
@@ -1697,9 +1701,7 @@ function gHero() {
         <h1 class="g-display g-rise" style="--d:80ms">Storage that stays at your place.</h1>
         <div class="g-rise" style="--d:160ms">
           <p class="g-hero-body">Australia&rsquo;s largest portable storage containers. Delivered to your door. No stressful facility trips, no inflated prices.</p>
-          <div class="g-btns" style="margin-top:1.75rem">
-            ${gBtn(C.CONTACT.quote, "Get my instant quote", "yellow")}
-          </div>
+          <div class="g-hero-form">${quoteForm()}</div>
         </div>
       </div>
     </div>
@@ -2208,7 +2210,7 @@ function gFinal() {
       <form class="g-form quote-form" novalidate>
         <label class="sr-only" for="g-pc">Delivery postcode</label>
         <input id="g-pc" type="text" inputmode="numeric" maxlength="4" placeholder="Your postcode">
-        <button class="g-btn g-btn--yellow" type="submit"><span>Get my price</span><i>${gArrow}</i></button>
+        <button class="g-btn g-btn--yellow" type="submit"><span>Get my instant quote</span><i>${gArrow}</i></button>
       </form>
       <div class="g-out quote-out" aria-live="polite"></div>
       <div class="g-btns" style="margin-top:1.75rem">${gBtn(C.CONTACT.tel, "Call " + C.CONTACT.phone, "line")}</div>

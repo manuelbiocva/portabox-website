@@ -142,7 +142,7 @@ function gHero() {
 <section class="g-hero">
   <div class="g-hero-media" aria-hidden="true">
     <video class="hero-video" playsinline muted loop preload="none"
-           poster="${IMG}banner-poster.jpg" data-src="assets/video/banner.mp4"></video>
+           poster="${IMG}banner-poster.jpg" data-src="/assets/video/banner.mp4"></video>
   </div>
   <div class="g-hero-in">
     <div class="g-wrap">
@@ -151,9 +151,7 @@ function gHero() {
         <h1 class="g-display g-rise" style="--d:80ms">Storage that stays at your place.</h1>
         <div class="g-rise" style="--d:160ms">
           <p class="g-hero-body">Australia&rsquo;s largest portable storage containers. Delivered to your door. No stressful facility trips, no inflated prices.</p>
-          <div class="g-btns" style="margin-top:1.75rem">
-            ${gBtn(C.CONTACT.quote, "Get my instant quote", "yellow")}
-          </div>
+          <div class="g-hero-form">${quoteForm()}</div>
         </div>
       </div>
     </div>
@@ -662,7 +660,7 @@ function gFinal() {
       <form class="g-form quote-form" novalidate>
         <label class="sr-only" for="g-pc">Delivery postcode</label>
         <input id="g-pc" type="text" inputmode="numeric" maxlength="4" placeholder="Your postcode">
-        <button class="g-btn g-btn--yellow" type="submit"><span>Get my price</span><i>${gArrow}</i></button>
+        <button class="g-btn g-btn--yellow" type="submit"><span>Get my instant quote</span><i>${gArrow}</i></button>
       </form>
       <div class="g-out quote-out" aria-live="polite"></div>
       <div class="g-btns" style="margin-top:1.75rem">${gBtn(C.CONTACT.tel, "Call " + C.CONTACT.phone, "line")}</div>

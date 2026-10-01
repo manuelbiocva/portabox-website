@@ -41,7 +41,7 @@ const gintro = (chip, h, sub, btns) => `
 const quoteForm = () => `
       <form class="g-form quote-form" novalidate>
         <input type="text" inputmode="numeric" maxlength="4" placeholder="Your postcode" aria-label="Delivery postcode">
-        ${traceSubmit("Get my price", "", "", "primary")}
+        ${traceSubmit("Get my instant quote", "", "", "primary")}
       </form>
       <div class="g-out quote-out" aria-live="polite"></div>`;
 
