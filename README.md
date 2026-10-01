@@ -79,6 +79,28 @@ node tools/g-responsive.cjs         # overflow, tap targets and text size,
                                     # 360 / 390 / 414 / 768 / 820 / 1024 / 1180
 ```
 
+## Deployment
+
+Vercel serves `site/` as the web root (`outputDirectory`), which is why links and
+asset paths are root-relative. `node build/build.js` runs on every deploy, so the
+live site always reflects the sources. The generator needs no packages, so the
+install step is a no-op.
+
+`vercel.json` cannot carry comments, so the caching reasoning lives here:
+
+- **`/assets/img` and `/assets/video`** are `immutable` for a year. Those files
+  keep their names deliberately; replace one by changing its filename.
+- **`/assets/css` and `/assets/js` must NOT be `immutable`.** They keep their
+  filenames across deploys, so a browser would hold a stale copy for as long as
+  the header says and never revalidate. This actually happened: a fixed redirect
+  kept 404ing for anyone who had already loaded the old script. The build appends
+  a content hash (`giga.js?v=2aba84ae`) so a new build produces a new URL, which
+  also bypasses caches already holding the old copy.
+
+Run `node tools/check-vercel.cjs` before pushing config changes. An invalid key
+fails the *deploy*, not the build, so it is only visible in the dashboard — a
+stray `"comment"` in a header rule cost one failed deploy.
+
 ## Not wired up yet
 
 The forms validate in the browser but have nowhere to post. They say so on submit
