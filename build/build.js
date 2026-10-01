@@ -10,6 +10,21 @@ const path = require("path");
 const C = require("./content");
 
 const OUT = path.join(__dirname, "..", "site");
+
+/* Asset URLs carry a hash of their contents. A stable filename plus a long
+   cache header means a browser keeps the old file for as long as the header
+   says and, with `immutable`, will not even revalidate — which is how a fixed
+   redirect carried on 404ing for people who had already loaded the old
+   script. A content hash changes the URL, so a new build is always fetched
+   and any already-cached copy is bypassed. */
+const crypto = require("crypto");
+const asset = (rel) => {
+  let v = "dev";
+  try {
+    v = crypto.createHash("sha1").update(fs.readFileSync(path.join(OUT, rel))).digest("hex").slice(0, 8);
+  } catch (e) { /* asset missing at build time; ship the bare path */ }
+  return "/" + rel + "?v=" + v;
+};
 const IMG = "/assets/img/";
 
 /* A page's href and the file it is written to both come from ROUTES, so they
@@ -63,7 +78,7 @@ function standaloneHead(p) {
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/${p.css}">
+<link rel="stylesheet" href="${asset("assets/css/" + p.css)}">
 </head>
 <body class="${p.bodyClass}">
 <a class="g-skip" href="#main">Skip to content</a>`;
@@ -2302,9 +2317,9 @@ PAGES.forEach((p) => {
   // gets the same giga chrome wrapped around its sections here.
   p.path = "/" + p.file.replace(/index\.html$/, "");
   const gp = Object.assign({}, p, { bodyClass: "g", css: "giga.css", js: "giga.js" });
-  const tail = `\n<script src="/assets/js/giga.js"></script>\n</body>\n</html>`;
+  const tail = `\n<script src="${asset("assets/js/giga.js")}"></script>\n</body>\n</html>`;
   const html = p.standalone
-    ? standaloneHead(p) + p.body + `\n<script src="/assets/js/${p.js}"></script>\n</body>\n</html>`
+    ? standaloneHead(p) + p.body + `\n<script src="${asset("assets/js/" + p.js)}"></script>\n</body>\n</html>`
     : standaloneHead(gp) + gNav() + `\n<main id="main">\n` + alternate(p.body.replace(JOURNEY_SLOT, gJourney)) + `\n</main>\n` + gFooter() + tail;
   const dest = path.join(OUT, p.file);
   fs.mkdirSync(path.dirname(dest), { recursive: true });
