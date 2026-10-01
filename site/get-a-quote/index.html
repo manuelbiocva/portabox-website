@@ -14,7 +14,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/giga.css?v=353a431e">
+<link rel="stylesheet" href="/assets/css/giga.css?v=3baa5ecf">
 </head>
 <body class="g">
 <a class="g-skip" href="#main">Skip to content</a>
@@ -216,91 +216,432 @@
   </div>
 </section>
 
-<section class="g-band g-band--white" id="quote-form">
+<section class="g-band g-band--white g-qf" id="quote-form">
   <div class="g-wrap">
     
     <div class="g-intro">
-      <div class="g-rise"><p class="g-label">Instant quote</p><h2 class="g-h2">Plan your move or storage</h2></div>
+      <div class="g-rise"><p class="g-label">Instant quote</p><h2 class="g-h2">Five questions, then a price</h2></div>
       <div class="g-rise" style="--d:110ms">
-        <p class="g-body">The quote tool covers most metro and surrounding areas within 150&ndash;200 km of our Adelaide, Melbourne, Brisbane and Sydney facilities. Outside that range we still deliver &mdash; call 1800 467 637 about the Regional Solution.</p>
+        <p class="g-body">Nothing is charged and we do not ask for your details until the end. Metro and surrounding areas are priced here; outside the depot radius we quote the run by hand — call 1800 467 637 about the Regional Solution.</p>
         
       </div>
     </div>
 
-    <form class="g-cform g-qform g-rise" novalidate>
-      <fieldset class="g-fset g-span">
-        <legend>How can we help you?</legend>
-        <div class="g-radios">
-          <input type="radio" id="q-help-1" name="help" value="Moving" data-group="help" required><label for="q-help-1">Moving</label>
-          <input type="radio" id="q-help-2" name="help" value="Storage" data-group="help" required><label for="q-help-2">Storage</label>
-          <input type="radio" id="q-help-3" name="help" value="Moving &amp; Storage" data-group="help" required><label for="q-help-3">Moving &amp; Storage</label>
-        </div>
-      </fieldset>
+    <noscript>
+      <p class="g-qf-depot is-warn">The step-by-step quote needs JavaScript, which is switched off.
+        Ring <a href="tel:1800467637">1800 467 637</a> and we will price it on the phone,
+        or use the <a href="https://portabox.au/get-a-quote/">booking form on portabox.au</a>.</p>
+    </noscript>
 
-      <fieldset class="g-fset g-span">
-        <legend>Where will you store your containers?</legend>
-        <div class="g-radios">
-          <input type="radio" id="q-where-1" name="where" value="My location" data-group="where" required><label for="q-where-1">My location</label>
-          <input type="radio" id="q-where-2" name="where" value="Portabox location" data-group="where" required><label for="q-where-2">Portabox location</label>
-        </div>
-      </fieldset>
+    <div class="g-qf-shell g-rise">
+      <nav class="g-qf-rail" aria-label="Quote progress">
+        <ol class="g-qf-steps">
+          
+          <li data-qf-crumb="1" class="now">
+            <button type="button" data-qf-goto="1" disabled>
+              <span class="g-qf-num">1</span>
+              <span class="g-qf-crumb-t">Where</span>
+              <span class="g-qf-crumb-v"></span>
+            </button>
+          </li>
+          <li data-qf-crumb="2">
+            <button type="button" data-qf-goto="2" disabled>
+              <span class="g-qf-num">2</span>
+              <span class="g-qf-crumb-t">What</span>
+              <span class="g-qf-crumb-v"></span>
+            </button>
+          </li>
+          <li data-qf-crumb="3">
+            <button type="button" data-qf-goto="3" disabled>
+              <span class="g-qf-num">3</span>
+              <span class="g-qf-crumb-t">Size</span>
+              <span class="g-qf-crumb-v"></span>
+            </button>
+          </li>
+          <li data-qf-crumb="4">
+            <button type="button" data-qf-goto="4" disabled>
+              <span class="g-qf-num">4</span>
+              <span class="g-qf-crumb-t">When</span>
+              <span class="g-qf-crumb-v"></span>
+            </button>
+          </li>
+          <li data-qf-crumb="5">
+            <button type="button" data-qf-goto="5" disabled>
+              <span class="g-qf-num">5</span>
+              <span class="g-qf-crumb-t">Quote</span>
+              <span class="g-qf-crumb-v"></span>
+            </button>
+          </li>
+        </ol>
+        <p class="g-qf-rail-help">Rather talk it through?<br><a href="tel:1800467637">1800 467 637</a></p>
+      </nav>
 
-      <p class="g-field g-span">
-        <label for="q-space">How much space do you require?</label>
-        <select id="q-space" name="space" required>
-          <option value="">Please select an option</option>
-          <option value="small">Small container (7&prime;) &mdash; 1 bed home or apartment, up to 10 m&sup3;</option>
-          <option value="medium">Medium container (12&prime;) &mdash; 2 bed home, 11&ndash;19 m&sup3; (not for interstate moving)</option>
-          <option value="large">Large container (16&prime;) &mdash; 3 bed home, 20&ndash;25 m&sup3;</option>
-          <option value="combo">Large + Small combo &mdash; 4 bed home, 26&ndash;35 m&sup3;</option>
-          <option value="two-large">Two Large containers &mdash; 36&ndash;50 m&sup3;</option>
-          <option value="business">Business &mdash; Large container (16&prime;)</option>
-        </select>
-        <span class="g-field-help">Not sure? <a href="/pricing/">Use the space calculator</a> or ring the depot and describe the house.</span>
-      </p>
+      <form class="g-qf-main" data-qf novalidate>
+        
+        <section class="g-qf-panel" data-qf-panel="1"  aria-labelledby="qf-q1">
+          <p class="g-qf-step">Step 1 of 5</p>
+          <h3 class="g-qf-q" id="qf-q1">Where are you moving or storing?</h3>
+          
+          <p class="g-qf-lead">Start with the postcode the container is delivered to. We will tell you which depot covers it before you go any further.</p>
+          
+          <p class="g-qf-field">
+            <label for="qf-origin">Delivery postcode or suburb</label>
+            <input id="qf-origin" type="text" name="origin" autocomplete="postal-code" inputmode="numeric" placeholder="e.g. 5000, 3000, 2000, 4000" list="qf-suburbs" aria-describedby="qf-origin-help">
+            <span class="g-qf-help" id="qf-origin-help">Four digits, or start typing a suburb.</span>
+          </p>
+          <datalist id="qf-suburbs"><option value="5061">Hyde Park, SA</option><option value="5061">Malvern, SA</option><option value="5061">Unley Park, SA</option><option value="5000">Adelaide CBD, SA</option><option value="5006">North Adelaide, SA</option><option value="5067">Norwood, SA</option><option value="5045">Glenelg, SA</option><option value="5113">Edinburgh North, SA</option><option value="5112">Elizabeth, SA</option><option value="5159">Blackwood, SA</option><option value="5162">Morphett Vale, SA</option><option value="5251">Mount Barker, SA</option><option value="5352">Tanunda (Barossa), SA</option><option value="5211">Victor Harbor, SA</option><option value="5540">Port Pirie, SA</option><option value="2000">Sydney CBD, NSW</option><option value="2010">Surry Hills, NSW</option><option value="2026">Bondi, NSW</option><option value="2095">Manly, NSW</option><option value="2148">Blacktown, NSW</option><option value="2150">Parramatta, NSW</option><option value="2170">Liverpool, NSW</option><option value="2220">Hurstville, NSW</option><option value="2230">Cronulla, NSW</option><option value="2500">Wollongong, NSW</option><option value="2250">Gosford (Central Coast), NSW</option><option value="2300">Newcastle, NSW</option><option value="2750">Penrith, NSW</option><option value="2795">Bathurst, NSW</option><option value="3000">Melbourne CBD, VIC</option><option value="3006">Southbank, VIC</option><option value="3026">Laverton North, VIC</option><option value="3030">Werribee, VIC</option><option value="3121">Richmond, VIC</option><option value="3141">South Yarra, VIC</option><option value="3182">St Kilda, VIC</option><option value="3175">Dandenong, VIC</option><option value="3199">Frankston, VIC</option><option value="3220">Geelong, VIC</option><option value="3350">Ballarat, VIC</option><option value="3550">Bendigo, VIC</option><option value="4000">Brisbane City, QLD</option><option value="4006">Fortitude Valley, QLD</option><option value="4101">West End, QLD</option><option value="4122">Mount Gravatt, QLD</option><option value="4208">Gilberton, QLD</option><option value="4207">Yatala, QLD</option><option value="4217">Surfers Paradise, QLD</option><option value="4220">Burleigh Heads, QLD</option><option value="4300">Springfield, QLD</option><option value="4305">Ipswich, QLD</option><option value="4350">Toowoomba, QLD</option><option value="4551">Caloundra, QLD</option><option value="4556">Buderim, QLD</option><option value="4558">Maroochydore, QLD</option><option value="4560">Nambour, QLD</option><option value="4567">Noosa Heads, QLD</option><option value="2600">Canberra (Barton), ACT</option><option value="2601">Acton, ACT</option><option value="2612">Braddon, ACT</option><option value="6000">Perth CBD, WA</option><option value="6008">Subiaco, WA</option><option value="6160">Fremantle, WA</option></datalist>
+          <div class="g-qf-depot" data-qf-depot hidden></div>
+          
+          <div class="g-qf-nav">
+            <span></span>
+            <button type="button" class="g-btn g-btn--yellow" data-qf-next><span>Continue</span><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></i></button>
+          </div>
+        </section>
+        
+        <section class="g-qf-panel" data-qf-panel="2" hidden aria-labelledby="qf-q2">
+          <p class="g-qf-step">Step 2 of 5</p>
+          <h3 class="g-qf-q" id="qf-q2">What do you need?</h3>
+          
+          <div class="g-qf-opts g-qf-opts--3">
+            
+            <div class="g-qf-opt">
+              <input type="radio" name="service" id="qf-svc-0" value="moving">
+              <label for="qf-svc-0">
+                <span class="g-qf-opt-t">Moving</span>
+                <span class="g-qf-opt-b">We deliver the container, you load it, we drive it to the new address.</span>
+                
+                <span class="g-qf-opt-pick" aria-hidden="true"></span>
+              </label>
+            </div>
+            <div class="g-qf-opt">
+              <input type="radio" name="service" id="qf-svc-1" value="storage">
+              <label for="qf-svc-1">
+                <span class="g-qf-opt-t">Storage</span>
+                <span class="g-qf-opt-b">The container stays loaded — on your property or in a monitored facility.</span>
+                
+                <span class="g-qf-opt-pick" aria-hidden="true"></span>
+              </label>
+            </div>
+            <div class="g-qf-opt">
+              <input type="radio" name="service" id="qf-svc-2" value="moving_storage">
+              <label for="qf-svc-2">
+                <span class="g-qf-opt-t">Moving and storage</span>
+                <span class="g-qf-opt-b">Store it for a while, then have it delivered to the new address.</span>
+                
+                <span class="g-qf-opt-pick" aria-hidden="true"></span>
+              </label>
+            </div>
+          </div>
 
-      <p class="g-field">
-        <label for="q-from">Where do you want to start loading?</label>
-        <input id="q-from" name="from" type="text" inputmode="numeric" maxlength="4" placeholder="Postcode" autocomplete="postal-code" required>
-        <span class="g-field-help" data-depot-for="q-from"></span>
-      </p>
-      <p class="g-field">
-        <label for="q-to">Where do you want to unload?</label>
-        <input id="q-to" name="to" type="text" inputmode="numeric" maxlength="4" placeholder="Postcode" autocomplete="postal-code" required>
-        <span class="g-field-help" data-depot-for="q-to"></span>
-      </p>
+          <div class="g-qf-sub" data-qf-sub="placement" hidden>
+            <h4 class="g-qf-subq">Where will the container live?</h4>
+            <div class="g-qf-opts g-qf-opts--2">
+              
+            <div class="g-qf-opt">
+              <input type="radio" name="placement" id="qf-place-1" value="my_place">
+              <label for="qf-place-1">
+                <span class="g-qf-opt-t">At my place</span>
+                <span class="g-qf-opt-b">It sits on your driveway or yard. You keep the only keys and open it whenever you like.</span>
+                
+                <span class="g-qf-opt-pick" aria-hidden="true"></span>
+              </label>
+            </div>
+              
+            <div class="g-qf-opt">
+              <input type="radio" name="placement" id="qf-place-2" value="facility">
+              <label for="qf-place-2">
+                <span class="g-qf-opt-t">At a Portabox facility</span>
+                <span class="g-qf-opt-b">We collect it once you have loaded it and store it in a monitored yard until you want it back.</span>
+                
+                <span class="g-qf-opt-pick" aria-hidden="true"></span>
+              </label>
+            </div>
+            </div>
+          </div>
 
-      <p class="g-field g-span">
-        <label for="q-term">How long will you need the container?</label>
-        <select id="q-term" name="term" required>
-          <option value="">Please select an option</option>
-          <option>2 weeks</option>
-          <option>1&ndash;3 months</option>
-          <option>4&ndash;11 months</option>
-          <option>12 months or more</option>
-        </select>
-      </p>
+          <div class="g-qf-sub" data-qf-sub="destination" hidden>
+            <h4 class="g-qf-subq">Where is it going?</h4>
+            
+          <p class="g-qf-field">
+            <label for="qf-dest">Destination postcode or suburb</label>
+            <input id="qf-dest" type="text" name="destination" autocomplete="postal-code" inputmode="numeric" placeholder="e.g. 3000 Melbourne" list="qf-suburbs" aria-describedby="qf-dest-help">
+            <span class="g-qf-help" id="qf-dest-help">Anywhere in Australia. Interstate runs are priced off the route, not the kilometre.</span>
+          </p>
+            <div class="g-qf-depot" data-qf-depot-dest hidden></div>
+          </div>
+          
+          <div class="g-qf-nav">
+            <button type="button" class="g-btn g-btn--line" data-qf-back><span>Previous</span></button>
+            <button type="button" class="g-btn g-btn--yellow" data-qf-next><span>Continue</span><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></i></button>
+          </div>
+        </section>
+        
+        <section class="g-qf-panel" data-qf-panel="3" hidden aria-labelledby="qf-q3">
+          <p class="g-qf-step">Step 3 of 5</p>
+          <h3 class="g-qf-q" id="qf-q3">Which size do you need?</h3>
+          
+          <div class="g-qf-sizes">
+            
+            <div class="g-qf-opt">
+              <input type="radio" name="size" id="qf-size-0" value="small_10m3">
+              <label for="qf-size-0">
+                <span class="g-qf-opt-t">10 m³ Portabox</span>
+                <span class="g-qf-opt-b">1 bedroom apartment · queen bed, sofa, fridge, 30–40 boxes</span>
+                <span class="g-qf-spec">
+                 <span><b>10 m³</b> internal</span>
+                 <span>2.15 m × 1.52 m × 2.40 m</span>
+                 <span>3.3 m² of driveway</span>
+                 <span>Door 1.40 m (W) × 2.10 m (H)</span>
+               </span>
+               <span class="g-qf-rate"><b>$209</b> per month<small>$69 per week</small></span>
+                <span class="g-qf-opt-pick" aria-hidden="true"></span>
+              </label>
+            </div>
+            <div class="g-qf-opt">
+              <input type="radio" name="size" id="qf-size-1" value="medium_19m3">
+              <label for="qf-size-1">
+                <span class="g-qf-opt-t">19 m³ Portabox</span>
+                <span class="g-qf-opt-b">2 bedroom home · 2 beds, dining suite, living room, 60–80 boxes</span>
+                <span class="g-qf-spec">
+                 <span><b>19 m³</b> internal</span>
+                 <span>3.75 m × 2.20 m × 2.40 m</span>
+                 <span>8.2 m² of driveway</span>
+                 <span>Door 2.10 m (W) × 2.10 m (H)</span>
+               </span>
+               <span class="g-qf-rate"><b>$219</b> per month<small>$75 per week</small></span>
+                <span class="g-qf-opt-pick" aria-hidden="true"></span>
+              </label>
+            </div>
+            <div class="g-qf-opt">
+              <input type="radio" name="size" id="qf-size-2" value="large_25m3">
+              <label for="qf-size-2">
+                <span class="g-qf-opt-t">25 m³ Portabox <span class="g-qf-flag">Most chosen</span></span>
+                <span class="g-qf-opt-b">3 bedroom family home · 3 beds, lounge, outdoor set, 100–120 boxes</span>
+                <span class="g-qf-spec">
+                 <span><b>25 m³</b> internal</span>
+                 <span>4.95 m × 2.20 m × 2.40 m</span>
+                 <span>10.9 m² of driveway</span>
+                 <span>Door 2.10 m (W) × 2.10 m (H)</span>
+               </span>
+               <span class="g-qf-rate"><b>$219</b> per month<small>$75 per week</small></span>
+                <span class="g-qf-opt-pick" aria-hidden="true"></span>
+              </label>
+            </div>
+            <div class="g-qf-opt">
+              <input type="radio" name="size" id="qf-size-3" value="combo_35m3">
+              <label for="qf-size-3">
+                <span class="g-qf-opt-t">Large + Small combo</span>
+                <span class="g-qf-opt-b">4 bedroom large home · 26 to 35 m³ of contents</span>
+                <span class="g-qf-spec">
+                 <span><b>35 m³</b> internal</span>
+                 <span>25 m³ and 10 m³ together</span>
+                 <span>14.2 m² of driveway</span>
+                 <span>Dual ground access doors</span>
+               </span>
+               <span class="g-qf-rate"><b>$428</b> per month<small>$144 per week</small></span>
+                <span class="g-qf-opt-pick" aria-hidden="true"></span>
+              </label>
+            </div>
+            <div class="g-qf-opt">
+              <input type="radio" name="size" id="qf-size-4" value="two_large_50m3">
+              <label for="qf-size-4">
+                <span class="g-qf-opt-t">Two 25 m³ Portaboxes</span>
+                <span class="g-qf-opt-b">5 bedroom expansive home · 36 to 50 m³ of contents</span>
+                <span class="g-qf-spec">
+                 <span><b>50 m³</b> internal</span>
+                 <span>2 × 4.95 m × 2.20 m × 2.40 m</span>
+                 <span>21.8 m² of driveway</span>
+                 <span>Dual large access doors</span>
+               </span>
+               <span class="g-qf-rate"><b>$438</b> per month<small>$150 per week</small></span>
+                <span class="g-qf-opt-pick" aria-hidden="true"></span>
+              </label>
+            </div>
+          </div>
 
-      <p class="g-field">
-        <label for="q-email">Email</label>
-        <input id="q-email" name="email" type="email" autocomplete="email" required>
-      </p>
-      <p class="g-field">
-        <label for="q-email2">Confirm email</label>
-        <input id="q-email2" name="email_confirm" type="email" autocomplete="email" required data-match="q-email">
-      </p>
+          <details class="g-qf-calc">
+            <summary>Estimate by room &amp; furniture</summary>
+            <p class="g-qf-lead">Count the rooms you are emptying. We will add up the volume and point at the smallest container that holds it.</p>
+            <div class="g-qf-rooms">
+              
+              <p class="g-qf-room">
+                <label for="qf-room-bed">Bedroom <small>6 m³ each</small></label>
+                <input type="number" id="qf-room-bed" data-qf-room="bed" min="0" max="20" step="1" value="0" inputmode="numeric">
+              </p>
+              <p class="g-qf-room">
+                <label for="qf-room-living">Living room <small>7 m³ each</small></label>
+                <input type="number" id="qf-room-living" data-qf-room="living" min="0" max="20" step="1" value="0" inputmode="numeric">
+              </p>
+              <p class="g-qf-room">
+                <label for="qf-room-kitchen">Kitchen <small>4 m³ each</small></label>
+                <input type="number" id="qf-room-kitchen" data-qf-room="kitchen" min="0" max="20" step="1" value="0" inputmode="numeric">
+              </p>
+              <p class="g-qf-room">
+                <label for="qf-room-dining">Dining room <small>4 m³ each</small></label>
+                <input type="number" id="qf-room-dining" data-qf-room="dining" min="0" max="20" step="1" value="0" inputmode="numeric">
+              </p>
+              <p class="g-qf-room">
+                <label for="qf-room-study">Study or office <small>3 m³ each</small></label>
+                <input type="number" id="qf-room-study" data-qf-room="study" min="0" max="20" step="1" value="0" inputmode="numeric">
+              </p>
+              <p class="g-qf-room">
+                <label for="qf-room-garage">Garage or shed <small>8 m³ each</small></label>
+                <input type="number" id="qf-room-garage" data-qf-room="garage" min="0" max="20" step="1" value="0" inputmode="numeric">
+              </p>
+              <p class="g-qf-room">
+                <label for="qf-room-outdoor">Outdoor and patio <small>4 m³ each</small></label>
+                <input type="number" id="qf-room-outdoor" data-qf-room="outdoor" min="0" max="20" step="1" value="0" inputmode="numeric">
+              </p>
+            </div>
+            <p class="g-qf-calc-out" data-qf-calc role="status" aria-live="polite">Nothing added up yet.</p>
+          </details>
+          
+          <div class="g-qf-nav">
+            <button type="button" class="g-btn g-btn--line" data-qf-back><span>Previous</span></button>
+            <button type="button" class="g-btn g-btn--yellow" data-qf-next><span>Continue</span><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></i></button>
+          </div>
+        </section>
+        
+        <section class="g-qf-panel" data-qf-panel="4" hidden aria-labelledby="qf-q4">
+          <p class="g-qf-step">Step 4 of 5</p>
+          <h3 class="g-qf-q" id="qf-q4">When do you need it, and for how long?</h3>
+          
+          <div class="g-qf-two">
+            
+          <p class="g-qf-field">
+            <label for="qf-date">Preferred delivery date</label>
+            <input id="qf-date" type="date" name="date" aria-describedby="qf-date-help">
+            <span class="g-qf-help" id="qf-date-help">We confirm the window with you before the truck is booked.</span>
+          </p>
+            <p class="g-qf-field">
+              <label for="qf-window">Delivery window</label>
+              <select id="qf-window" name="window">
+                <option value="Morning 7am – 11am">Morning, 7am – 11am</option>
+                <option value="Midday 11am – 2pm">Midday, 11am – 2pm</option>
+                <option value="Afternoon 2pm – 6pm">Afternoon, 2pm – 6pm</option>
+                <option value="Any time on the day">Any time on the day</option>
+              </select>
+            </p>
+          </div>
 
-      <p class="g-field g-span g-field--cap">
-        <label for="q-phone">Phone</label>
-        <input id="q-phone" name="phone" type="tel" autocomplete="tel" required>
-      </p>
+          <h4 class="g-qf-subq">How long do you need it?</h4>
+          <div class="g-qf-opts g-qf-opts--4">
+            
+            <div class="g-qf-opt">
+              <input type="radio" name="duration" id="qf-dur-0" value="2_weeks">
+              <label for="qf-dur-0">
+                <span class="g-qf-opt-t">2 weeks</span>
+                
+                
+                <span class="g-qf-opt-pick" aria-hidden="true"></span>
+              </label>
+            </div>
+            <div class="g-qf-opt">
+              <input type="radio" name="duration" id="qf-dur-1" value="1_to_3_months">
+              <label for="qf-dur-1">
+                <span class="g-qf-opt-t">1–3 months</span>
+                
+                
+                <span class="g-qf-opt-pick" aria-hidden="true"></span>
+              </label>
+            </div>
+            <div class="g-qf-opt">
+              <input type="radio" name="duration" id="qf-dur-2" value="4_to_11_months">
+              <label for="qf-dur-2">
+                <span class="g-qf-opt-t">4–11 months</span>
+                
+                
+                <span class="g-qf-opt-pick" aria-hidden="true"></span>
+              </label>
+            </div>
+            <div class="g-qf-opt">
+              <input type="radio" name="duration" id="qf-dur-3" value="12_plus_months">
+              <label for="qf-dur-3">
+                <span class="g-qf-opt-t">12 months or more</span>
+                
+                
+                <span class="g-qf-opt-pick" aria-hidden="true"></span>
+              </label>
+            </div>
+          </div>
 
-      <div class="g-cform-foot g-span">
-        <button class="g-btn g-btn--yellow" type="submit"><span>Get my quote</span><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></i></button>
-        <p class="g-cform-note">If the quote is not in your inbox within a minute, check your junk, spam or promotions folder.</p>
-      </div>
-      <div class="g-cform-msg g-span" role="status" aria-live="polite"></div>
-    </form>
+          <p class="g-qf-field g-qf-field--wide">
+            <label for="qf-billing">How would you like to pay?</label>
+            <select id="qf-billing" name="billing">
+              <option value="weekly">Weekly</option><option value="monthly" selected>Monthly</option><option value="3_months_upfront">3 months upfront — 5% off</option><option value="6_months_upfront">6 months upfront — 10% off</option><option value="12_months_upfront">12 months upfront — 15% off</option>
+            </select>
+            <span class="g-qf-help">Paying further ahead takes a percentage off the monthly rate. Nothing is charged today.</span>
+          </p>
+
+          <details class="g-qf-calc">
+            <summary>Packing supplies and blanket rentals <span class="g-qf-opt-b">Optional</span></summary>
+            <div class="g-qf-two">
+              <p class="g-qf-field">
+                <label for="qf-boxes">Moving boxes</label>
+                <select id="qf-boxes" name="boxes">
+                  <option value="0">None</option><option value="10">10 boxes</option><option value="20">20 boxes</option><option value="50">50 boxes</option><option value="100">100 boxes</option>
+                </select>
+              </p>
+              <p class="g-qf-field">
+                <label for="qf-blankets">Blanket rental</label>
+                <select id="qf-blankets" name="blankets">
+                  <option value="0">None</option><option value="10">10 blankets</option><option value="20">20 blankets</option><option value="50">50 blankets</option><option value="100">100 blankets</option>
+                </select>
+              </p>
+            </div>
+            <p class="g-qf-calc-out" data-qf-supplies role="status" aria-live="polite">No supplies added.</p>
+          </details>
+          
+          <div class="g-qf-nav">
+            <button type="button" class="g-btn g-btn--line" data-qf-back><span>Previous</span></button>
+            <button type="button" class="g-btn g-btn--yellow" data-qf-next><span>See my quote</span><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></i></button>
+          </div>
+        </section>
+        
+        <section class="g-qf-panel" data-qf-panel="5" hidden aria-labelledby="qf-q5">
+          <p class="g-qf-step">Step 5 of 5</p>
+          <h3 class="g-qf-q" id="qf-q5">Where do we send your quote?</h3>
+          
+          <div class="g-qf-split">
+            <div>
+              <p class="g-qf-lead">Here is what we have priced. Leave your details and we will send the full breakdown and hold the date.</p>
+              <div class="g-qf-two">
+                
+          <p class="g-qf-field">
+            <label for="qf-name">First name</label>
+            <input id="qf-name" type="text" name="first_name" autocomplete="given-name" required>
+            
+          </p>
+                
+          <p class="g-qf-field">
+            <label for="qf-mobile">Mobile</label>
+            <input id="qf-mobile" type="tel" name="mobile" autocomplete="tel" required>
+            
+          </p>
+              </div>
+              
+          <p class="g-qf-field">
+            <label for="qf-email">Email</label>
+            <input id="qf-email" type="email" name="email" autocomplete="email" required>
+            
+          </p>
+              <p class="g-qf-check">
+                <input type="checkbox" id="qf-agree" name="agree" required>
+                <label for="qf-agree">Portabox may contact me about this quote by phone, SMS or email.</label>
+              </p>
+              <div class="g-qf-nav">
+                <button type="button" class="g-btn g-btn--line" data-qf-back><span>Previous</span></button>
+                <button type="submit" class="g-btn g-btn--yellow"><span>Send me this quote</span><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></i></button>
+              </div>
+              <div class="g-qf-msg" role="status" aria-live="polite"></div>
+            </div>
+
+            <aside class="g-qf-sum" data-qf-summary aria-label="Your estimate"></aside>
+          </div>
+        </section>
+      </form>
+    </div>
+    <script type="application/json" id="qf-data">{"postcodes":[{"postcode":"5061","suburb":"Hyde Park","state":"SA","lat":-34.9542,"lng":138.6019,"region":"Adelaide"},{"postcode":"5061","suburb":"Malvern","state":"SA","lat":-34.9567,"lng":138.6144,"region":"Adelaide"},{"postcode":"5061","suburb":"Unley Park","state":"SA","lat":-34.9556,"lng":138.5986,"region":"Adelaide"},{"postcode":"5000","suburb":"Adelaide CBD","state":"SA","lat":-34.9285,"lng":138.6007,"region":"Adelaide"},{"postcode":"5006","suburb":"North Adelaide","state":"SA","lat":-34.908,"lng":138.595,"region":"Adelaide"},{"postcode":"5067","suburb":"Norwood","state":"SA","lat":-34.9208,"lng":138.6342,"region":"Adelaide"},{"postcode":"5045","suburb":"Glenelg","state":"SA","lat":-34.9814,"lng":138.5178,"region":"Adelaide"},{"postcode":"5113","suburb":"Edinburgh North","state":"SA","lat":-34.7077,"lng":138.6836,"region":"Adelaide"},{"postcode":"5112","suburb":"Elizabeth","state":"SA","lat":-34.7214,"lng":138.6792,"region":"Adelaide"},{"postcode":"5159","suburb":"Blackwood","state":"SA","lat":-35.0211,"lng":138.6167,"region":"Adelaide"},{"postcode":"5162","suburb":"Morphett Vale","state":"SA","lat":-35.1294,"lng":138.5286,"region":"Adelaide"},{"postcode":"5251","suburb":"Mount Barker","state":"SA","lat":-35.0667,"lng":138.8667,"region":"Adelaide Hills"},{"postcode":"5352","suburb":"Tanunda (Barossa)","state":"SA","lat":-34.5244,"lng":138.9603,"region":"Barossa"},{"postcode":"5211","suburb":"Victor Harbor","state":"SA","lat":-35.55,"lng":138.6167,"region":"Fleurieu"},{"postcode":"5540","suburb":"Port Pirie","state":"SA","lat":-33.1856,"lng":138.0169,"region":"Regional SA"},{"postcode":"2000","suburb":"Sydney CBD","state":"NSW","lat":-33.8688,"lng":151.2093,"region":"Sydney"},{"postcode":"2010","suburb":"Surry Hills","state":"NSW","lat":-33.886,"lng":151.2114,"region":"Sydney"},{"postcode":"2026","suburb":"Bondi","state":"NSW","lat":-33.8915,"lng":151.2767,"region":"Sydney"},{"postcode":"2095","suburb":"Manly","state":"NSW","lat":-33.7972,"lng":151.2872,"region":"Sydney"},{"postcode":"2148","suburb":"Blacktown","state":"NSW","lat":-33.7712,"lng":150.9063,"region":"Sydney"},{"postcode":"2150","suburb":"Parramatta","state":"NSW","lat":-33.815,"lng":151.0011,"region":"Sydney"},{"postcode":"2170","suburb":"Liverpool","state":"NSW","lat":-33.92,"lng":150.9242,"region":"Sydney"},{"postcode":"2220","suburb":"Hurstville","state":"NSW","lat":-33.9678,"lng":151.1039,"region":"Sydney"},{"postcode":"2230","suburb":"Cronulla","state":"NSW","lat":-34.0583,"lng":151.1528,"region":"Sydney"},{"postcode":"2500","suburb":"Wollongong","state":"NSW","lat":-34.4278,"lng":150.8931,"region":"Illawarra"},{"postcode":"2250","suburb":"Gosford (Central Coast)","state":"NSW","lat":-33.4267,"lng":151.3417,"region":"Central Coast"},{"postcode":"2300","suburb":"Newcastle","state":"NSW","lat":-32.9283,"lng":151.7817,"region":"Newcastle"},{"postcode":"2750","suburb":"Penrith","state":"NSW","lat":-33.7511,"lng":150.6942,"region":"Sydney"},{"postcode":"2795","suburb":"Bathurst","state":"NSW","lat":-33.4194,"lng":149.5778,"region":"Regional NSW"},{"postcode":"3000","suburb":"Melbourne CBD","state":"VIC","lat":-37.8136,"lng":144.9631,"region":"Melbourne"},{"postcode":"3006","suburb":"Southbank","state":"VIC","lat":-37.825,"lng":144.96,"region":"Melbourne"},{"postcode":"3026","suburb":"Laverton North","state":"VIC","lat":-37.8288,"lng":144.8028,"region":"Melbourne"},{"postcode":"3030","suburb":"Werribee","state":"VIC","lat":-37.9,"lng":144.6667,"region":"Melbourne"},{"postcode":"3121","suburb":"Richmond","state":"VIC","lat":-37.8231,"lng":144.9981,"region":"Melbourne"},{"postcode":"3141","suburb":"South Yarra","state":"VIC","lat":-37.84,"lng":144.99,"region":"Melbourne"},{"postcode":"3182","suburb":"St Kilda","state":"VIC","lat":-37.864,"lng":144.982,"region":"Melbourne"},{"postcode":"3175","suburb":"Dandenong","state":"VIC","lat":-37.981,"lng":145.215,"region":"Melbourne"},{"postcode":"3199","suburb":"Frankston","state":"VIC","lat":-38.1436,"lng":145.1278,"region":"Melbourne"},{"postcode":"3220","suburb":"Geelong","state":"VIC","lat":-38.1499,"lng":144.3617,"region":"Geelong"},{"postcode":"3350","suburb":"Ballarat","state":"VIC","lat":-37.5622,"lng":143.8503,"region":"Regional VIC"},{"postcode":"3550","suburb":"Bendigo","state":"VIC","lat":-36.757,"lng":144.2794,"region":"Regional VIC"},{"postcode":"4000","suburb":"Brisbane City","state":"QLD","lat":-27.4698,"lng":153.0251,"region":"Brisbane"},{"postcode":"4006","suburb":"Fortitude Valley","state":"QLD","lat":-27.4578,"lng":153.0361,"region":"Brisbane"},{"postcode":"4101","suburb":"West End","state":"QLD","lat":-27.4833,"lng":153.0125,"region":"Brisbane"},{"postcode":"4122","suburb":"Mount Gravatt","state":"QLD","lat":-27.535,"lng":153.08,"region":"Brisbane"},{"postcode":"4208","suburb":"Gilberton","state":"QLD","lat":-27.7327,"lng":153.2847,"region":"Gold Coast / Brisbane"},{"postcode":"4207","suburb":"Yatala","state":"QLD","lat":-27.7558,"lng":153.23,"region":"Gold Coast"},{"postcode":"4217","suburb":"Surfers Paradise","state":"QLD","lat":-28.0024,"lng":153.4294,"region":"Gold Coast"},{"postcode":"4220","suburb":"Burleigh Heads","state":"QLD","lat":-28.0931,"lng":153.4472,"region":"Gold Coast"},{"postcode":"4300","suburb":"Springfield","state":"QLD","lat":-27.6717,"lng":152.915,"region":"Ipswich"},{"postcode":"4305","suburb":"Ipswich","state":"QLD","lat":-27.6167,"lng":152.7667,"region":"Ipswich"},{"postcode":"4350","suburb":"Toowoomba","state":"QLD","lat":-27.5606,"lng":151.9547,"region":"Darling Downs"},{"postcode":"4551","suburb":"Caloundra","state":"QLD","lat":-26.8042,"lng":153.1311,"region":"Sunshine Coast"},{"postcode":"4556","suburb":"Buderim","state":"QLD","lat":-26.6853,"lng":153.0567,"region":"Sunshine Coast"},{"postcode":"4558","suburb":"Maroochydore","state":"QLD","lat":-26.6575,"lng":153.0908,"region":"Sunshine Coast"},{"postcode":"4560","suburb":"Nambour","state":"QLD","lat":-26.6267,"lng":152.9592,"region":"Sunshine Coast"},{"postcode":"4567","suburb":"Noosa Heads","state":"QLD","lat":-26.3939,"lng":153.0906,"region":"Sunshine Coast"},{"postcode":"2600","suburb":"Canberra (Barton)","state":"ACT","lat":-35.3056,"lng":149.135,"region":"Canberra"},{"postcode":"2601","suburb":"Acton","state":"ACT","lat":-35.2819,"lng":149.1189,"region":"Canberra"},{"postcode":"2612","suburb":"Braddon","state":"ACT","lat":-35.2717,"lng":149.1353,"region":"Canberra"},{"postcode":"6000","suburb":"Perth CBD","state":"WA","lat":-31.9523,"lng":115.8613,"region":"Perth"},{"postcode":"6008","suburb":"Subiaco","state":"WA","lat":-31.9472,"lng":115.8239,"region":"Perth"},{"postcode":"6160","suburb":"Fremantle","state":"WA","lat":-32.0569,"lng":115.7485,"region":"Perth"}],"depots":[{"id":"adelaide","name":"Adelaide Depot","suburb":"Edinburgh North","state":"SA","postcode":"5113","lat":-34.7077,"lng":138.6836},{"id":"sydney","name":"Sydney Depot","suburb":"Blacktown","state":"NSW","postcode":"2148","lat":-33.7712,"lng":150.9063},{"id":"melbourne","name":"Melbourne Depot","suburb":"Laverton North","state":"VIC","postcode":"3026","lat":-37.8288,"lng":144.8028},{"id":"brisbane","name":"Brisbane & Gold Coast Depot","suburb":"Gilberton","state":"QLD","postcode":"4208","lat":-27.7327,"lng":153.2847}],"roads":{"5061-5211":84,"5211-5061":84,"5113-5061":35,"5061-5113":35,"5113-5000":32,"5000-5113":32,"5113-5211":118,"5211-5113":118,"5000-5211":82,"5211-5000":82,"5162-5211":56,"5211-5162":56,"2148-2000":38,"2000-2148":38,"2148-2750":25,"2750-2148":25,"3026-3000":22,"3000-3026":22,"3026-3199":68,"3199-3026":68,"3000-3199":54,"3199-3000":54,"4208-4000":44,"4000-4208":44,"4208-4217":39,"4217-4208":39,"4551-4567":62,"4567-4551":62},"interstate":{"Adelaide->Melbourne":1500,"Adelaide->Sydney":2500,"Adelaide->Brisbane/Gold Coast":3500,"Adelaide->Sunshine Coast":4000,"Melbourne->Adelaide":1600,"Melbourne->Sydney":1900,"Melbourne->Brisbane/Gold Coast":2900,"Melbourne->Sunshine Coast":3900,"Sydney->Adelaide":2700,"Sydney->Brisbane/Gold Coast":2300,"Sydney->Melbourne":2100,"Sydney->Sunshine Coast":2500,"Sunshine Coast->Adelaide":4200,"Sunshine Coast->Brisbane/Gold Coast":1200,"Sunshine Coast->Sydney":1600,"Sunshine Coast->Melbourne":2600,"Brisbane/Gold Coast->Adelaide":3500,"Brisbane/Gold Coast->Melbourne":2900,"Brisbane/Gold Coast->Sydney":2300,"Brisbane/Gold Coast->Sunshine Coast":1200},"zones":{"zone1MaxKm":35,"zone1RatePerKm":0,"zone2MaxKm":100,"zone2RatePerKm":2,"zone3MaxKm":300,"zone3RatePerKm":3,"zone4CallPricing":true},"legFee":149,"fuelPerKm":0.5,"supplies":{"boxSinglePrice":2.5,"box10Price":20,"box50Price":40,"box100Price":70,"blanketSinglePrice":2,"blanket10Price":20,"blanket50Price":40,"blanket100Price":70},"blocked":[{"postcode":"5222","suburb":"Kingscote (Kangaroo Island)","reason":"Ferry required; contact special transport logistics."},{"postcode":"2899","suburb":"Norfolk Island","reason":"Offshore territory not serviced by road freight."},{"postcode":"7151","suburb":"Southport TAS","reason":"Tasmania service pending depot launch."}],"containers":[{"id":"small_10m3","name":"10 m³ Portabox","vol":"10 m³","count":1,"mo":209,"wk":69},{"id":"medium_19m3","name":"19 m³ Portabox","vol":"19 m³","count":1,"mo":219,"wk":75},{"id":"large_25m3","name":"25 m³ Portabox","vol":"25 m³","count":1,"mo":219,"wk":75},{"id":"combo_35m3","name":"Large + Small combo","vol":"35 m³","count":2,"mo":428,"wk":144},{"id":"two_large_50m3","name":"Two 25 m³ Portaboxes","vol":"50 m³","count":2,"mo":438,"wk":150}],"rooms":[{"id":"bed","label":"Bedroom","m3":6},{"id":"living","label":"Living room","m3":7},{"id":"kitchen","label":"Kitchen","m3":4},{"id":"dining","label":"Dining room","m3":4},{"id":"study","label":"Study or office","m3":3},{"id":"garage","label":"Garage or shed","m3":8},{"id":"outdoor","label":"Outdoor and patio","m3":4}]}</script>
   </div>
 </section>
 
@@ -533,6 +874,6 @@
     </div>
   </div>
 </footer>
-<script src="/assets/js/giga.js?v=2aba84ae"></script>
+<script src="/assets/js/giga.js?v=1b730dba"></script>
 </body>
 </html>

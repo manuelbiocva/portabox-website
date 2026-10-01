@@ -8,11 +8,13 @@ see [WORDPRESS.md](WORDPRESS.md).
 
 ```bash
 node build/build.js                       # writes site/
-npx http-server -p 8899 -c-1              # then open http://127.0.0.1:8899/site/
+npx http-server site -p 8899 -c-1         # then open http://127.0.0.1:8899/
 ```
 
-A server is needed rather than opening the files directly: the pages use relative
-asset paths and the scroll-driven sections read layout on load.
+Serve `site/` as the web root, not the repo root — links and asset paths are
+root-relative, the same as on Vercel, so a repo-root server gives an unstyled
+page and a quote flow that 404s. A server is needed rather than opening the
+files directly for the same reason.
 
 ## How the build works
 
@@ -49,6 +51,26 @@ the footer are both the darkest navy, so they bracket the run: a page cannot ope
 close on that colour. The scroll journey is exempt — its styling is keyed to the
 cyan band.
 
+### The instant quote
+
+`/get-a-quote/` is a port of the client's React prototype in
+`website-changes/Portabox-Instant-Quote-source code` — the same five steps
+(where, what, size, when, quote), the same pricing engine, the same numbers.
+It replaced a single screen that asked nine questions, including email and
+phone, before showing anything.
+
+The numbers are not retyped. `tools/extract-quote-data.cjs` lifts the rates,
+delivery zones, leg fees, interstate matrix, fuel surcharge, supplies pricing
+and the postcode table straight out of the prototype's TypeScript into
+`build/quote-data.json`, which the build inlines into the page. Run it again
+whenever the client sends a new build of the quote app.
+
+Where the prototype has no number — delivery zone 4, a state with no depot, a
+blocked postcode — the page says so and asks for a call. It does not guess.
+
+It lives in its own module because `tools/add-variant-g.py` replaces
+everything between the giga marker and the emit section of `build.js`.
+
 ## The design
 
 One system across every page: square corners, hairline rules, and the brand palette
@@ -75,6 +97,7 @@ node tools/g-phero-audit.cjs        # hero text sampled against the actual photo
 node tools/g-mega-contrast.cjs      # the nav mega panels
 node tools/g-journey.cjs index      # scrubs the scroll animation beat by beat
 node tools/g-pages-states.cjs       # mobile, reduced motion, JS-off FAQ
+node tools/g-quoteflow.cjs          # drives the quote and checks its arithmetic
 node tools/g-responsive.cjs         # overflow, tap targets and text size,
                                     # 360 / 390 / 414 / 768 / 820 / 1024 / 1180
 ```
@@ -107,10 +130,12 @@ The forms validate in the browser but have nowhere to post. They say so on submi
 rather than pretending a message was sent. Before launch, point these at a real
 handler or a WordPress form plugin:
 
-- the quote request on `instant-quote.html` (the live site posts to Gravity Forms)
-- the enquiry form on `contact-us.html`
-- the postcode boxes, which currently resolve a depot client-side and hand the
-  postcode to the quote page
+- the last step of the quote on `/get-a-quote/`. The price it shows is real — it
+  is computed in the browser from the client's own engine — but there is no
+  mailbox behind the "send me this quote" button, and the page says so.
+- the enquiry form on `/contact/`
+- the postcode boxes, which resolve a depot client-side and hand the postcode
+  to the quote flow, where it answers step 1
 
 ## Content that must not be invented
 

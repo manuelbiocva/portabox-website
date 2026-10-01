@@ -190,8 +190,6 @@
           if (seen[f.name]) return;
           seen[f.name] = 1;
           var ok = check(f);
-          var box = f.closest(".g-radios");
-          if (box) box.setAttribute("aria-invalid", ok ? "false" : "true");
           if (!ok) bad.push(f);
           return;
         }
@@ -210,7 +208,7 @@
       }
 
       msg.className = "g-cform-msg";
-      msg.innerHTML = "<b>" + (form.classList.contains("g-qform") ? "Your quote request is ready." : "Your message is ready.") +
+      msg.innerHTML = "<b>" + "Your message is ready." +
         "</b> This form is not connected to a mailbox yet, " +
         "so nothing has been sent. Call <b>1800 467 637</b> or email " +
         "<a href=\"mailto:sales@portabox.au\" style=\"color:inherit\">sales@portabox.au</a> and we will pick it up straight away.";
@@ -220,38 +218,573 @@
   /* ---------- Quote form helpers ----------
      Carries a postcode handed over from a small form, and names the depot as
      soon as a postcode is typed. */
-  function quoteHelpers() {
-    var form = document.querySelector(".g-qform");
-    if (!form) return;
+  /* ---------- Instant quote: the step flow ----------
+     A port of the client's React prototype
+     (website-changes/Portabox-Instant-Quote-source code): same five steps,
+     same pricing engine, same numbers. The data it works on is inlined by
+     the build as #qf-data, lifted straight out of the prototype's
+     TypeScript by tools/extract-quote-data.cjs — so none of the rates,
+     zones or distances below are retyped.
 
-    function say(input) {
-      var help = form.querySelector('[data-depot-for="' + input.id + '"]');
-      if (!help) return;
-      var v = input.value.trim();
-      if (!/^\d{4}$/.test(v)) { help.textContent = ""; help.className = "g-field-help"; return; }
-      var d = depotFor(Number(v));
-      if (!d) { help.textContent = "We could not match " + v + " to an Australian postcode."; help.className = "g-field-help is-regional"; return; }
-      help.className = "g-field-help" + (d.regional ? " is-regional" : "");
-      help.textContent = d.regional
-        ? d.hub + " sits outside the four depots, so this runs as a regional job we quote individually."
-        : "Nearest depot: " + d.hub + ".";
+     Where the prototype has no number — zone 4, a postcode it cannot
+     place, a blocked destination — this says so and asks for a call
+     rather than inventing one. */
+  function quoteFlow() {
+    var form = document.querySelector("[data-qf]");
+    var node = document.getElementById("qf-data");
+    if (!form || !node) return;
+
+    var PHONE = "1800 467 637";
+    var TEL = "tel:1800467637";
+
+    var D = JSON.parse(node.textContent);
+    var Z = D.zones;
+    var PANELS = form.querySelectorAll("[data-qf-panel]");
+    var CRUMBS = document.querySelectorAll("[data-qf-crumb]");
+    var LAST = PANELS.length;
+
+    var S = {
+      step: 1, origin: null, dest: null, service: "", placement: "",
+      size: "", date: "", win: "", duration: "", billing: "monthly",
+      boxes: 0, blankets: 0, reached: 1
+    };
+
+    /* ---- postcode lookup ---- */
+
+    /* The prototype ships 63 real suburbs and falls back to a state centroid
+       for anything else, so any valid Australian postcode gets an answer and
+       the ones it knows get a precise one. */
+    var STATE_RANGES = [
+      [5000, 5999, "SA", -34.9285, 138.6007, "Adelaide area"],
+      [3000, 3999, "VIC", -37.8136, 144.9631, "Melbourne area"],
+      [4550, 4575, "QLD", -26.65, 153.06, "Sunshine Coast"],
+      [4000, 4999, "QLD", -27.4698, 153.0251, "Brisbane / Gold Coast area"],
+      [2600, 2620, "ACT", -35.2819, 149.1189, "Canberra area"],
+      [6000, 6999, "WA", -31.9523, 115.8613, "Perth area"],
+      [7000, 7999, "TAS", -42.8821, 147.3272, "Tasmania"],
+      [800, 999, "NT", -12.4634, 130.8456, "Northern Territory"],
+      [1000, 2999, "NSW", -33.8688, 151.2093, "Sydney area"]
+    ];
+
+    function lookup(v) {
+      var pc = String(v).replace(/\D/g, "").slice(0, 4);
+      if (pc.length !== 4) return null;
+      for (var i = 0; i < D.postcodes.length; i++) {
+        if (D.postcodes[i].postcode === pc) return D.postcodes[i];
+      }
+      var n = Number(pc);
+      for (var j = 0; j < STATE_RANGES.length; j++) {
+        var r = STATE_RANGES[j];
+        if (n >= r[0] && n <= r[1]) {
+          return { postcode: pc, suburb: r[5], state: r[2], lat: r[3], lng: r[4], region: r[5], approx: true };
+        }
+      }
+      return null;
     }
 
-    Array.prototype.forEach.call(form.querySelectorAll("[data-depot-for]"), function (help) {
-      var input = document.getElementById(help.getAttribute("data-depot-for"));
-      if (!input) return;
-      input.addEventListener("input", function () {
-        input.value = input.value.replace(/\D/g, "").slice(0, 4);
-        say(input);
+    function blocked(rec) {
+      for (var i = 0; i < D.blocked.length; i++) {
+        if (D.blocked[i].postcode === rec.postcode) return D.blocked[i];
+      }
+      return null;
+    }
+
+    /* ---- distance ---- */
+    function haversine(a, b) {
+      var R = 6371, rad = Math.PI / 180;
+      var dLat = (b.lat - a.lat) * rad, dLng = (b.lng - a.lng) * rad;
+      var h = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+              Math.cos(a.lat * rad) * Math.cos(b.lat * rad) *
+              Math.sin(dLng / 2) * Math.sin(dLng / 2);
+      return Math.round(R * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h)));
+    }
+
+    /* Road distance, not crow-flies: measured routes where the prototype has
+       them, otherwise the Australian road circuity factor it uses. */
+    function driving(a, b) {
+      var key = a.postcode + "-" + b.postcode;
+      if (D.roads[key]) return D.roads[key];
+      var line = haversine(a, b);
+      if (!line) return 0;
+      var c = line < 20 ? 1.25 : line > 150 ? 1.22 : 1.27;
+      return Math.round(line * c);
+    }
+
+    function closestDepot(rec) {
+      var best = D.depots[0], km = driving(rec, D.depots[0]);
+      for (var i = 1; i < D.depots.length; i++) {
+        var d = driving(rec, D.depots[i]);
+        if (d < km) { km = d; best = D.depots[i]; }
+      }
+      return { depot: best, km: km };
+    }
+
+    function hub(rec) {
+      if (rec.state === "SA") return "Adelaide";
+      if (rec.state === "VIC") return "Melbourne";
+      if (rec.state === "NSW" || rec.state === "ACT") return "Sydney";
+      if (rec.state === "QLD") {
+        var n = Number(rec.postcode);
+        return (n >= 4550 && n <= 4575) ? "Sunshine Coast" : "Brisbane/Gold Coast";
+      }
+      return null;   // WA, TAS, NT: no depot, so no matrix rate — we say so
+    }
+
+    /* ---- supplies ---- */
+    function tiered(count, single, p10, p50, p100) {
+      if (count <= 0) return 0;
+      if (count === 10) return p10;
+      if (count === 50) return p50;
+      if (count === 100) return p100;
+      var total = 0, rem = count;
+      total += Math.floor(rem / 100) * p100; rem %= 100;
+      if (rem >= 50) { total += p50; rem -= 50; }
+      if (rem >= 20 && rem < 50) { total += Math.floor(rem / 10) * p10; rem %= 10; }
+      else if (rem >= 10) { total += p10; rem -= 10; }
+      total += Math.min(rem * single, p10);
+      return Math.round(total * 100) / 100;
+    }
+    var P = D.supplies;
+    var boxPrice = function (n) { return tiered(n, P.boxSinglePrice, P.box10Price, P.box50Price, P.box100Price); };
+    var blanketPrice = function (n) { return tiered(n, P.blanketSinglePrice, P.blanket10Price, P.blanket50Price, P.blanket100Price); };
+
+    /* ---- the engine ---- */
+    function container(id) {
+      for (var i = 0; i < D.containers.length; i++) if (D.containers[i].id === id) return D.containers[i];
+      return null;
+    }
+
+    function zoneOf(km) {
+      return km <= Z.zone1MaxKm ? 1 : km <= Z.zone2MaxKm ? 2 : km <= Z.zone3MaxKm ? 3 : 4;
+    }
+    function zoneRate(z) {
+      return z === 2 ? Z.zone2RatePerKm : z === 3 ? Z.zone3RatePerKm : 0;
+    }
+
+    function price() {
+      var o = S.origin, c = container(S.size);
+      if (!o || !c || !S.service || !S.duration) return null;
+
+      var count = c.count;
+      var leg = D.legFee * count;
+      var near = closestDepot(o);
+      var zone = zoneOf(near.km);
+      var kmCharge = (zone === 2 || zone === 3) ? Math.round(near.km * zoneRate(zone)) * count : 0;
+      var call = zone === 4 && Z.zone4CallPricing;
+
+      var isMove = S.service === "moving" || S.service === "moving_storage";
+      var atFacility = !isMove && S.placement === "facility";
+      var dest = isMove ? S.dest : null;
+
+      var moveKm = 0, moveCharge = 0, fuel = 0, interstate = 0, route = "";
+      if (dest) {
+        moveKm = driving(o, dest);
+        var mz = zoneOf(moveKm);
+        moveCharge = (mz === 2 || mz === 3) ? Math.round(moveKm * zoneRate(mz)) * count : 0;
+        if (mz === 4 && Z.zone4CallPricing) call = true;
+        fuel = Math.round(moveKm * D.fuelPerKm * 100) / 100 * count;
+        var h1 = hub(o), h2 = hub(dest);
+        if (!h1 || !h2) { call = true; }
+        else if (h1 !== h2) {
+          route = h1 + " → " + h2;
+          interstate = (D.interstate[h1 + "->" + h2] || 0) * count;
+          /* A line-haul rate replaces the per-kilometre charge, and it is a
+             published figure — so a long run stops being a "call us". */
+          if (interstate) { call = false; moveCharge = 0; fuel = 0; }
+          else { call = true; }
+        }
+      } else if (near.km > Z.zone1MaxKm) {
+        fuel = Math.round(near.km * D.fuelPerKm * 100) / 100 * count;
+      }
+
+      /* Legs, exactly as the prototype orders them. An A-to-B move never
+         detours via the depot, so it is never charged for one. */
+      var legs = [];
+      if (!isMove && !atFacility) {
+        legs.push(["Delivery to " + o.suburb + " (empty)", leg + kmCharge + fuel, true]);
+        legs.push(["Collection when you are done (empty)", leg, false]);
+      } else if (atFacility) {
+        legs.push(["Delivery to " + o.suburb + " (empty)", leg + kmCharge + fuel, true]);
+        legs.push(["Transport to the Portabox facility (full)", leg, false]);
+        legs.push(["Redelivery when you want it back (full)", leg, false]);
+        legs.push(["Final pickup of the empty container", leg, false]);
+      } else {
+        legs.push(["Delivery to " + o.suburb + " (empty)", leg + kmCharge, true]);
+        if (interstate) {
+          legs.push(["Interstate transport (" + route + ")", interstate, false]);
+          legs.push(["Delivery and collection at " + (dest ? dest.suburb : "the destination"), leg, false]);
+        } else {
+          legs.push(["Move to " + (dest ? dest.suburb : "the destination") + " (full)", leg + moveCharge + fuel, false]);
+          legs.push(["Final pickup at " + (dest ? dest.suburb : "the destination"), leg, false]);
+        }
+      }
+
+      /* Storage rent. Weekly and monthly are the published rates; paying
+         further ahead takes the prototype's discount off the monthly. */
+      var rent = 0, cycleLabel = "Monthly", saving = 0;
+      var b = S.billing;
+      if (b === "weekly") {
+        rent = S.duration === "2_weeks" ? c.wk * 2 : c.wk;
+        cycleLabel = S.duration === "2_weeks" ? "First 2 weeks" : "Per week";
+      } else if (b === "monthly") {
+        rent = c.mo; cycleLabel = "Per month";
+        saving = Math.round(c.wk * (52 / 12)) - c.mo;
+      } else {
+        var months = b === "3_months_upfront" ? 3 : b === "6_months_upfront" ? 6 : 12;
+        var off = months === 3 ? 0.05 : months === 6 ? 0.10 : 0.15;
+        rent = Math.round(c.mo * months * (1 - off));
+        cycleLabel = months + " months upfront";
+        saving = c.wk * (months === 12 ? 52 : months === 6 ? 26 : 13) - rent;
+      }
+
+      var supplies = boxPrice(S.boxes) + blanketPrice(S.blankets);
+      var firstLeg = legs[0][1];
+      var later = 0;
+      for (var i = 1; i < legs.length; i++) later += legs[i][1];
+
+      return {
+        container: c, count: count, depot: near.depot, depotKm: near.km, zone: zone,
+        legs: legs, rent: rent, cycleLabel: cycleLabel, saving: saving,
+        supplies: supplies, boxes: boxPrice(S.boxes), blankets: blanketPrice(S.blankets),
+        today: Math.round(rent + firstLeg + supplies), later: Math.round(later),
+        call: call, interstate: interstate, route: route,
+        moveKm: moveKm, dest: dest, isMove: isMove, atFacility: atFacility,
+        approx: !!(o.approx || (dest && dest.approx))
+      };
+    }
+
+    /* ---- rendering ---- */
+    var money = function (n) { return "$" + Math.round(n).toLocaleString("en-AU"); };
+
+    function depotSay(box, rec, isDest) {
+      box.hidden = false;
+      box.className = "g-qf-depot";
+      if (!rec) {
+        box.classList.add("is-err");
+        box.textContent = "That is not an Australian postcode. Four digits, like 5000 or 3121.";
+        return false;
+      }
+      var stop = blocked(rec);
+      if (stop) {
+        box.classList.add("is-err");
+        box.textContent = rec.postcode + " (" + stop.suburb + ") is not somewhere we can deliver. " +
+          stop.reason + " Call " + PHONE + " and we will talk it through.";
+        return false;
+      }
+      var near = closestDepot(rec);
+      var h = hub(rec);
+      var where = "<b>" + rec.suburb + ", " + rec.state + " " + rec.postcode + "</b>";
+      if (!h) {
+        box.classList.add("is-warn");
+        box.innerHTML = where + " sits outside our four depots, so it runs as a Regional Solution job " +
+          "we quote by hand. Keep going and we will price the container, then call " + PHONE + " about the run.";
+        return true;
+      }
+      var z = zoneOf(near.km);
+      if (z === 4) {
+        box.classList.add("is-warn");
+        box.innerHTML = where + " is " + near.km + " km from our " + near.depot.suburb +
+          " depot — past the " + Z.zone3MaxKm + " km band, so the delivery is quoted individually.";
+        return true;
+      }
+      box.innerHTML = where + (isDest ? " · delivered from " : " · served by ") +
+        "<b>" + near.depot.name + "</b>, " + near.km + " km away" +
+        (z === 1 ? " — inside the free delivery radius." :
+                   " — zone " + z + ", $" + zoneRate(z) + " per km.");
+      return true;
+    }
+
+    function summary() {
+      var box = form.querySelector("[data-qf-summary]");
+      if (!box) return;
+      var q = price();
+      if (!q) { box.innerHTML = '<h4>Your estimate</h4><p class="g-qf-sum-note">Answer the four steps and the price appears here.</p>'; return; }
+
+      var rows = "";
+      rows += "<dt>" + q.container.name + "</dt><dd>" + q.container.vol + "</dd>";
+      rows += "<dt>Storage, " + q.cycleLabel.toLowerCase() + "</dt><dd>" + money(q.rent) + "</dd>";
+      rows += "<dt>" + q.legs[0][0] + "</dt><dd>" + money(q.legs[0][1]) + "</dd>";
+      if (q.supplies > 0) rows += "<dt>Packing supplies</dt><dd>" + money(q.supplies) + "</dd>";
+
+      var later = "";
+      for (var i = 1; i < q.legs.length; i++) {
+        later += "<dt>" + q.legs[i][0] + "</dt><dd>" + money(q.legs[i][1]) + "</dd>";
+      }
+
+      box.innerHTML =
+        "<h4>Your estimate</h4>" +
+        "<dl>" + rows +
+          '<div class="g-qf-sum-rule"></div>' +
+          '<div class="g-qf-sum-tot"><span>Due on delivery</span><b>' + money(q.today) + "</b></div>" +
+        "</dl>" +
+        (later ? '<div class="g-qf-sum-later"><h4>Later, as they happen</h4><dl>' + later +
+                 '<div class="g-qf-sum-rule"></div><div class="g-qf-sum-tot"><span>Remaining legs</span><b>' +
+                 money(q.later) + "</b></div></dl></div>" : "") +
+        '<p class="g-qf-sum-note">' +
+          (q.call
+            ? "Part of this run sits outside our standard bands, so the transport is quoted by hand — the container rate above is firm. "
+            : "") +
+          (q.approx ? "We placed your postcode by region rather than suburb, so the distance is approximate. " : "") +
+          "An estimate, not an invoice. We confirm access, the date and the final figure before anything is charged. " +
+          'Questions: <a href="' + TEL + '">' + PHONE + "</a>.</p>";
+    }
+
+    /* ---- step machine ---- */
+    function label(n) {
+      if (n === 1) return S.origin ? S.origin.suburb + " " + S.origin.postcode : "";
+      if (n === 2) {
+        var t = { moving: "Moving", storage: "Storage", moving_storage: "Moving and storage" }[S.service] || "";
+        if (S.service === "storage" && S.placement) t += S.placement === "my_place" ? ", at my place" : ", at a facility";
+        if (S.dest && (S.service === "moving" || S.service === "moving_storage")) t += " to " + S.dest.suburb;
+        return t;
+      }
+      if (n === 3) { var c = container(S.size); return c ? c.name : ""; }
+      if (n === 4) {
+        var d = { "2_weeks": "2 weeks", "1_to_3_months": "1–3 months",
+                  "4_to_11_months": "4–11 months", "12_plus_months": "12 months or more" }[S.duration] || "";
+        if (!S.date) return d;
+        /* The input hands back an ISO date; the rail should read like a date. */
+        var parts = S.date.split("-");
+        var when = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+        return d + ", from " + when.toLocaleDateString("en-AU",
+          { weekday: "short", day: "numeric", month: "short" });
+      }
+      return "";
+    }
+
+    function show(n, quiet) {
+      S.step = n;
+      S.reached = Math.max(S.reached, n);
+      Array.prototype.forEach.call(PANELS, function (p) {
+        p.hidden = Number(p.getAttribute("data-qf-panel")) !== n;
       });
+      Array.prototype.forEach.call(CRUMBS, function (li) {
+        var k = Number(li.getAttribute("data-qf-crumb"));
+        li.className = k === n ? "now" : k < n ? "done" : "";
+        var btn = li.querySelector("button");
+        btn.disabled = k > S.reached;
+        li.querySelector(".g-qf-crumb-v").textContent = k < n ? label(k) : "";
+      });
+      if (n === LAST) summary();
+      if (quiet) return;
+      var head = form.querySelector('[data-qf-panel="' + n + '"] .g-qf-q');
+      if (head) { head.setAttribute("tabindex", "-1"); head.focus({ preventScroll: true }); }
+      var shell = document.querySelector(".g-qf-shell");
+      if (shell) {
+        var top = shell.getBoundingClientRect().top + window.pageYOffset - 100;
+        window.scrollTo({ top: top, behavior: reduce ? "auto" : "smooth" });
+      }
+    }
+
+    /* Each step says what is missing rather than refusing silently. */
+    function problem(n) {
+      if (n === 1) {
+        if (!S.origin) return ["qf-origin", "We need the delivery postcode before we can price anything."];
+        if (blocked(S.origin)) return ["qf-origin", "We cannot deliver to that postcode. Call " + PHONE + "."];
+      }
+      if (n === 2) {
+        if (!S.service) return [null, "Pick moving, storage, or both."];
+        if (S.service === "storage" && !S.placement) return [null, "Tell us where the container will live."];
+        if ((S.service === "moving" || S.service === "moving_storage") && !S.dest)
+          return ["qf-dest", "We need the destination postcode."];
+        if (S.dest && blocked(S.dest)) return ["qf-dest", "We cannot deliver to that destination. Call " + PHONE + "."];
+      }
+      if (n === 3 && !S.size) return [null, "Pick a container size."];
+      if (n === 4) {
+        if (!S.date) return ["qf-date", "Pick a delivery date — we will confirm the window with you."];
+        if (!S.duration) return [null, "Tell us roughly how long you need it."];
+      }
+      return null;
+    }
+
+    function complain(n) {
+      var p = problem(n);
+      if (!p) return false;
+      var panel = form.querySelector('[data-qf-panel="' + n + '"]');
+      var box = panel.querySelector("[data-qf-problem]");
+      if (!box) {
+        box = document.createElement("p");
+        box.className = "g-qf-depot is-err";
+        box.setAttribute("data-qf-problem", "");
+        box.setAttribute("role", "status");
+        panel.querySelector(".g-qf-nav").insertAdjacentElement("beforebegin", box);
+      }
+      box.hidden = false;
+      box.textContent = p[1];
+      if (p[0]) { var f = document.getElementById(p[0]); if (f) f.focus(); }
+      return true;
+    }
+
+    function clearComplaint(n) {
+      var box = form.querySelector('[data-qf-panel="' + n + '"] [data-qf-problem]');
+      if (box) box.hidden = true;
+    }
+
+    /* ---- wiring ---- */
+
+    function bindPostcode(id, boxSel, set, isDest) {
+      var input = document.getElementById(id);
+      var box = form.querySelector(boxSel);
+      if (!input || !box) return;
+      var say = function () {
+        var v = input.value.replace(/\D/g, "").slice(0, 4);
+        input.value = v;
+        if (!v) { box.hidden = true; set(null); return; }
+        if (v.length < 4) { box.hidden = true; set(null); return; }
+        var rec = lookup(v);
+        depotSay(box, rec, isDest);
+        set(rec && !blocked(rec) ? rec : null);
+      };
+      input.addEventListener("input", say);
+      input.addEventListener("change", say);
+      input.__say = say;
+    }
+
+    bindPostcode("qf-origin", "[data-qf-depot]", function (r) { S.origin = r; clearComplaint(1); }, false);
+    bindPostcode("qf-dest", "[data-qf-depot-dest]", function (r) { S.dest = r; clearComplaint(2); }, true);
+
+    form.addEventListener("change", function (e) {
+      var t = e.target;
+      if (t.name === "service") {
+        S.service = t.value;
+        var needsPlacement = t.value === "storage";
+        var needsDest = t.value === "moving" || t.value === "moving_storage";
+        form.querySelector('[data-qf-sub="placement"]').hidden = !needsPlacement;
+        form.querySelector('[data-qf-sub="destination"]').hidden = !needsDest;
+        /* Moving and storage still ends up somewhere, so the placement
+           question only belongs to pure storage. */
+        if (!needsPlacement) S.placement = "";
+        clearComplaint(2);
+      }
+      if (t.name === "placement") { S.placement = t.value; clearComplaint(2); }
+      if (t.name === "size") { S.size = t.value; clearComplaint(3); }
+      if (t.name === "duration") {
+        S.duration = t.value;
+        /* Two weeks is not a monthly product, so the billing follows. */
+        var sel = document.getElementById("qf-billing");
+        if (sel) {
+          var weeklyOnly = t.value === "2_weeks";
+          Array.prototype.forEach.call(sel.options, function (o) {
+            o.disabled = weeklyOnly && o.value !== "weekly";
+          });
+          if (weeklyOnly) sel.value = "weekly";
+          else if (sel.value === "weekly") sel.value = "monthly";
+          S.billing = sel.value;
+        }
+        clearComplaint(4);
+      }
+      if (t.id === "qf-billing") S.billing = t.value;
+      if (t.id === "qf-date") { S.date = t.value; clearComplaint(4); }
+      if (t.id === "qf-window") S.win = t.value;
+      if (t.id === "qf-boxes" || t.id === "qf-blankets") {
+        S.boxes = Number(document.getElementById("qf-boxes").value) || 0;
+        S.blankets = Number(document.getElementById("qf-blankets").value) || 0;
+        var out = form.querySelector("[data-qf-supplies]");
+        if (out) {
+          var b = boxPrice(S.boxes), k = blanketPrice(S.blankets);
+          out.innerHTML = (b + k) === 0 ? "No supplies added."
+            : "<b>" + money(b + k) + "</b> — " +
+              (S.boxes ? S.boxes + " boxes " + money(b) : "") +
+              (S.boxes && S.blankets ? ", " : "") +
+              (S.blankets ? S.blankets + " blankets " + money(k) : "") +
+              ". Added to the first payment.";
+        }
+      }
+      if (S.step === LAST) summary();
     });
 
-    var pc = (location.search.match(/[?&]postcode=(\d{1,4})/) || [])[1];
-    if (!pc) return;
-    var from = document.getElementById("q-from");
-    if (!from) return;
-    from.value = pc;
-    say(from);
+    /* The room estimator: add up the volumes, point at the smallest
+       container that holds the total. */
+    form.addEventListener("input", function (e) {
+      if (!e.target.hasAttribute || !e.target.hasAttribute("data-qf-room")) return;
+      var total = 0;
+      Array.prototype.forEach.call(form.querySelectorAll("[data-qf-room]"), function (i) {
+        var n = Math.max(0, Number(i.value) || 0);
+        var room = null;
+        for (var k = 0; k < D.rooms.length; k++) if (D.rooms[k].id === i.getAttribute("data-qf-room")) room = D.rooms[k];
+        if (room) total += n * room.m3;
+      });
+      var out = form.querySelector("[data-qf-calc]");
+      if (!out) return;
+      if (!total) { out.innerHTML = "Nothing added up yet."; return; }
+      var pick = null;
+      for (var c = 0; c < D.containers.length; c++) {
+        if (parseFloat(D.containers[c].vol) >= total) { pick = D.containers[c]; break; }
+      }
+      out.innerHTML = pick
+        ? "About <b>" + total + " m³</b> — the <b>" + pick.name + "</b> (" + pick.vol + ") holds that."
+        : "About <b>" + total + " m³</b>, which is more than a single booking covers. Call <a href=\"" +
+          TEL + "\">" + PHONE + "</a> and we will work out the combination.";
+    });
+
+    form.addEventListener("click", function (e) {
+      if (!e.target.closest) return;
+      var next = e.target.closest("[data-qf-next]");
+      var back = e.target.closest("[data-qf-back]");
+      var goto = e.target.closest("[data-qf-goto]");
+      if (next) { if (!complain(S.step)) show(Math.min(S.step + 1, LAST)); }
+      else if (back) show(Math.max(S.step - 1, 1));
+      else if (goto && !goto.disabled) show(Number(goto.getAttribute("data-qf-goto")));
+    });
+    document.addEventListener("click", function (e) {
+      var goto = e.target.closest ? e.target.closest("[data-qf-goto]") : null;
+      if (goto && !goto.disabled) { e.preventDefault(); show(Number(goto.getAttribute("data-qf-goto"))); }
+    });
+
+    /* ---- submit ---- */
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var msg = form.querySelector(".g-qf-msg");
+      var fields = ["qf-name", "qf-mobile", "qf-email"];
+      var bad = null;
+      fields.forEach(function (id) {
+        var f = document.getElementById(id);
+        var ok = f.value.trim() && (id !== "qf-email" || EMAIL.test(f.value.trim()));
+        f.setAttribute("aria-invalid", ok ? "false" : "true");
+        if (!ok && !bad) bad = f;
+      });
+      var agree = document.getElementById("qf-agree");
+      if (!agree.checked && !bad) bad = agree;
+      if (bad) {
+        msg.className = "g-qf-msg is-err";
+        msg.textContent = bad === agree
+          ? "Tick the box so we are allowed to send it."
+          : "Check the highlighted field — we need a name, a mobile and a working email address.";
+        bad.focus();
+        return;
+      }
+      var q = price();
+      /* Nothing to post to yet. The form says so rather than pretending a
+         quote was sent; see README, "Not wired up yet". */
+      msg.className = "g-qf-msg";
+      msg.innerHTML = "<b>Your quote is ready.</b> This build has no mail handler connected yet, so nothing has been sent. " +
+        "Everything on the right is your figure — call <a href=\"" + TEL + "\">" + PHONE + "</a> or " +
+        "<a href=\"mailto:info@portabox.au\">email it through</a> and we will confirm the date.";
+      if (q) msg.innerHTML += "<br><br>" + q.container.name + " · " + S.origin.suburb + " " + S.origin.postcode +
+        (q.dest ? " → " + q.dest.suburb + " " + q.dest.postcode : "") + " · " + money(q.today) + " due on delivery.";
+    });
+
+    /* ---- opening state ---- */
+    var today = new Date();
+    today.setDate(today.getDate() + 2);
+    var dateEl = document.getElementById("qf-date");
+    if (dateEl) dateEl.min = today.toISOString().slice(0, 10);
+
+    var sel = document.getElementById("qf-billing");
+    if (sel) S.billing = sel.value;
+    S.win = (document.getElementById("qf-window") || {}).value || "";
+
+    /* The postcode boxes on every other page hand off to here. Arriving with
+       one means step 1 is already answered, so answer it and move on. */
+    show(1, true);
+
+    var handed = (location.search.match(/[?&]postcode=(\d{1,4})/) || [])[1];
+    if (handed) {
+      var inp = document.getElementById("qf-origin");
+      inp.value = handed;
+      if (inp.__say) inp.__say();
+      if (S.origin) { S.reached = 2; show(2); }
+    }
   }
 
   /* ---------- Reveals ---------- */
@@ -576,7 +1109,7 @@
     });
   }
 
-  function boot() { smooth(); nav(); mega(); reveals(); counters(); heroVideo(); quote(); contactForm(); quoteHelpers(); journey(); year(); }
+  function boot() { smooth(); nav(); mega(); reveals(); counters(); heroVideo(); quote(); contactForm(); quoteFlow(); journey(); year(); }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
   else boot();
 })();

@@ -279,6 +279,11 @@ const gintro = (chip, h, sub, btns) => `
       </div>
     </div>`;
 
+/* The multi-step instant quote. Its own module so the giga splice
+   (tools/add-variant-g.py) cannot take it with the rest of the region. */
+const quoteFlow = require("./quoteflow")({ bandOf, gintro, C, url, ARROW });
+
+
 /* No id/label pair: a page can carry two of these and duplicate ids are invalid.
    giga.js binds every .quote-form and finds its own .quote-out. */
 const quoteForm = () => `
@@ -331,96 +336,7 @@ function contactForm(o) {
    portabox.au/get-a-quote/ — same questions, same options, same order.
    Validation runs in the browser; see contactForm() in giga.js. There is no
    endpoint behind it yet (the live one posts to Gravity Forms). */
-function quoteRequest(o) {
-  o = o || {};
-  const radio = (name, id, value, label) =>
-    `<input type="radio" id="${id}" name="${name}" value="${value}" data-group="${name}" required><label for="${id}">${label}</label>`;
 
-  const SPACE = [
-    ["small", "Small container (7&prime;) &mdash; 1 bed home or apartment, up to 10 m&sup3;"],
-    ["medium", "Medium container (12&prime;) &mdash; 2 bed home, 11&ndash;19 m&sup3; (not for interstate moving)"],
-    ["large", "Large container (16&prime;) &mdash; 3 bed home, 20&ndash;25 m&sup3;"],
-    ["combo", "Large + Small combo &mdash; 4 bed home, 26&ndash;35 m&sup3;"],
-    ["two-large", "Two Large containers &mdash; 36&ndash;50 m&sup3;"],
-    ["business", "Business &mdash; Large container (16&prime;)"],
-  ];
-  const TERM = ["2 weeks", "1&ndash;3 months", "4&ndash;11 months", "12 months or more"];
-
-  return `
-<section class="g-band g-band--${bandOf(o.band || "light")}" id="quote-form">
-  <div class="g-wrap">
-    ${gintro("Instant quote", o.h || "Plan your move or storage",
-      "The quote tool covers most metro and surrounding areas within 150&ndash;200 km of our Adelaide, Melbourne, Brisbane and Sydney facilities. Outside that range we still deliver &mdash; call 1800 467 637 about the Regional Solution.")}
-
-    <form class="g-cform g-qform g-rise" novalidate>
-      <fieldset class="g-fset g-span">
-        <legend>How can we help you?</legend>
-        <div class="g-radios">
-          ${radio("help", "q-help-1", "Moving", "Moving")}
-          ${radio("help", "q-help-2", "Storage", "Storage")}
-          ${radio("help", "q-help-3", "Moving &amp; Storage", "Moving &amp; Storage")}
-        </div>
-      </fieldset>
-
-      <fieldset class="g-fset g-span">
-        <legend>Where will you store your containers?</legend>
-        <div class="g-radios">
-          ${radio("where", "q-where-1", "My location", "My location")}
-          ${radio("where", "q-where-2", "Portabox location", "Portabox location")}
-        </div>
-      </fieldset>
-
-      <p class="g-field g-span">
-        <label for="q-space">How much space do you require?</label>
-        <select id="q-space" name="space" required>
-          <option value="">Please select an option</option>
-          ${SPACE.map(([v, t]) => `<option value="${v}">${t}</option>`).join("\n          ")}
-        </select>
-        <span class="g-field-help">Not sure? <a href="${url("pricing")}">Use the space calculator</a> or ring the depot and describe the house.</span>
-      </p>
-
-      <p class="g-field">
-        <label for="q-from">Where do you want to start loading?</label>
-        <input id="q-from" name="from" type="text" inputmode="numeric" maxlength="4" placeholder="Postcode" autocomplete="postal-code" required>
-        <span class="g-field-help" data-depot-for="q-from"></span>
-      </p>
-      <p class="g-field">
-        <label for="q-to">Where do you want to unload?</label>
-        <input id="q-to" name="to" type="text" inputmode="numeric" maxlength="4" placeholder="Postcode" autocomplete="postal-code" required>
-        <span class="g-field-help" data-depot-for="q-to"></span>
-      </p>
-
-      <p class="g-field g-span">
-        <label for="q-term">How long will you need the container?</label>
-        <select id="q-term" name="term" required>
-          <option value="">Please select an option</option>
-          ${TERM.map((t) => `<option>${t}</option>`).join("\n          ")}
-        </select>
-      </p>
-
-      <p class="g-field">
-        <label for="q-email">Email</label>
-        <input id="q-email" name="email" type="email" autocomplete="email" required>
-      </p>
-      <p class="g-field">
-        <label for="q-email2">Confirm email</label>
-        <input id="q-email2" name="email_confirm" type="email" autocomplete="email" required data-match="q-email">
-      </p>
-
-      <p class="g-field g-span g-field--cap">
-        <label for="q-phone">Phone</label>
-        <input id="q-phone" name="phone" type="tel" autocomplete="tel" required>
-      </p>
-
-      <div class="g-cform-foot g-span">
-        ${traceSubmit("Get my quote", "", "", "primary")}
-        <p class="g-cform-note">If the quote is not in your inbox within a minute, check your junk, spam or promotions folder.</p>
-      </div>
-      <div class="g-cform-msg g-span" role="status" aria-live="polite"></div>
-    </form>
-  </div>
-</section>`;
-}
 
 function hero(o) {
   return `
@@ -1379,7 +1295,7 @@ PAGES.push({
             traceBtn(C.CONTACT.tel, "Call " + C.CONTACT.phone, "Talk to a depot", "outline"),
     }),
     trust(),
-    quoteRequest({ band: "light" }),
+    quoteFlow({ band: "light" }),
     pricing({ band: "light" }),
     steps({
       band: "dark", chip: "What happens next", h: "From postcode to delivery",
