@@ -78,12 +78,18 @@ const CONTAINER_SPECS = [
     fits:"5 bedroom expansive home · 36 to 50 m³ of contents", img:"facility-lot.png" },
 ];
 
+/* Rates from the client's Instant Quote tool (pricingEngine.ts DEFAULT_CONFIG,
+   supplied Oct 2026). The previous figures here ($259 / $279) did not divide
+   into the per-cubic-metre numbers the site advertises: $8.76 only comes out
+   of $219 / 25, and $20.90 only out of $209 / 10. Every `per` below is now
+   computed from its own rate, so the arithmetic on the page is checkable.
+   Awaiting the client's final confirmation — one edit here changes the site. */
 const SIZES = [
   { id:"small",  name:"Small",  vol:10, rate:209, per:"20.90", suits:"Apartments and units",
     img:"size-small.jpg", holds:"A one-bedroom flat, or a single room plus whitegoods." },
-  { id:"medium", name:"Medium", vol:19, rate:259, per:"11.00", suits:"Two-bedroom homes", flag:"Price drop",
+  { id:"medium", name:"Medium", vol:19, rate:219, per:"11.53", suits:"Two-bedroom homes", flag:"Price drop",
     img:"size-medium.jpg", holds:"Two bedrooms, a lounge, a full kitchen and the garage overflow." },
-  { id:"large",  name:"Large",  vol:25, rate:279, per:"8.76",  suits:"Three-bedroom homes", flag:"Best value", best:true,
+  { id:"large",  name:"Large",  vol:25, rate:219, per:"8.76",  suits:"Three-bedroom homes", flag:"Best value", best:true,
     img:"size-large.jpg", holds:"A whole three-bedroom house, including the shed and the bikes." },
 ];
 
@@ -177,7 +183,7 @@ const FAQ_GENERAL = [
 
 const FAQ_PRICE = [
   ["What does 'from' pricing mean?",
-   "Rates start at $209, $259 and $279 a month for the Small, Medium and Large. The final figure depends on your location and how long you need it. We give you the number before you commit."],
+   "Rates start at $209 a month for the Small and $219 for the Medium and Large. The final figure depends on your location and how long you need it. We give you the number before you commit."],
   ["Do you really beat a cheaper quote?",
    "Yes — not just match it. Send us a written quote with the container volume on it and we will beat the per-cubic-metre rate. That comparison is the whole reason we publish ours."],
   ["Is there a minimum term?",

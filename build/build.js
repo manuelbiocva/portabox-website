@@ -808,7 +808,7 @@ PAGES.push({
 PAGES.push({
   file: outFile("pricing"), active: "pricing.html",
   title: "Pricing & Sizes | Portabox",
-  desc: "Three container sizes: 10 m³ from $209, 19 m³ from $259, 25 m³ from $279 a month. Priced per cubic metre — $8.76/m³ on the Large.",
+  desc: "Three container sizes: 10 m³ from $209, 19 m³ and 25 m³ from $219 a month. Priced per cubic metre — $8.76/m³ on the Large.",
   body: [
     hero({
       short: true, img: "clearance.jpg", alt: "External clearance dimensions for the Small, Medium and Large Portabox containers",
@@ -1446,7 +1446,7 @@ PAGES.push({
       chip: "The container",
       h: "The size of the box is the whole economy of it",
       body: `<p>Every storage company quotes you a monthly rate. What they rarely print is how many cubic metres that rate actually buys.</p>
-        <p>A competitor at $290 a month for 7.9 m&sup3; is charging about $36 per cubic metre. Our Large is 25 m&sup3; at $279 a month, which is $8.76. Same job, fewer containers, less money.</p>
+        <p>A competitor at $290 a month for 7.9 m&sup3; is charging about $36 per cubic metre. Our Large is 25 m&sup3; at $219 a month, which is $8.76. Same job, fewer containers, less money.</p>
         <p>That is not a discount. It is a bigger box.</p>`,
       btns: traceBtn(url("pricing"), "See sizes and pricing", "From $209", "outline"),
     }),
