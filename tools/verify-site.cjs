@@ -36,7 +36,12 @@ const files = pageUrls();   // served URL paths, nested per the scope's sitemap
     if (ov>0) movf.push(f+':'+ov);
   }
 
+  // Links built in JavaScript never appear in markup, so the link crawl cannot
+  // see them. After the move to nested routes, any flat .html literal in the
+  // runtime script is a stale path.
+  const jsStale = (fs.readFileSync('site/assets/js/giga.js', 'utf8').match(/"[a-z0-9-]+\.html"/g) || []);
   console.log('pages checked      :', files.length);
+  console.log('stale paths in js  :', jsStale.length ? [...new Set(jsStale)].join(', ') : 'none');
   console.log('desktop overflow   :', overflow.length?overflow.join(', '):'none');
   console.log('mobile overflow    :', movf.length?movf.join(', '):'none');
   console.log('broken local links :', brokenLinks.size?[...brokenLinks].join('\n                     '):'none');

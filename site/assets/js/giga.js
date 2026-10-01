@@ -327,13 +327,13 @@
       return false;
     };
     if (hit([[1000,2599],[2619,2899],[2921,2999],[200,299],[2600,2618],[2900,2920]]))
-      return { hub: "Greater Sydney", href: "greater-sydney.html", regional: false };
-    if (hit([[3000,3999],[8000,8999]])) return { hub: "Victoria", href: "victoria.html", regional: false };
-    if (hit([[4000,4999],[9000,9999]])) return { hub: "South East Queensland", href: "south-east-queensland.html", regional: false };
-    if (hit([[5000,5999]]))             return { hub: "South Australia", href: "south-australia.html", regional: false };
-    if (hit([[6000,6999]])) return { hub: "Western Australia", href: "regional-australia.html", regional: true };
-    if (hit([[7000,7999]])) return { hub: "Tasmania",          href: "regional-australia.html", regional: true };
-    if (hit([[800,999]]))   return { hub: "Northern Territory", href: "regional-australia.html", regional: true };
+      return { hub: "Sydney", href: "/locations/sydney/", regional: false };
+    if (hit([[3000,3999],[8000,8999]])) return { hub: "Melbourne", href: "/locations/melbourne/", regional: false };
+    if (hit([[4000,4999],[9000,9999]])) return { hub: "Brisbane", href: "/locations/brisbane/", regional: false };
+    if (hit([[5000,5999]]))             return { hub: "Adelaide", href: "/locations/adelaide/", regional: false };
+    if (hit([[6000,6999]])) return { hub: "Western Australia", href: "/locations/regional-australia/", regional: true };
+    if (hit([[7000,7999]])) return { hub: "Tasmania",          href: "/locations/regional-australia/", regional: true };
+    if (hit([[800,999]]))   return { hub: "Northern Territory", href: "/locations/regional-australia/", regional: true };
     return null;
   }
 
@@ -369,9 +369,8 @@
       }
       // The postcode boxes are a lead-in: they carry the postcode over to the
       // full quote form rather than answering in place.
-      var here = location.pathname.split("/").pop() || "index.html";
-      if (here !== "instant-quote.html") {
-        location.href = "instant-quote.html?postcode=" + encodeURIComponent(v) + "#quote-form";
+      if (!/\/get-a-quote\/?$/.test(location.pathname)) {
+        location.href = "/get-a-quote/?postcode=" + encodeURIComponent(v) + "#quote-form";
         return;
       }
 

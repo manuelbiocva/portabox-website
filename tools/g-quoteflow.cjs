@@ -1,6 +1,6 @@
 /* Postcode box -> Instant Quote page -> full quote form. */
 const { chromium } = require('playwright');
-const B = 'http://127.0.0.1:8899/';
+const B = 'http://127.0.0.1:8899';
 
 (async () => {
   const b = await chromium.launch();
@@ -9,11 +9,16 @@ const B = 'http://127.0.0.1:8899/';
   // 1. a small postcode box hands over to the quote page
   const p = await b.newPage({ viewport: { width: 1440, height: 950 } });
   p.on('pageerror', e => errs.push(e.message));
-  await p.goto(B + 'storage-services.html', { waitUntil: 'networkidle' });
+  await p.goto(B + '/storage/', { waitUntil: 'networkidle' });
   await p.locator('.quote-form input').first().fill('3121');
   await p.locator('.quote-form button[type=submit]').first().click();
   await p.waitForLoadState('networkidle');
-  console.log('redirected to :', p.url().split('/site/')[1]);
+  const landed = p.url().replace('http://127.0.0.1:8899', '');
+  const ok = landed.startsWith('/get-a-quote/?postcode=3121');
+  console.log('redirected to :', landed, ok ? 'OK' : '<-- WRONG DESTINATION');
+  if (!ok) { console.log('FAIL: postcode hand-off did not reach the quote page'); process.exitCode = 1; }
+  const status = await p.evaluate(() => document.title);
+  if (/not found|404/i.test(status)) { console.log('FAIL: landed on a 404'); process.exitCode = 1; }
 
   const pre = await p.evaluate(() => ({
     from: document.getElementById('q-from').value,
