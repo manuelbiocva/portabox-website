@@ -3,7 +3,7 @@ const { chromium } = require('playwright');
   const b=await chromium.launch();
   const p=await b.newPage({viewport:{width:1280,height:720}});
   await p.setContent(`<body style="margin:0;background:#111">
-    <video id="v" src="http://127.0.0.1:8899/site/assets/video/banner.mp4" muted playsinline
+    <video id="v" src="http://127.0.0.1:8899/assets/video/banner.mp4" muted playsinline
            style="width:100%;height:100vh;object-fit:contain"></video></body>`);
   await p.waitForFunction(()=>{const v=document.getElementById('v');return v&&v.readyState>=2;},{timeout:45000});
   const meta=await p.evaluate(()=>{const v=document.getElementById('v');

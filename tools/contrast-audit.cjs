@@ -1,5 +1,5 @@
 const { chromium } = require('playwright');
-const B='http://127.0.0.1:8899/site/';
+const B='http://127.0.0.1:8899/';
 const files=['index.html','storage-at-your-place.html','victoria.html','pricing.html'];
 (async()=>{
   const b=await chromium.launch();

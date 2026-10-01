@@ -5,7 +5,7 @@ const { chromium } = require('playwright');
   const p = await b.newPage({ viewport: { width: 1440, height: 900 } });
   p.on('pageerror', e => errs.push('pageerror: ' + e.message));
   p.on('console', m => { if (m.type()==='error') errs.push('console: ' + m.text()); });
-  await p.goto('http://127.0.0.1:8899/index.html', { waitUntil: 'networkidle' });
+  await p.goto('http://127.0.0.1:8899/', { waitUntil: 'networkidle' });
   await p.waitForTimeout(1800);
 
   // 1. Size interaction
@@ -42,7 +42,7 @@ const { chromium } = require('playwright');
   // 5. Reduced motion
   const rp = await b.newPage({ viewport:{width:1440,height:900} });
   await rp.emulateMedia({ reducedMotion: 'reduce' });
-  await rp.goto('http://127.0.0.1:8899/index.html', { waitUntil:'networkidle' });
+  await rp.goto('http://127.0.0.1:8899/', { waitUntil:'networkidle' });
   await rp.waitForTimeout(1200);
   const rm = await rp.evaluate(() => {
     const items = document.querySelectorAll('#hero-drawing .load-item');

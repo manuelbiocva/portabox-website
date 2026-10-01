@@ -1,7 +1,8 @@
 const { chromium } = require('playwright');
 const fs = require('fs'), path = require('path');
-const BASE = 'http://127.0.0.1:8899/site/';
-const files = fs.readdirSync('site').filter(f=>f.endsWith('.html'));
+const BASE = 'http://127.0.0.1:8899';
+const { pageUrls } = require('./pages.cjs');
+const files = pageUrls();   // served URL paths, nested per the scope's sitemap
 (async () => {
   const b = await chromium.launch();
   const p = await b.newPage({ viewport:{width:1440,height:1000} });
@@ -29,7 +30,7 @@ const files = fs.readdirSync('site').filter(f=>f.endsWith('.html'));
   // mobile sweep on 3 representative pages
   const m = await b.newPage({ viewport:{width:390,height:844}, isMobile:true, hasTouch:true });
   let movf = [];
-  for (const f of ['index.html','storage-at-your-place.html','victoria.html']) {
+  for (const f of ['/','/storage/self-storage/','/locations/melbourne/']) {
     await m.goto(BASE+f, { waitUntil:'networkidle' }); await m.waitForTimeout(600);
     const ov = await m.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth);
     if (ov>0) movf.push(f+':'+ov);

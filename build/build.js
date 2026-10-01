@@ -10,7 +10,16 @@ const path = require("path");
 const C = require("./content");
 
 const OUT = path.join(__dirname, "..", "site");
-const IMG = "assets/img/";
+const IMG = "/assets/img/";
+
+/* A page's href and the file it is written to both come from ROUTES, so they
+   can never drift apart. `/storage/self-storage/` is written to
+   storage/self-storage/index.html and served at the path the scope specifies. */
+const url = (k) => C.ROUTES[String(k).replace(/\.html$/, "")] || "/" + String(k).replace(/\.html$/, "") + "/";
+const outFile = (k) => {
+  const u = url(k);
+  return u === "/" ? "index.html" : u.slice(1) + "index.html";
+};
 
 /* ---------- Icons: one stroke weight, drawn, never emoji ---------- */
 const S = (d, extra) =>
@@ -46,7 +55,7 @@ function standaloneHead(p) {
 <title>${p.title}</title>
 <meta name="description" content="${p.desc}">
 <meta name="theme-color" content="#0E385D">
-<link rel="canonical" href="https://portabox.au/${p.file === "index.html" ? "" : p.file}">
+<link rel="canonical" href="https://portabox.au${p.path}">
 <meta property="og:title" content="${p.title}">
 <meta property="og:description" content="${p.desc}">
 <meta property="og:type" content="website">
@@ -54,7 +63,7 @@ function standaloneHead(p) {
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/${p.css}">
+<link rel="stylesheet" href="/assets/css/${p.css}">
 </head>
 <body class="${p.bodyClass}">
 <a class="g-skip" href="#main">Skip to content</a>`;
@@ -87,17 +96,17 @@ function head(p) {
 
 function nav(active) {
   const PROMO = {
-    "storage-services.html": { img: "facility-lot.png", t: "Not sure which one?",
+    [url("storage-services")]: { img: "facility-lot.png", t: "Not sure which one?",
       b: "All four storage options side by side, with what each one suits." },
-    "moving-services.html": { img: "two-containers.jpeg", t: "Moving soon?",
+    [url("moving-services")]: { img: "two-containers.jpeg", t: "Moving soon?",
       b: "Local, interstate or regional — see how a container move runs." },
-    "locations.html": { img: "truck-coastal.png", t: "Check your postcode",
+    [url("locations")]: { img: "truck-coastal.png", t: "Check your postcode",
       b: "Four depots, 150–200 km each, plus regional runs anywhere." },
   };
 
   const groups = C.NAV.map((g) => {
     const links = g.items
-      .map((i) => `<a class="mega-link" href="${i.slug}.html">
+      .map((i) => `<a class="mega-link" href="${url(i.slug)}">
                 <b>${i.title}</b>
                 <span>${i.blurb || i.intro || ""}</span>
                 <em>${ICON.arrow}</em>
@@ -131,24 +140,24 @@ function nav(active) {
   const drawerGroups = C.NAV.map(
     (g) => `<div class="grp"><p>${g.title}</p>
         <a href="${g.href}">All ${g.title.toLowerCase()}</a>
-        ${g.items.map((i) => `<a href="${i.slug}.html">${i.title}</a>`).join("\n        ")}
+        ${g.items.map((i) => `<a href="${url(i.slug)}">${i.title}</a>`).join("\n        ")}
       </div>`
   ).join("\n      ");
 
   return `
 <header class="nav">
   <div class="nav-in">
-    <a class="brand" href="index.html" aria-label="Portabox home">
+    <a class="brand" href="${url("index")}" aria-label="Portabox home">
       <img class="brand-light" src="${IMG}logo-white.png" alt="Portabox — moving and storage containers" width="132" height="38">
       <img class="brand-solid" src="${IMG}logo.png" alt="" aria-hidden="true" width="132" height="38">
     </a>
     <nav class="nav-menu" aria-label="Primary">
       <ul style="display:flex;align-items:center;gap:.25rem">
           ${groups}
-        <li><a class="nav-link" href="pricing.html"${active === "pricing.html" ? ' aria-current="page"' : ""}>Pricing</a></li>
-        <li><a class="nav-link" href="how-it-works.html"${active === "how-it-works.html" ? ' aria-current="page"' : ""}>How it works</a></li>
-        <li><a class="nav-link" href="about-us.html"${active === "about-us.html" ? ' aria-current="page"' : ""}>About us</a></li>
-        <li><a class="nav-link" href="contact-us.html"${active === "contact-us.html" ? ' aria-current="page"' : ""}>Contact us</a></li>
+        <li><a class="nav-link" href="${url("pricing")}"${active === "pricing.html" ? ' aria-current="page"' : ""}>Pricing</a></li>
+        <li><a class="nav-link" href="${url("how-it-works")}"${active === "how-it-works.html" ? ' aria-current="page"' : ""}>How it works</a></li>
+        <li><a class="nav-link" href="${url("about-us")}"${active === "about-us.html" ? ' aria-current="page"' : ""}>About us</a></li>
+        <li><a class="nav-link" href="${url("contact-us")}"${active === "contact-us.html" ? ' aria-current="page"' : ""}>Contact us</a></li>
       </ul>
     </nav>
     <div class="nav-cta">
@@ -162,7 +171,7 @@ function nav(active) {
 <div class="drawer" id="drawer">
   <div class="wrap" style="padding-inline:0">
       ${drawerGroups}
-    <div class="grp"><a href="pricing.html">Pricing</a><a href="how-it-works.html">How it works</a><a href="about-us.html">About us</a><a href="contact-us.html">Contact us</a></div>
+    <div class="grp"><a href="${url("pricing")}">Pricing</a><a href="${url("how-it-works")}">How it works</a><a href="${url("about-us")}">About us</a><a href="${url("contact-us")}">Contact us</a></div>
     <div class="cta-row">
       ${traceBtn(C.CONTACT.quote, "Instant Quote", "No email needed", "primary", "btn-trace--full")}
       ${traceBtn(C.CONTACT.tel, "Call the depot", C.CONTACT.phone, "dark", "btn-trace--full")}
@@ -191,9 +200,9 @@ function footer() {
           ${traceBtn(C.CONTACT.quote, "Instant Quote", "No email needed", "primary", "btn-trace--sm")}
         </div>
       </div>
-      ${col("Storage", C.STORAGE_SERVICES.map((s) => [s.title, s.slug + ".html"]))}
-      ${col("Moving", C.MOVING_SERVICES.map((s) => [s.title, s.slug + ".html"]))}
-      ${col("Locations", C.LOCATIONS.map((s) => [s.title, s.slug + ".html"]))}
+      ${col("Storage", C.STORAGE_SERVICES.map((s) => [s.title, url(s.slug)]))}
+      ${col("Moving", C.MOVING_SERVICES.map((s) => [s.title, url(s.slug)]))}
+      ${col("Locations", C.LOCATIONS.map((s) => [s.title, url(s.slug)]))}
     </div>
     <div class="foot-grid" style="margin-top:2.5rem;grid-template-columns:1fr">
       <div style="display:flex;flex-wrap:wrap;gap:.75rem 2rem">
@@ -352,7 +361,7 @@ function quoteRequest(o) {
           <option value="">Please select an option</option>
           ${SPACE.map(([v, t]) => `<option value="${v}">${t}</option>`).join("\n          ")}
         </select>
-        <span class="g-field-help">Not sure? <a href="pricing.html">Use the space calculator</a> or ring the depot and describe the house.</span>
+        <span class="g-field-help">Not sure? <a href="${url("pricing")}">Use the space calculator</a> or ring the depot and describe the house.</span>
       </p>
 
       <p class="g-field">
@@ -461,7 +470,7 @@ function cards(o) {
   <div class="g-wrap">
     ${gintro(o.chip, o.h, o.sub)}
     <div class="g-grid g-grid--3">
-      ${o.items.map((i, n) => `<a class="g-card g-rise" style="--d:${n * 90}ms" href="${i.slug}.html">
+      ${o.items.map((i, n) => `<a class="g-card g-rise" style="--d:${n * 90}ms" href="${url(i.slug)}">
         <span class="g-card-img"><img src="${IMG}${i.img}" alt="" loading="lazy"></span>
         <h3 class="g-h3">${i.title}</h3>
         <p>${i.blurb || i.intro || ""}</p>
@@ -500,6 +509,38 @@ function steps(o) {
         <span class="g-row-d">${s[1]}</span>
       </div>`).join("\n      ")}
     </div>
+  </div>
+</section>`;
+}
+
+
+/* Container specs as cards. Dimensions come from the client's own quoting
+   tool, so "how big is it" can finally be answered on the page rather than
+   deferred to a phone call. */
+function specCards(o) {
+  o = o || {};
+  return `
+<section class="g-band g-band--${bandOf(o.band || "light")}" id="sizes">
+  <div class="g-wrap">
+    ${gintro(o.chip || "Every size", o.h || "External dimensions and what fits",
+      o.sub || "Measured externally, so you can check the space on your driveway before you book. Door clearance is the opening you load through.")}
+    <div class="g-grid g-grid--3">
+      ${C.CONTAINER_SPECS.map((s, n) => `<div class="g-spec g-rise" style="--d:${n * 80}ms">
+        <span class="g-card-img"><img src="${IMG}${s.img}" alt="" loading="lazy"></span>
+        <h3 class="g-h3">${s.name}</h3>
+        <dl class="g-spec-d">
+          <div><dt>Length</dt><dd>${s.length}</dd></div>
+          <div><dt>Width</dt><dd>${s.width}</dd></div>
+          <div><dt>Height</dt><dd>${s.height}</dd></div>
+          <div><dt>Floor area</dt><dd>${s.floor}</dd></div>
+          <div><dt>Door opening</dt><dd>${s.door}</dd></div>
+        </dl>
+        <p class="g-spec-fit">${s.fits}</p>
+      </div>`).join("\n      ")}
+    </div>
+    <p class="g-body g-rise" style="margin-top:2rem;max-width:none">
+      Not sure which one? <a class="g-link" href="${url("pricing")}">Compare the cost per cubic metre<span>${ARROW}</span></a>
+    </p>
   </div>
 </section>`;
 }
@@ -577,7 +618,7 @@ function locationList(o) {
     ${gintro("Coverage", "Four depots, and a long way past them",
       "Standard runs reach 150&ndash;200 km from each depot. Past that, the Regional Solution goes anywhere in Australia.")}
     <div class="g-regions">
-      ${C.LOCATIONS.map((l, n) => `<a class="g-region g-rise" style="--d:${n * 70}ms" href="${l.slug}.html">
+      ${C.LOCATIONS.map((l, n) => `<a class="g-region g-rise" style="--d:${n * 70}ms" href="${url(l.slug)}">
         <b>${l.regional ? l.title : l.hub}</b>
         <p>${l.regional ? "Anywhere in Australia, quoted per run" : l.sats.join(" &middot; ")}</p>
         <span class="g-link" style="pointer-events:none">Learn more<span>${ARROW}</span></span>
@@ -685,16 +726,16 @@ const PAGES = [];
 
 /* Service hubs */
 PAGES.push({
-  file: "storage-services.html", active: "storage-services.html",
+  file: outFile("storage-services"), active: "storage-services.html",
   title: "Storage Services | Portabox",
   desc: "Portable storage at your address or in a monitored Portabox facility. Priced per cubic metre from $8.76/m³, delivered level, and you hold the only keys.",
   body: [
     hero({
       short: true, img: "facility-lot.png", alt: "Portabox containers lined up at a secure facility",
-      crumb: crumb([["Home", "index.html"], ["Storage Services"]]),
+      crumb: crumb([["Home", url("index")], ["Storage Services"]]),
       h1: "Storage services",
       sub: "Whether it sits in your driveway or in our facility, it is the same container, the same keys and the same per-cubic-metre rate.",
-      btns: traceBtn(C.CONTACT.quote, "Instant Quote", "No email needed", "primary") + traceBtn("pricing.html", "See pricing", "From $209", "dark"),
+      btns: traceBtn(C.CONTACT.quote, "Instant Quote", "No email needed", "primary") + traceBtn(url("pricing"), "See pricing", "From $209", "dark"),
     }),
     trust(),
     cards({ band: "light", chip: "Storage", h: "Four ways people use it", items: C.STORAGE_SERVICES, cols: "g-4", more: "Read more" }),
@@ -711,16 +752,16 @@ PAGES.push({
 });
 
 PAGES.push({
-  file: "moving-services.html", active: "moving-services.html",
+  file: outFile("moving-services"), active: "moving-services.html",
   title: "Moving Services | Portabox",
   desc: "Door-to-door moving between Brisbane, Sydney, Melbourne and Adelaide, or anywhere in Australia on a regional quote. Load once, at your own pace.",
   body: [
     hero({
       short: true, img: "two-containers.jpeg", alt: "Two Portabox containers ready for a move",
-      crumb: crumb([["Home", "index.html"], ["Moving Services"]]),
+      crumb: crumb([["Home", url("index")], ["Moving Services"]]),
       h1: "Moving services",
       sub: "Pack it once, properly, instead of racing a removalist's clock. We carry the sealed container and lower it flat at the other end.",
-      btns: traceBtn(C.CONTACT.quote, "Instant Quote", "No email needed", "primary") + traceBtn("locations.html", "Where we go", "Four depots", "dark"),
+      btns: traceBtn(C.CONTACT.quote, "Instant Quote", "No email needed", "primary") + traceBtn(url("locations"), "Where we go", "Four depots", "dark"),
     }),
     trust(),
     cards({ band: "light", chip: "Moving", h: "Three kinds of run", items: C.MOVING_SERVICES }),
@@ -740,13 +781,13 @@ PAGES.push({
 });
 
 PAGES.push({
-  file: "locations.html", active: "locations.html",
+  file: outFile("locations"), active: "locations.html",
   title: "Locations & Coverage | Portabox",
   desc: "Portabox delivers from depots in Brisbane, Sydney, Melbourne and Adelaide, 150–200 km out, plus regional jobs anywhere in Australia.",
   body: [
     hero({
       short: true, img: "truck-coastal.png", alt: "A Portabox truck on a coastal road",
-      crumb: crumb([["Home", "index.html"], ["Locations"]]),
+      crumb: crumb([["Home", url("index")], ["Locations"]]),
       h1: "Where we go",
       sub: "Four depots covering the capitals and 150–200 km around each of them — and regional runs anywhere else in the country.",
       btns: traceBtn(C.CONTACT.quote, "Check my postcode", "Four digits", "primary"),
@@ -765,13 +806,13 @@ PAGES.push({
 
 /* Pricing + How it works */
 PAGES.push({
-  file: "pricing.html", active: "pricing.html",
+  file: outFile("pricing"), active: "pricing.html",
   title: "Pricing & Sizes | Portabox",
   desc: "Three container sizes: 10 m³ from $209, 19 m³ from $259, 25 m³ from $279 a month. Priced per cubic metre — $8.76/m³ on the Large.",
   body: [
     hero({
       short: true, img: "clearance.jpg", alt: "External clearance dimensions for the Small, Medium and Large Portabox containers",
-      crumb: crumb([["Home", "index.html"], ["Pricing"]]),
+      crumb: crumb([["Home", url("index")], ["Pricing"]]),
       h1: "Pricing and sizes",
       sub: "Three sizes, published volumes, and the per-cubic-metre rate printed next to each one so you can actually compare us to anybody else.",
       btns: traceBtn(C.CONTACT.quote, "Instant Quote", "No email needed", "primary") + traceBtn(C.CONTACT.priceMatch, "Get a price match", "We\u2019ll beat it", "dark"),
@@ -796,13 +837,13 @@ PAGES.push({
 });
 
 PAGES.push({
-  file: "how-it-works.html", active: "how-it-works.html",
+  file: outFile("how-it-works"), active: "how-it-works.html",
   title: "How It Works | Portabox",
   desc: "Delivered level on the EARL hydraulic lift, loaded at ground level in your own time, then left at your place or stored in a monitored facility.",
   body: [
     hero({
       short: true, img: "man-with-customer.png", alt: "A Portabox team member handing over keys to a customer",
-      crumb: crumb([["Home", "index.html"], ["How it works"]]),
+      crumb: crumb([["Home", url("index")], ["How it works"]]),
       h1: "How it works",
       sub: "Three moves, and none of them are yours. The only part you do is the packing.",
       btns: traceBtn(C.CONTACT.quote, "Instant Quote", "No email needed", "primary"),
@@ -836,7 +877,7 @@ const SERVICE_DETAIL = {
     hero: "doorstep-delivery.jpg", heroAlt: "A couple receiving a Portabox container at their home",
     h1: "Storage at your place",
     sub: "The container is delivered to your address and stays there. No facility trips, no access hours, no counter staff with a spare key.",
-    chip: "Storage", parent: ["Storage Services", "storage-services.html"],
+    chip: "Storage", parent: ["Storage Services", url("storage-services")],
     body: `<p class="muted">This is the option most people come to us for. We lower a container onto your driveway, lawn or hardstand and leave it with you. You load it over an afternoon or a month, whichever suits, and it sits there until you tell us otherwise.</p>
       <p class="muted">Because it never leaves your property, you get to it whenever you want — no 6pm cut-off, no booking a time slot, no driving across town with a ute full of boxes because you forgot one thing.</p>`,
     img2: "hero-customer.jpg", img2alt: "A customer leaning on their Portabox container at home",
@@ -858,7 +899,7 @@ const SERVICE_DETAIL = {
     hero: "store-with-us.jpg", heroAlt: "Portabox team members helping a customer at the facility",
     h1: "Store with us",
     sub: "Load it at home, then we collect the sealed container and keep it in a monitored facility. You still hold the only keys.",
-    chip: "Storage", parent: ["Storage Services", "storage-services.html"],
+    chip: "Storage", parent: ["Storage Services", url("storage-services")],
     body: `<p class="muted">If the driveway is needed, or the house has sold, we take the loaded container away and store it for you. Nothing gets unpacked, re-handled or transferred into a different unit — the container you filled is the container that sits in the facility.</p>
       <p class="muted">Access takes 48 hours notice, because we need to bring your container to the front rather than have you climb over anyone else's. That is the one trade-off against keeping it at home.</p>`,
     img2: "facility-lot.png", img2alt: "Portabox containers at a secure monitored facility",
@@ -880,7 +921,7 @@ const SERVICE_DETAIL = {
     hero: "facility-lot.png", heroAlt: "Portabox containers at a secure facility",
     h1: "Business & inventory storage",
     sub: "Stock overflow, seasonal inventory and site equipment — stored at your premises or ours, without a lease.",
-    chip: "Storage", parent: ["Storage Services", "storage-services.html"],
+    chip: "Storage", parent: ["Storage Services", url("storage-services")],
     body: `<p class="muted">Retail overflow after a big order. Tools and plant between jobs. Records and fit-out you need out of the way but not gone. A container on site means your stock is where your people are, and a container with us means it is out of the way without signing a warehouse lease.</p>
       <p class="muted">Because pricing is per cubic metre and monthly, it scales with the season rather than locking you into floor space you only need twice a year.</p>`,
     img2: "two-containers.jpeg", img2alt: "Two Portabox containers ready to move",
@@ -902,7 +943,7 @@ const SERVICE_DETAIL = {
     hero: "hybrid-choice.jpg", heroAlt: "Comparing storage options during a renovation",
     h1: "Renovation storage",
     sub: "Clear a room or a whole house while the trades work — without anything leaving your property.",
-    chip: "Storage", parent: ["Storage Services", "storage-services.html"],
+    chip: "Storage", parent: ["Storage Services", url("storage-services")],
     body: `<p class="muted">Renovating means living around your own furniture for months. A container in the driveway takes the lounge, the spare room and everything in the shed out of the way on day one, and gives it back the week the trades finish.</p>
       <p class="muted">Keeping it on site matters more here than anywhere else: when the painter needs the hallway clear on Tuesday and you need the dining chairs back on Friday, a facility across town is useless.</p>`,
     img2: "doorstep-delivery.jpg", img2alt: "A Portabox container being delivered to a home",
@@ -924,7 +965,7 @@ const SERVICE_DETAIL = {
     hero: "man-with-customer.png", heroAlt: "A Portabox team member helping a customer",
     h1: "Local moves",
     sub: "Door to door within your metro area. Load once, at your own pace, with no removalist clock running.",
-    chip: "Moving", parent: ["Moving Services", "moving-services.html"],
+    chip: "Moving", parent: ["Moving Services", url("moving-services")],
     body: `<p class="muted">A traditional removalist turns up at 7am and everything has to be ready. With a container you load over days, in the order that makes sense to you, and we move the whole thing when you say so.</p>
       <p class="muted">It also solves the gap most local moves have: settlement on the old place and the new one rarely line up. The container simply stays loaded in between, at your address or ours.</p>`,
     img2: "hero-customer.jpg", img2alt: "A customer with their Portabox container",
@@ -946,7 +987,7 @@ const SERVICE_DETAIL = {
     hero: "two-containers.jpeg", heroAlt: "Two Portabox containers ready for an interstate move",
     h1: "Interstate moves",
     sub: "Brisbane, Sydney, Melbourne and Adelaide, door to door. It travels sealed and it travels level.",
-    chip: "Moving", parent: ["Moving Services", "moving-services.html"],
+    chip: "Moving", parent: ["Moving Services", url("moving-services")],
     body: `<p class="muted">Interstate is where the EARL lift earns its keep. A load that gets tilted off a tray at both ends, after a thousand kilometres of highway, is a load that arrives rearranged. Ours is lowered flat at the old address and flat again at the new one.</p>
       <p class="muted">It is also where the settlement gap is worst. The container can sit loaded at either end — or in a facility in between — while the dates sort themselves out.</p>`,
     img2: "truck-coastal.png", img2alt: "A Portabox truck on a coastal highway",
@@ -968,7 +1009,7 @@ const SERVICE_DETAIL = {
     hero: "truck-outback.png", heroAlt: "A Portabox truck on an outback highway",
     h1: "Regional & remote",
     sub: "Anywhere in Australia, quoted individually. Give us the two postcodes and we will price the run.",
-    chip: "Moving", parent: ["Moving Services", "moving-services.html"],
+    chip: "Moving", parent: ["Moving Services", url("moving-services")],
     body: `<p class="muted">Outside the 150–200 km depot radii we quote every job on its own merits rather than pretending a metro rate applies. That is more honest than a surcharge table, and usually cheaper than you expect.</p>
       <p class="muted">Remote and regional work is also where leaving the container on site matters most — there is rarely a facility within an hour, so a box that stays at the property is the only sensible option.</p>`,
     img2: "truck-coastal.png", img2alt: "A Portabox truck on a coastal road",
@@ -991,14 +1032,14 @@ const SERVICE_DETAIL = {
 Object.keys(SERVICE_DETAIL).forEach((slug) => {
   const d = SERVICE_DETAIL[slug];
   PAGES.push({
-    file: slug + ".html",
+    file: outFile(slug),
     active: d.parent[1],
     title: `${d.h1} | Portabox`,
     desc: d.sub,
     body: [
       hero({
         short: true, img: d.hero, alt: d.heroAlt,
-        crumb: crumb([["Home", "index.html"], d.parent, [d.h1]]),
+        crumb: crumb([["Home", url("index")], d.parent, [d.h1]]),
         h1: d.h1, sub: d.sub,
         btns: traceBtn(C.CONTACT.quote, "Instant Quote", "No email needed", "primary") + traceBtn(C.CONTACT.tel, "Call the depot", C.CONTACT.phone, "dark"),
       }),
@@ -1006,7 +1047,7 @@ Object.keys(SERVICE_DETAIL).forEach((slug) => {
       split({
         band: "light", img: d.img2, alt: d.img2alt, flip: true,
         chip: d.chip, h: "What you actually get", body: d.body,
-        btns: traceBtn("pricing.html", "See pricing", "From $209", "outline"),
+        btns: traceBtn(url("pricing"), "See pricing", "From $209", "outline"),
       }),
       featureGrid({ band: "grey", h: "Why this one works", items: d.points.map((p) => ({ ico: p[0], t: p[1], b: p[2] })) }),
       steps({ band: "dark", chip: "Step by step", h: "How it runs", items: d.steps }),
@@ -1025,14 +1066,14 @@ C.LOCATIONS.forEach((l) => {
     ? "Every regional job is quoted individually. Tell us the two postcodes and we will price the run."
     : `Standard delivery runs 150–200 km out from our ${l.hub} depot.`;
   PAGES.push({
-    file: l.slug + ".html",
+    file: outFile(l.slug),
     active: "locations.html",
     title: `Storage & Moving Containers in ${l.title} | Portabox`,
     desc: `${l.intro} Containers from $209 a month, delivered level. ${depotLine}`,
     body: [
       hero({
         short: true, img: l.img, alt: `Portabox containers serving ${l.title}`,
-        crumb: crumb([["Home", "index.html"], ["Locations", "locations.html"], [l.title]]),
+        crumb: crumb([["Home", url("index")], ["Locations", url("locations")], [l.title]]),
         h1: l.regional ? "Regional Australia" : `Storage & moving in ${l.title}`,
         sub: l.intro,
         form: true,
@@ -1162,7 +1203,7 @@ function heroC(o) {
   </div>
   <div class="hero-c-media" aria-hidden="true">
     <video class="hero-video" playsinline muted loop preload="none"
-           poster="${IMG}banner-poster.jpg" data-src="assets/video/banner.mp4"></video>
+           poster="${IMG}banner-poster.jpg" data-src="/assets/video/banner.mp4"></video>
   </div>
 </section>`;
 }
@@ -1261,16 +1302,58 @@ function ruledPricing() {
 
 
 
+
+/* ---- Container sizes ---- */
+PAGES.push({
+  file: outFile("container-sizes"), active: outFile("container-sizes"),
+  title: "Container Sizes & Dimensions | Portabox",
+  desc: "External dimensions, floor area and door clearances for every Portabox container, from 10 m³ to 50 m³. Check it fits your driveway before you book.",
+  body: [
+    hero({
+      short: true, img: "clearance.jpg",
+      alt: "Portabox containers side by side showing their external dimensions",
+      crumb: crumb([["Home", url("index")], ["Container sizes"]]),
+      h1: "Container sizes",
+      sub: "Three container sizes and two combinations, with the external dimensions you need to check the space before it arrives.",
+      btns: traceBtn(C.CONTACT.quote, "Instant Quote", "No email needed", "primary") +
+            traceBtn(url("pricing"), "See pricing", "From $209", "outline"),
+    }),
+    trust(),
+    specCards({ band: "light" }),
+    split({
+      band: "grey", img: "clearance.jpg", flip: true,
+      alt: "A Portabox container being lowered onto a residential driveway",
+      chip: "Access",
+      h: "What the truck needs at your place",
+      body: `<p>The container is lowered straight down on the EARL hydraulic frame rather than tilted off a tray, so it needs clear space above and around the drop point, not a run-up.</p>
+        <p>A standard driveway, hardstand or firm level lawn works. If access is tight, send a photo of the spot when you book and the depot will confirm before the truck is scheduled.</p>`,
+      btns: traceBtn(C.CONTACT.tel, "Check my access", C.CONTACT.phone, "outline"),
+    }),
+    featureGrid({
+      band: "light", chip: "Loading",
+      h: "Why the inside measurement matters",
+      items: [
+        { ico: "wall", t: "Flat interior walls", b: "No ribs or wheel arches to pack around, so you stack square to the wall and use the full height." },
+        { ico: "cube", t: "Full height usable", b: "2.40 m internal height on every size. Stack to the ceiling rather than losing the top third." },
+        { ico: "lift", t: "Ground level loading", b: "The floor sits on the ground, so there is no ramp and no lifting above waist height." },
+      ],
+    }),
+    pricing({ band: "grey" }),
+    faq(C.FAQ_GENERAL, "Questions about sizes", "light"),
+    ctaBand({ cyan: true }),
+  ].join("\n"),
+});
+
 /* ---- Instant quote ---- */
 PAGES.push({
-  file: "instant-quote.html", active: "instant-quote.html",
+  file: outFile("instant-quote"), active: "instant-quote.html",
   title: "Instant Quote | Portabox",
   desc: "Put in your postcode and see which depot covers you, what the container costs per month, and the price per cubic metre. From $209 a month.",
   body: [
     hero({
       short: true, img: "doorstep-delivery.jpg",
       alt: "A Portabox container being delivered to a home",
-      crumb: crumb([["Home", "index.html"], ["Instant quote"]]),
+      crumb: crumb([["Home", url("index")], ["Instant quote"]]),
       h1: "Get your instant quote",
       sub: "Tell us what you are moving or storing and where it is going. Most quotes land in your inbox within the minute.",
       btns: traceBtn("#quote-form", "Start the quote", "Takes a minute", "primary") +
@@ -1315,14 +1398,14 @@ PAGES.push({
 
 /* ---- About us ---- */
 PAGES.push({
-  file: "about-us.html", active: "about-us.html",
+  file: outFile("about-us"), active: "about-us.html",
   title: "About Us | Portabox",
   desc: "Portabox delivers Australia's largest portable storage containers to your address, level on a hydraulic lift, priced per cubic metre. You keep the only keys.",
   body: [
     hero({
       short: true, img: "hero-customer.jpg",
       alt: "A customer beside their Portabox container in the driveway",
-      crumb: crumb([["Home", "index.html"], ["About us"]]),
+      crumb: crumb([["Home", url("index")], ["About us"]]),
       h1: "About Portabox",
       sub: "We bring the container to you, set it down level, and hand you the only keys. That is the whole idea.",
       btns: traceBtn(C.CONTACT.quote, "Instant Quote", "No email needed", "primary") +
@@ -1365,7 +1448,7 @@ PAGES.push({
       body: `<p>Every storage company quotes you a monthly rate. What they rarely print is how many cubic metres that rate actually buys.</p>
         <p>A competitor at $290 a month for 7.9 m&sup3; is charging about $36 per cubic metre. Our Large is 25 m&sup3; at $279 a month, which is $8.76. Same job, fewer containers, less money.</p>
         <p>That is not a discount. It is a bigger box.</p>`,
-      btns: traceBtn("pricing.html", "See sizes and pricing", "From $209", "outline"),
+      btns: traceBtn(url("pricing"), "See sizes and pricing", "From $209", "outline"),
     }),
     split({
       band: "grey", img: "volume-comparison.png", fit: true,
@@ -1391,7 +1474,7 @@ PAGES.push({
       h: "Where your container lives if you store with us",
       body: `<p>We run facilities out of four cities &mdash; Adelaide, Melbourne, Brisbane and Sydney. Containers are kept in a monitored yard, sealed exactly as you left them, and moved with the same hydraulic lift that delivered them.</p>
         <p>Nothing is unpacked, repacked or handled on the way in. The container that leaves your driveway is the container that comes back.</p>`,
-      btns: traceBtn("store-with-us.html", "How storing with us works", "Pack once", "outline"),
+      btns: traceBtn(url("store-with-us"), "How storing with us works", "Pack once", "outline"),
     }),
     cards({
       band: "light", chip: "Three ways people use it",
@@ -1414,14 +1497,14 @@ PAGES.push({
 
 /* ---- Contact us ---- */
 PAGES.push({
-  file: "contact-us.html", active: "contact-us.html",
+  file: outFile("contact-us"), active: "contact-us.html",
   title: "Contact Us | Portabox",
   desc: "Call 1800 467 637 or email sales@portabox.au. Quick actions for your next move, cancellations, accounts, photo requests and permit waivers.",
   body: [
     hero({
       short: true, img: "man-with-customer.png",
       alt: "A Portabox team member talking with a customer",
-      crumb: crumb([["Home", "index.html"], ["Contact us"]]),
+      crumb: crumb([["Home", url("index")], ["Contact us"]]),
       h1: "Contact Portabox",
       sub: "We are here to help with your storage and moving needs. Talk to the team, or use a quick action below to handle your account.",
       btns: traceBtn(C.CONTACT.tel, "Call " + C.CONTACT.phone, "Talk to a depot", "primary"),
@@ -1513,23 +1596,24 @@ function gNav() {
   /* Each group gets a promo card so the panel has somewhere to send people
      who do not want to choose from the list. */
   const GROUPS = [
-    { id: "storage", label: "Storage", href: "storage-services.html", all: "All storage services",
-      items: C.STORAGE_SERVICES.map((s) => [s.title, s.slug + ".html", s.blurb]),
+    { id: "storage", label: "Storage", href: url("storage-services"), all: "All storage services",
+      items: C.STORAGE_SERVICES.map((s) => [s.title, url(s.slug), s.blurb])
+        .concat([["Container sizes", url("container-sizes"), "External dimensions, floor area and door clearances for every size."]]),
       promo: ["facility-lot.png", "Not sure which one?", "All four storage options side by side, with what each one suits."] },
-    { id: "moving", label: "Moving", href: "moving-services.html", all: "All moving services",
-      items: C.MOVING_SERVICES.map((s) => [s.title, s.slug + ".html", s.blurb]),
+    { id: "moving", label: "Moving", href: url("moving-services"), all: "All moving services",
+      items: C.MOVING_SERVICES.map((s) => [s.title, url(s.slug), s.blurb]),
       promo: ["two-containers.jpeg", "Moving soon?", "Local, interstate or regional &mdash; see how a container move runs."] },
-    { id: "locations", label: "Locations", href: "locations.html", all: "All locations",
-      items: C.LOCATIONS.map((l) => [l.title, l.slug + ".html",
+    { id: "locations", label: "Locations", href: url("locations"), all: "All locations",
+      items: C.LOCATIONS.map((l) => [l.title, url(l.slug),
         l.regional ? "Anywhere in Australia, quoted per run." : `${l.hub} depot &middot; ${l.sats.slice(0, 3).join(", ")}`]),
       promo: ["truck-coastal.png", "Check your postcode", "Four depots, 150&ndash;200 km each, plus regional runs anywhere."] },
   ];
 
   const FLAT = [
-    ["Pricing", "pricing.html"],
-    ["How it works", "how-it-works.html"],
-    ["About us", "about-us.html"],
-    ["Contact us", "contact-us.html"],
+    ["Pricing &amp; sizes", url("pricing")],
+    ["How it works", url("how-it-works")],
+    ["About us", url("about-us")],
+    ["Contact us", url("contact-us")],
   ];
 
   /* A button, not a link: it toggles a panel. The hub page is reachable from
@@ -1564,7 +1648,7 @@ function gNav() {
   return `
 <header class="g-nav">
   <div class="g-nav-in">
-    <a class="g-brand" href="index.html" aria-label="Portabox home">
+    <a class="g-brand" href="${url("index")}" aria-label="Portabox home">
       <img class="on-dark-logo" src="${IMG}logo-white.png" alt="Portabox" width="120" height="26">
       <img class="on-cyan-logo" src="${IMG}logo.png" alt="" aria-hidden="true" width="120" height="34">
     </a>
@@ -1582,7 +1666,7 @@ function gNav() {
 <div class="g-drawer" id="g-drawer">
   <!-- The desktop bar uses the logo for this and has no room to spare; the
        drawer has both the room and the need for an explicit Home. -->
-  <a class="g-dlink" href="index.html">Home</a>
+  <a class="g-dlink" href="${url("index")}">Home</a>
   ${GROUPS.map((g) => `<details class="g-dgroup">
     <summary>${g.label}<i aria-hidden="true"></i></summary>
     <div class="g-dsub">
@@ -1608,7 +1692,7 @@ function gHero() {
   </div>
   <div class="g-hero-in">
     <div class="g-wrap">
-      <a class="g-flag g-rise" href="pricing.html"><b>From $209</b><span>per month &mdash; see sizes &amp; pricing</span></a>
+      <a class="g-flag g-rise" href="${url("pricing")}"><b>From $209</b><span>per month &mdash; see sizes &amp; pricing</span></a>
       <div class="g-hero-grid">
         <h1 class="g-display g-rise" style="--d:80ms">Storage that stays at your place.</h1>
         <div class="g-rise" style="--d:160ms">
@@ -1645,7 +1729,7 @@ function gServices() {
     ${gIntro("One container, three ways", "One container.<br>Three ways to use it.",
       "The same container does all three. Switch from storing to moving later without repacking a single box.")}
     <div class="g-grid g-grid--3">
-      ${items.map((i, n) => `<a class="g-card g-rise" style="--d:${n * 90}ms" href="${i.slug}.html">
+      ${items.map((i, n) => `<a class="g-card g-rise" style="--d:${n * 90}ms" href="${url(i.slug)}">
         <span class="g-card-img"><img src="${IMG}${i.img}" alt="" loading="lazy"></span>
         <h3 class="g-h3">${i.t}</h3>
         <p>${i.d}</p>
@@ -1688,7 +1772,7 @@ function gJourney() {
             <p${n === 2 ? ` id="pj-s3p"` : ""}>${s[1]}</p>
             <span class="g-pj-proof"${n === 2 ? ` id="pj-s3proof"` : ""}>${s[2]}</span>
           </div>`).join("")}
-          <div class="g-pj-cta">${gBtn(C.CONTACT.quote, "Instant quote", "yellow")}${gBtn("how-it-works.html", "See how it works", "ghost")}</div>
+          <div class="g-pj-cta">${gBtn(C.CONTACT.quote, "Instant quote", "yellow")}${gBtn(url("how-it-works"), "See how it works", "ghost")}</div>
         </div>
 
         <form class="g-pj-quote quote-form" id="pj-quote" novalidate>
@@ -1989,7 +2073,7 @@ function gPricing() {
         ${gBtn(C.CONTACT.quote, "Select " + s.name, s.best ? "yellow" : "line")}
       </div>`).join("\n      ")}
     </div>
-    <p class="g-body g-rise" style="margin-top:1.75rem;max-width:none">Not sure which size? ${gLink("pricing.html", "Use the space calculator")}</p>
+    <p class="g-body g-rise" style="margin-top:1.75rem;max-width:none">Not sure which size? ${gLink(url("pricing"), "Use the space calculator")}</p>
   </div>
 </section>`;
 }
@@ -2073,7 +2157,7 @@ function gStoreWithUs() {
             <span class="g-row-m">${r[1]}</span>
           </div>`).join("\n          ")}
         </div>
-        <div class="g-btns" style="margin-top:2rem">${gBtn("store-with-us.html", "Learn more", "yellow")}</div>
+        <div class="g-btns" style="margin-top:2rem">${gBtn(url("store-with-us"), "Learn more", "yellow")}</div>
       </div>
       <div class="g-rise" style="--d:110ms">
         <img src="${IMG}facility-lot.png" alt="Portabox containers at a secure monitored facility" loading="lazy" style="width:100%;aspect-ratio:4/5;object-fit:cover">
@@ -2091,7 +2175,7 @@ function gRegions() {
     ${gIntro("Regions we service", "Regions we service.",
       "Secure storage at your location, or store with us.")}
     <div class="g-regions">
-      ${C.LOCATIONS.filter((l) => !l.regional).map((l, n) => `<a class="g-region g-rise" style="--d:${n * 70}ms" href="${l.slug}.html">
+      ${C.LOCATIONS.filter((l) => !l.regional).map((l, n) => `<a class="g-region g-rise" style="--d:${n * 70}ms" href="${url(l.slug)}">
         <b>${l.hub}</b>
         <p>${l.sats.join(" &middot; ")}</p>
         <span class="g-link" style="pointer-events:none">Learn more<span>${gArrow}</span></span>
@@ -2108,7 +2192,7 @@ function gFinal() {
   <div class="g-wrap">
     ${gIntro("Regional moving", "Moving regionally? We can get you anywhere in Australia.",
       `Call ${C.CONTACT.phone} or email ${C.CONTACT.email} to see how we can get you there and save thousands on traditional moving companies.`,
-      gBtn("regional-australia.html", "Portabox Regional Solution", "yellow"))}
+      gBtn(url("regional-australia"), "Portabox Regional Solution", "yellow"))}
   </div>
 </section>
 
@@ -2157,15 +2241,15 @@ function gFooter() {
         </ul>
       </div>
       ${col("Company", [
-        ["Home", "index.html"],
-        ["About us", "about-us.html"],
-        ["How it works", "how-it-works.html"],
+        ["Home", url("index")],
+        ["About us", url("about-us")],
+        ["How it works", url("how-it-works")],
         ["Instant quote", C.CONTACT.quote],
-        ["Contact us", "contact-us.html"],
+        ["Contact us", url("contact-us")],
       ])}
-      ${col("Storage services", C.STORAGE_SERVICES.map((s) => [s.title, s.slug + ".html"]).concat([["Pricing &amp; sizes", "pricing.html"]]))}
-      ${col("Moving services", C.MOVING_SERVICES.map((s) => [s.title, s.slug + ".html"]))}
-      ${col("Locations", C.LOCATIONS.map((l) => [l.title, l.slug + ".html"]))}
+      ${col("Storage services", C.STORAGE_SERVICES.map((s) => [s.title, url(s.slug)]).concat([["Container sizes", url("container-sizes")], ["Pricing &amp; sizes", url("pricing")]]))}
+      ${col("Moving services", C.MOVING_SERVICES.map((s) => [s.title, url(s.slug)]))}
+      ${col("Locations", C.LOCATIONS.map((l) => [l.title, url(l.slug)]))}
     </div>
     <div class="g-foot-legal">
       <p>&copy; <span class="yr">2026</span> portabox.au. All rights reserved.</p>
@@ -2180,7 +2264,7 @@ function gFooter() {
 
 /* ---- Page ---- */
 PAGES.push({
-  file: "index.html",
+  file: outFile("index"),
   standalone: true,
   bodyClass: "g",
   css: "giga.css",
@@ -2214,12 +2298,15 @@ let n = 0;
 PAGES.forEach((p) => {
   // The homepage carries its own nav/footer inside p.body; every other page
   // gets the same giga chrome wrapped around its sections here.
+  p.path = "/" + p.file.replace(/index\.html$/, "");
   const gp = Object.assign({}, p, { bodyClass: "g", css: "giga.css", js: "giga.js" });
-  const tail = `\n<script src="assets/js/giga.js"></script>\n</body>\n</html>`;
+  const tail = `\n<script src="/assets/js/giga.js"></script>\n</body>\n</html>`;
   const html = p.standalone
-    ? standaloneHead(p) + p.body + `\n<script src="assets/js/${p.js}"></script>\n</body>\n</html>`
+    ? standaloneHead(p) + p.body + `\n<script src="/assets/js/${p.js}"></script>\n</body>\n</html>`
     : standaloneHead(gp) + gNav() + `\n<main id="main">\n` + alternate(p.body.replace(JOURNEY_SLOT, gJourney)) + `\n</main>\n` + gFooter() + tail;
-  fs.writeFileSync(path.join(OUT, p.file), html, "utf8");
+  const dest = path.join(OUT, p.file);
+  fs.mkdirSync(path.dirname(dest), { recursive: true });
+  fs.writeFileSync(dest, html, "utf8");
   n++;
   console.log(`  ${String(Math.round(html.length / 1024)).padStart(4)}KB  ${p.file}`);
 });

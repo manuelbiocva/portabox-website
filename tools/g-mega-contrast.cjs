@@ -5,7 +5,7 @@ const ratio = (a,b) => { const x=L(a), y=L(b); return (Math.max(x,y)+0.05)/(Math
 (async () => {
   const b = await chromium.launch();
   const p = await b.newPage({ viewport: { width: 1440, height: 900 } });
-  await p.goto('http://127.0.0.1:8899/site/pricing.html', { waitUntil: 'networkidle' });
+  await p.goto('http://127.0.0.1:8899/pricing/', { waitUntil: 'networkidle' });
   await p.evaluate(() => document.querySelectorAll('.g-mega').forEach(m => { m.hidden = false; m.classList.add('is-open'); }));
   await p.waitForTimeout(300);
   const rows = await p.evaluate(() => {

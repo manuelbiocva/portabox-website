@@ -3,7 +3,7 @@ const { chromium } = require('playwright');
   const b=await chromium.launch();
   const p=await b.newPage({viewport:{width:1440,height:900}});
   const errs=[]; p.on('pageerror',e=>errs.push(e.message));
-  await p.goto('http://127.0.0.1:8899/site/index.html',{waitUntil:'networkidle'});
+  await p.goto('http://127.0.0.1:8899/',{waitUntil:'networkidle'});
   await p.waitForTimeout(1300);
 
   // bad postcode

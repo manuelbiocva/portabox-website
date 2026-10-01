@@ -3,7 +3,7 @@ const { chromium } = require('playwright');
   const b=await chromium.launch({args:['--autoplay-policy=no-user-gesture-required']});
   for (const w of [390, 1440]) {
     const p=await b.newPage({viewport:{width:w,height:1000},deviceScaleFactor:w>500?2:2});
-    await p.goto('http://127.0.0.1:8899/site/index.html',{waitUntil:'networkidle'});
+    await p.goto('http://127.0.0.1:8899/',{waitUntil:'networkidle'});
     await p.waitForTimeout(1500);
     await p.addStyleTag({content:'.g-rise,.g-wipe{opacity:1!important;transform:none!important}'});
     const idx=(await p.$$('.g-index'))[1];

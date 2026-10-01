@@ -2,7 +2,7 @@ const { chromium } = require('playwright');
 (async()=>{
   const b=await chromium.launch({args:['--autoplay-policy=no-user-gesture-required']});
   const p=await b.newPage({viewport:{width:1440,height:950},deviceScaleFactor:3});
-  await p.goto('http://127.0.0.1:8899/site/index.html',{waitUntil:'networkidle'});
+  await p.goto('http://127.0.0.1:8899/',{waitUntil:'networkidle'});
   await p.waitForTimeout(1800);
   // nav buttons at rest, over the hero
   await p.screenshot({path:'research/shots/gg-btns-rest.png',clip:{x:1000,y:4,width:420,height:56}});

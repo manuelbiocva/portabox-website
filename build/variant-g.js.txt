@@ -50,23 +50,24 @@ function gNav() {
   /* Each group gets a promo card so the panel has somewhere to send people
      who do not want to choose from the list. */
   const GROUPS = [
-    { id: "storage", label: "Storage", href: "storage-services.html", all: "All storage services",
-      items: C.STORAGE_SERVICES.map((s) => [s.title, s.slug + ".html", s.blurb]),
+    { id: "storage", label: "Storage", href: url("storage-services"), all: "All storage services",
+      items: C.STORAGE_SERVICES.map((s) => [s.title, url(s.slug), s.blurb])
+        .concat([["Container sizes", url("container-sizes"), "External dimensions, floor area and door clearances for every size."]]),
       promo: ["facility-lot.png", "Not sure which one?", "All four storage options side by side, with what each one suits."] },
-    { id: "moving", label: "Moving", href: "moving-services.html", all: "All moving services",
-      items: C.MOVING_SERVICES.map((s) => [s.title, s.slug + ".html", s.blurb]),
+    { id: "moving", label: "Moving", href: url("moving-services"), all: "All moving services",
+      items: C.MOVING_SERVICES.map((s) => [s.title, url(s.slug), s.blurb]),
       promo: ["two-containers.jpeg", "Moving soon?", "Local, interstate or regional &mdash; see how a container move runs."] },
-    { id: "locations", label: "Locations", href: "locations.html", all: "All locations",
-      items: C.LOCATIONS.map((l) => [l.title, l.slug + ".html",
+    { id: "locations", label: "Locations", href: url("locations"), all: "All locations",
+      items: C.LOCATIONS.map((l) => [l.title, url(l.slug),
         l.regional ? "Anywhere in Australia, quoted per run." : `${l.hub} depot &middot; ${l.sats.slice(0, 3).join(", ")}`]),
       promo: ["truck-coastal.png", "Check your postcode", "Four depots, 150&ndash;200 km each, plus regional runs anywhere."] },
   ];
 
   const FLAT = [
-    ["Pricing", "pricing.html"],
-    ["How it works", "how-it-works.html"],
-    ["About us", "about-us.html"],
-    ["Contact us", "contact-us.html"],
+    ["Pricing &amp; sizes", url("pricing")],
+    ["How it works", url("how-it-works")],
+    ["About us", url("about-us")],
+    ["Contact us", url("contact-us")],
   ];
 
   /* A button, not a link: it toggles a panel. The hub page is reachable from
@@ -101,7 +102,7 @@ function gNav() {
   return `
 <header class="g-nav">
   <div class="g-nav-in">
-    <a class="g-brand" href="index.html" aria-label="Portabox home">
+    <a class="g-brand" href="${url("index")}" aria-label="Portabox home">
       <img class="on-dark-logo" src="${IMG}logo-white.png" alt="Portabox" width="120" height="26">
       <img class="on-cyan-logo" src="${IMG}logo.png" alt="" aria-hidden="true" width="120" height="34">
     </a>
@@ -119,7 +120,7 @@ function gNav() {
 <div class="g-drawer" id="g-drawer">
   <!-- The desktop bar uses the logo for this and has no room to spare; the
        drawer has both the room and the need for an explicit Home. -->
-  <a class="g-dlink" href="index.html">Home</a>
+  <a class="g-dlink" href="${url("index")}">Home</a>
   ${GROUPS.map((g) => `<details class="g-dgroup">
     <summary>${g.label}<i aria-hidden="true"></i></summary>
     <div class="g-dsub">
@@ -145,7 +146,7 @@ function gHero() {
   </div>
   <div class="g-hero-in">
     <div class="g-wrap">
-      <a class="g-flag g-rise" href="pricing.html"><b>From $209</b><span>per month &mdash; see sizes &amp; pricing</span></a>
+      <a class="g-flag g-rise" href="${url("pricing")}"><b>From $209</b><span>per month &mdash; see sizes &amp; pricing</span></a>
       <div class="g-hero-grid">
         <h1 class="g-display g-rise" style="--d:80ms">Storage that stays at your place.</h1>
         <div class="g-rise" style="--d:160ms">
@@ -182,7 +183,7 @@ function gServices() {
     ${gIntro("One container, three ways", "One container.<br>Three ways to use it.",
       "The same container does all three. Switch from storing to moving later without repacking a single box.")}
     <div class="g-grid g-grid--3">
-      ${items.map((i, n) => `<a class="g-card g-rise" style="--d:${n * 90}ms" href="${i.slug}.html">
+      ${items.map((i, n) => `<a class="g-card g-rise" style="--d:${n * 90}ms" href="${url(i.slug)}">
         <span class="g-card-img"><img src="${IMG}${i.img}" alt="" loading="lazy"></span>
         <h3 class="g-h3">${i.t}</h3>
         <p>${i.d}</p>
@@ -225,7 +226,7 @@ function gJourney() {
             <p${n === 2 ? ` id="pj-s3p"` : ""}>${s[1]}</p>
             <span class="g-pj-proof"${n === 2 ? ` id="pj-s3proof"` : ""}>${s[2]}</span>
           </div>`).join("")}
-          <div class="g-pj-cta">${gBtn(C.CONTACT.quote, "Instant quote", "yellow")}${gBtn("how-it-works.html", "See how it works", "ghost")}</div>
+          <div class="g-pj-cta">${gBtn(C.CONTACT.quote, "Instant quote", "yellow")}${gBtn(url("how-it-works"), "See how it works", "ghost")}</div>
         </div>
 
         <form class="g-pj-quote quote-form" id="pj-quote" novalidate>
@@ -526,7 +527,7 @@ function gPricing() {
         ${gBtn(C.CONTACT.quote, "Select " + s.name, s.best ? "yellow" : "line")}
       </div>`).join("\n      ")}
     </div>
-    <p class="g-body g-rise" style="margin-top:1.75rem;max-width:none">Not sure which size? ${gLink("pricing.html", "Use the space calculator")}</p>
+    <p class="g-body g-rise" style="margin-top:1.75rem;max-width:none">Not sure which size? ${gLink(url("pricing"), "Use the space calculator")}</p>
   </div>
 </section>`;
 }
@@ -610,7 +611,7 @@ function gStoreWithUs() {
             <span class="g-row-m">${r[1]}</span>
           </div>`).join("\n          ")}
         </div>
-        <div class="g-btns" style="margin-top:2rem">${gBtn("store-with-us.html", "Learn more", "yellow")}</div>
+        <div class="g-btns" style="margin-top:2rem">${gBtn(url("store-with-us"), "Learn more", "yellow")}</div>
       </div>
       <div class="g-rise" style="--d:110ms">
         <img src="${IMG}facility-lot.png" alt="Portabox containers at a secure monitored facility" loading="lazy" style="width:100%;aspect-ratio:4/5;object-fit:cover">
@@ -628,7 +629,7 @@ function gRegions() {
     ${gIntro("Regions we service", "Regions we service.",
       "Secure storage at your location, or store with us.")}
     <div class="g-regions">
-      ${C.LOCATIONS.filter((l) => !l.regional).map((l, n) => `<a class="g-region g-rise" style="--d:${n * 70}ms" href="${l.slug}.html">
+      ${C.LOCATIONS.filter((l) => !l.regional).map((l, n) => `<a class="g-region g-rise" style="--d:${n * 70}ms" href="${url(l.slug)}">
         <b>${l.hub}</b>
         <p>${l.sats.join(" &middot; ")}</p>
         <span class="g-link" style="pointer-events:none">Learn more<span>${gArrow}</span></span>
@@ -645,7 +646,7 @@ function gFinal() {
   <div class="g-wrap">
     ${gIntro("Regional moving", "Moving regionally? We can get you anywhere in Australia.",
       `Call ${C.CONTACT.phone} or email ${C.CONTACT.email} to see how we can get you there and save thousands on traditional moving companies.`,
-      gBtn("regional-australia.html", "Portabox Regional Solution", "yellow"))}
+      gBtn(url("regional-australia"), "Portabox Regional Solution", "yellow"))}
   </div>
 </section>
 
@@ -694,15 +695,15 @@ function gFooter() {
         </ul>
       </div>
       ${col("Company", [
-        ["Home", "index.html"],
-        ["About us", "about-us.html"],
-        ["How it works", "how-it-works.html"],
+        ["Home", url("index")],
+        ["About us", url("about-us")],
+        ["How it works", url("how-it-works")],
         ["Instant quote", C.CONTACT.quote],
-        ["Contact us", "contact-us.html"],
+        ["Contact us", url("contact-us")],
       ])}
-      ${col("Storage services", C.STORAGE_SERVICES.map((s) => [s.title, s.slug + ".html"]).concat([["Pricing &amp; sizes", "pricing.html"]]))}
-      ${col("Moving services", C.MOVING_SERVICES.map((s) => [s.title, s.slug + ".html"]))}
-      ${col("Locations", C.LOCATIONS.map((l) => [l.title, l.slug + ".html"]))}
+      ${col("Storage services", C.STORAGE_SERVICES.map((s) => [s.title, url(s.slug)]).concat([["Container sizes", url("container-sizes")], ["Pricing &amp; sizes", url("pricing")]]))}
+      ${col("Moving services", C.MOVING_SERVICES.map((s) => [s.title, url(s.slug)]))}
+      ${col("Locations", C.LOCATIONS.map((l) => [l.title, url(l.slug)]))}
     </div>
     <div class="g-foot-legal">
       <p>&copy; <span class="yr">2026</span> portabox.au. All rights reserved.</p>
@@ -717,7 +718,7 @@ function gFooter() {
 
 /* ---- Page ---- */
 PAGES.push({
-  file: "index.html",
+  file: outFile("index"),
   standalone: true,
   bodyClass: "g",
   css: "giga.css",

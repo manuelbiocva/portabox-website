@@ -3,7 +3,7 @@ const { chromium } = require('playwright');
   const b=await chromium.launch();
   for (const w of [390, 800, 1000, 1440, 1900]) {
     const p=await b.newPage({viewport:{width:w,height:950}});
-    await p.goto('http://127.0.0.1:8899/site/index.html',{waitUntil:'networkidle'});
+    await p.goto('http://127.0.0.1:8899/',{waitUntil:'networkidle'});
     await p.waitForTimeout(700);
     const r=await p.evaluate(()=>{
       const out=[];

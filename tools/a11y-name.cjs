@@ -2,7 +2,7 @@ const { chromium } = require('playwright');
 (async()=>{
   const b=await chromium.launch();
   const p=await b.newPage({viewport:{width:1440,height:900}});
-  await p.goto('http://127.0.0.1:8899/site/index.html',{waitUntil:'networkidle'});
+  await p.goto('http://127.0.0.1:8899/',{waitUntil:'networkidle'});
   await p.waitForTimeout(1200);
   for (const sel of ['.btn-trace--primary','.btn-trace--dark']) {
     const name = await p.$eval(sel, el => {

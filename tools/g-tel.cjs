@@ -2,7 +2,7 @@ const { chromium } = require('playwright');
 (async()=>{
   const b=await chromium.launch({args:['--autoplay-policy=no-user-gesture-required']});
   const p=await b.newPage({viewport:{width:1440,height:950},deviceScaleFactor:3});
-  await p.goto('http://127.0.0.1:8899/site/index.html',{waitUntil:'networkidle'});
+  await p.goto('http://127.0.0.1:8899/',{waitUntil:'networkidle'});
   await p.waitForTimeout(1800);
   const bb=await (await p.$('.g-nav .g-btn--tel')).boundingBox();
   await p.screenshot({path:'research/shots/gg-tel-rest.png',clip:{x:bb.x-8,y:bb.y-8,width:bb.width+16,height:bb.height+16}});

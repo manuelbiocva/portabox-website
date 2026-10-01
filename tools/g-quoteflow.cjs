@@ -1,6 +1,6 @@
 /* Postcode box -> Instant Quote page -> full quote form. */
 const { chromium } = require('playwright');
-const B = 'http://127.0.0.1:8899/site/';
+const B = 'http://127.0.0.1:8899/';
 
 (async () => {
   const b = await chromium.launch();

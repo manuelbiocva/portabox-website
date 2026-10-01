@@ -1,5 +1,5 @@
 const { chromium } = require('playwright');
-const B='http://127.0.0.1:8899/site/';
+const B='http://127.0.0.1:8899/';
 (async()=>{
   const b=await chromium.launch({args:['--autoplay-policy=no-user-gesture-required']});
   const p=await b.newPage({viewport:{width:1440,height:950}});

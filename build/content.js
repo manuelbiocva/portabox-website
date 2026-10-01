@@ -6,12 +6,42 @@
    dimensions are marked indicative wherever they are shown.
    ================================================================= */
 
+
+/* ---------- Routes ----------
+   The scope of work specifies the live URL of every page, and the 301 map from
+   auspods.com.au is built against these exact paths. Keep them here so a path
+   change is one edit, not a search across every template. */
+const ROUTES = {
+  "index":                 "/",
+  "instant-quote":         "/get-a-quote/",
+  "pricing":               "/pricing/",
+  "container-sizes":       "/container-sizes/",
+  "how-it-works":          "/how-it-works/",
+  "storage-services":      "/storage/",
+  "storage-at-your-place": "/storage/self-storage/",
+  "store-with-us":         "/storage/store-with-us/",
+  "renovation-storage":    "/storage/renovating/",
+  "business-storage":      "/business/",
+  "moving-services":       "/moving/",
+  "interstate-moves":      "/moving/moving-interstate/",
+  "local-moves":           "/moving/moving-locally/",
+  "regional-remote":       "/moving/regional-solution/",
+  "locations":             "/locations/",
+  "south-east-queensland": "/locations/brisbane/",
+  "greater-sydney":        "/locations/sydney/",
+  "victoria":              "/locations/melbourne/",
+  "south-australia":       "/locations/adelaide/",
+  "regional-australia":    "/locations/regional-australia/",
+  "about-us":              "/about/",
+  "contact-us":            "/contact/",
+};
+
 const CONTACT = {
   phone: "1800 467 637",
   tel: "tel:1800467637",
   email: "sales@portabox.au",
   mailto: "mailto:sales@portabox.au",
-  quote: "instant-quote.html",            // every "Instant Quote" CTA lands here
+  quote: ROUTES["instant-quote"],         // every "Instant Quote" CTA lands here
   quoteForm: "https://portabox.au/get-a-quote/",  // the live form the page hands off to
   book: "https://app.smartsheet.com/b/form/356f960443654f9fb2ca37f45c4e8ff6",
   priceMatch: "https://app.smartsheet.com/b/form/35c0f3d1f2ab4ddcb16f717266fd86c0",
@@ -22,6 +52,31 @@ const CONTACT = {
     ["LinkedIn", "https://www.linkedin.com/company/portabox-au"],
   ],
 };
+
+
+/* ---------- Container specifications ----------
+   Source: the client's own Instant Quote tool (src/services/pricingEngine.ts,
+   CONTAINER_SPECS), supplied Oct 2026. These are the first confirmed external
+   dimensions, floor areas and door clearances we have had — PRODUCT.md listed
+   them as unsupplied. Monthly rates in that same file disagree with the rates
+   on this site and are deliberately NOT taken from it; see SIZES. */
+const CONTAINER_SPECS = [
+  { id:"small", name:"10 m³ Portabox", vol:10, length:"2.15 m", width:"1.52 m", height:"2.40 m",
+    floor:"3.3 m²", door:"1.40 m (W) × 2.10 m (H)",
+    fits:"1 bedroom apartment · Queen bed, sofa, fridge, 30–40 boxes", img:"size-small.jpg" },
+  { id:"medium", name:"19 m³ Portabox", vol:19, length:"3.75 m", width:"2.20 m", height:"2.40 m",
+    floor:"8.2 m²", door:"2.10 m (W) × 2.10 m (H)",
+    fits:"2 bedroom home · 2 beds, dining suite, living room, 60–80 boxes", img:"size-medium.jpg" },
+  { id:"large", name:"25 m³ Portabox", vol:25, length:"4.95 m", width:"2.20 m", height:"2.40 m",
+    floor:"10.9 m²", door:"2.10 m (W) × 2.10 m (H)",
+    fits:"3 bedroom family home · 3 beds, lounge, outdoor set, 100–120 boxes", img:"size-large.jpg" },
+  { id:"combo", name:"35 m³ Combo", vol:35, length:"25 m³ + 10 m³ together", width:"2.20 m & 1.52 m", height:"2.40 m",
+    floor:"14.2 m²", door:"Dual ground access doors",
+    fits:"4 bedroom large home · 26 to 35 m³ of contents", img:"two-containers.jpeg" },
+  { id:"twolarge", name:"50 m³ (two 25 m³)", vol:50, length:"2 × 4.95 m", width:"2.20 m", height:"2.40 m",
+    floor:"21.8 m²", door:"Dual large access doors",
+    fits:"5 bedroom expansive home · 36 to 50 m³ of contents", img:"facility-lot.png" },
+];
 
 const SIZES = [
   { id:"small",  name:"Small",  vol:10, rate:209, per:"20.90", suits:"Apartments and units",
@@ -130,7 +185,7 @@ const FAQ_PRICE = [
 ];
 
 module.exports = {
-  CONTACT, SIZES, TESTIMONIALS, NAV,
+  ROUTES, CONTACT, SIZES, CONTAINER_SPECS, TESTIMONIALS, NAV,
   STORAGE_SERVICES, MOVING_SERVICES, LOCATIONS,
   WHY, FAQ_GENERAL, FAQ_PRICE,
 };

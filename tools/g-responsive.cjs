@@ -62,8 +62,8 @@ const PROBE = () => {
 
 (async () => {
   const only = process.argv[2];
-  const pages = only ? [only + '.html']
-    : fs.readdirSync('site').filter((f) => f.endsWith('.html') && f !== 'palette.html');
+  const { pageUrls, BASE } = require('./pages.cjs');
+  const pages = only ? [only === 'index' ? '/' : '/' + only + '/'] : pageUrls();
   const b = await chromium.launch();
   const found = {};
 
@@ -71,7 +71,7 @@ const PROBE = () => {
     const p = await b.newPage({ viewport: { width: w, height: h }, isMobile: w < 900, hasTouch: w < 1200 });
     const issues = [];
     for (const f of pages) {
-      await p.goto('http://127.0.0.1:8899/site/' + f, { waitUntil: 'domcontentloaded' });
+      await p.goto(BASE + f, { waitUntil: 'domcontentloaded' });
       await p.evaluate(() => document.querySelectorAll('.g-rise,.g-wipe').forEach((e) => e.classList.add('in')));
       await p.waitForTimeout(250);
       await p.evaluate(`window.__p = ${PROBE.toString()}`);

@@ -2,7 +2,7 @@ const { chromium } = require('playwright');
 (async()=>{
   const b=await chromium.launch();
   const p=await b.newPage({viewport:{width:390,height:844},isMobile:true});
-  await p.goto('http://127.0.0.1:8899/site/index.html',{waitUntil:'networkidle'});
+  await p.goto('http://127.0.0.1:8899/',{waitUntil:'networkidle'});
   await p.waitForTimeout(1200);
   const r=await p.evaluate(()=>{
     const q=s=>{const e=document.querySelector(s); if(!e) return null;

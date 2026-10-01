@@ -9,12 +9,13 @@ const L = (c) => 0.2126 * lin(c[0] / 255) + 0.7152 * lin(c[1] / 255) + 0.0722 * 
 const ratio = (a, b) => { const x = L(a), y = L(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
 
 (async () => {
-  const pages = fs.readdirSync('site').filter((f) => f.endsWith('.html') && f !== 'palette.html' && f !== 'index.html');
+  const { pageUrls, BASE } = require('./pages.cjs');
+  const pages = pageUrls().filter((u) => u !== '/');
   const b = await chromium.launch();
   let worst = { r: 99 };
   for (const f of pages) {
     const p = await b.newPage({ viewport: { width: 1440, height: 950 } });
-    await p.goto('http://127.0.0.1:8899/site/' + f, { waitUntil: 'networkidle' });
+    await p.goto(BASE + f, { waitUntil: 'networkidle' });
     await p.evaluate(() => document.querySelectorAll('.g-rise').forEach((e) => e.classList.add('in')));
     await p.waitForTimeout(400);
     // hide the text, photograph the scrim underneath, then read its pixels

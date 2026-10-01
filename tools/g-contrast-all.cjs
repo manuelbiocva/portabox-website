@@ -36,14 +36,15 @@ const AUDIT = () => {
 };
 
 (async () => {
-  const pages = fs.readdirSync('site').filter((f) => f.endsWith('.html') && f !== 'palette.html');
+  const { pageUrls, BASE } = require('./pages.cjs');
+  const pages = pageUrls();
   const b = await chromium.launch();
   let bad = 0;
   for (const f of pages) {
     const p = await b.newPage({ viewport: { width: 1440, height: 950 } });
     const errs = [];
     p.on('pageerror', (e) => errs.push(e.message));
-    await p.goto('http://127.0.0.1:8899/site/' + f, { waitUntil: 'domcontentloaded' });
+    await p.goto(BASE + f, { waitUntil: 'domcontentloaded' });
     await p.waitForTimeout(500);
     await p.addStyleTag({ content: '*{transition:none!important;animation:none!important}' });
     await p.evaluate(() => {

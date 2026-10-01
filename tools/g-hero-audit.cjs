@@ -2,7 +2,7 @@ const { chromium } = require('playwright');
 (async()=>{
   const b=await chromium.launch({args:['--autoplay-policy=no-user-gesture-required']});
   const p=await b.newPage({viewport:{width:1440,height:950}});
-  await p.goto('http://127.0.0.1:8899/site/index.html',{waitUntil:'networkidle'});
+  await p.goto('http://127.0.0.1:8899/',{waitUntil:'networkidle'});
   await p.waitForTimeout(2200);
   const r=await p.evaluate(()=>{
     const L=c=>{const f=x=>x<=.03928?x/12.92:Math.pow((x+.055)/1.055,2.4);

@@ -6,7 +6,7 @@ const { chromium } = require('playwright');
   const p = await b.newPage({ viewport: { width: 1440, height: 900 } });
   const errs = [];
   p.on('pageerror', (e) => errs.push(e.message));
-  await p.goto('http://127.0.0.1:8899/site/pricing.html', { waitUntil: 'networkidle' });
+  await p.goto('http://127.0.0.1:8899/pricing/', { waitUntil: 'networkidle' });
   await p.waitForTimeout(300);
 
   const state = () => p.evaluate(() => {
