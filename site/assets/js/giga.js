@@ -643,6 +643,45 @@
     bindPostcode("qf-origin", "[data-qf-depot]", function (r) { S.origin = r; clearComplaint(1); }, false);
     bindPostcode("qf-dest", "[data-qf-depot-dest]", function (r) { S.dest = r; clearComplaint(2); }, true);
 
+    /* An upfront discount you cannot reach because the hire is shorter than
+       the term is not an option. The first version greyed those out, which
+       reads as a broken dropdown rather than as a rule — so the list is
+       rebuilt to match the duration instead, and everything in it is
+       always choosable. */
+    var BILLING_FOR = {
+      "2_weeks": ["weekly", "monthly"],
+      "1_to_3_months": ["weekly", "monthly", "3_months_upfront"],
+      "4_to_11_months": ["weekly", "monthly", "3_months_upfront", "6_months_upfront"],
+      "12_plus_months": ["weekly", "monthly", "3_months_upfront", "6_months_upfront", "12_months_upfront"]
+    };
+    var BILLING_ALL = (function () {
+      var sel = document.getElementById("qf-billing");
+      return sel ? Array.prototype.map.call(sel.options, function (o) {
+        return { value: o.value, text: o.textContent };
+      }) : [];
+    })();
+
+    function billingFor(duration) {
+      var sel = document.getElementById("qf-billing");
+      if (!sel) return;
+      var allow = BILLING_FOR[duration] || BILLING_FOR["12_plus_months"];
+      var was = sel.value;
+      sel.innerHTML = "";
+      BILLING_ALL.forEach(function (o) {
+        if (allow.indexOf(o.value) < 0) return;
+        var opt = document.createElement("option");
+        opt.value = o.value;
+        opt.textContent = o.text;
+        sel.appendChild(opt);
+      });
+      /* Keep what they chose if it survived the change. Until they have
+         chosen, follow the hire: two weeks billed monthly would quote a
+         month's rent for a fortnight, which is the worse of the two. */
+      var fit = duration === "2_weeks" ? "weekly" : "monthly";
+      sel.value = (S.billingTouched && allow.indexOf(was) > -1) ? was : fit;
+      S.billing = sel.value;
+    }
+
     form.addEventListener("change", function (e) {
       var t = e.target;
       if (t.name === "service") {
@@ -660,20 +699,10 @@
       if (t.name === "size") { S.size = t.value; clearComplaint(3); }
       if (t.name === "duration") {
         S.duration = t.value;
-        /* Two weeks is not a monthly product, so the billing follows. */
-        var sel = document.getElementById("qf-billing");
-        if (sel) {
-          var weeklyOnly = t.value === "2_weeks";
-          Array.prototype.forEach.call(sel.options, function (o) {
-            o.disabled = weeklyOnly && o.value !== "weekly";
-          });
-          if (weeklyOnly) sel.value = "weekly";
-          else if (sel.value === "weekly") sel.value = "monthly";
-          S.billing = sel.value;
-        }
+        billingFor(t.value);
         clearComplaint(4);
       }
-      if (t.id === "qf-billing") S.billing = t.value;
+      if (t.id === "qf-billing") { S.billing = t.value; S.billingTouched = true; }
       if (t.id === "qf-date") { S.date = t.value; clearComplaint(4); }
       if (t.id === "qf-window") S.win = t.value;
       if (t.id === "qf-boxes" || t.id === "qf-blankets") {

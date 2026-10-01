@@ -85,6 +85,11 @@ Two details worth knowing before editing the CSS:
   property and restate their transition at a higher specificity.
 - **Nothing faded on cyan.** Navy text at 80% opacity measures 3.97:1 on the cyan
   band, below AA. On cyan, text is full navy — de-emphasis uses weight instead.
+- **A hairline is not a control edge.** `--g-rule` is decoration and measures
+  1.38:1 on white. The border of an input, select or choice box is held to 3:1
+  by WCAG 1.4.11, which is a different rule from text contrast — the whole site
+  passed AA while every field was outlined in that hairline. Controls use
+  `--g-ctrl` instead; `tools/g-control-contrast.cjs` measures it.
 
 ## Verification
 
@@ -93,6 +98,7 @@ Scripts in `tools/` measure rather than eyeball. With the server running:
 ```bash
 node tools/verify-site.cjs          # links, overflow, HTTP status, JS errors
 node tools/g-contrast-all.cjs       # WCAG AA across every page
+node tools/g-control-contrast.cjs    # WCAG 1.4.11: control borders, a separate rule
 node tools/g-phero-audit.cjs        # hero text sampled against the actual photos
 node tools/g-mega-contrast.cjs      # the nav mega panels
 node tools/g-journey.cjs index      # scrubs the scroll animation beat by beat

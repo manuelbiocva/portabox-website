@@ -16,6 +16,11 @@ const D = require('../build/quote-data.json');
 const BASE = 'http://127.0.0.1:8899';
 const URL = BASE + '/get-a-quote/';
 
+/* The radios are clipped and pointer-events:none so the card can own the
+   click. Driving them with check({force:true}) aims at the input's own
+   box, which lands on whatever is beneath it — pick the card instead. */
+const pick = (p, value) => p.locator('.g-qf-opt:has(input[value="' + value + '"]) label').click();
+
 const fail = [];
 const ok = (cond, msg) => { if (!cond) fail.push(msg); console.log((cond ? '  ok   ' : '  FAIL ') + msg); };
 
@@ -157,18 +162,18 @@ const CASES = [
     await p.waitForTimeout(250);
     await p.locator('[data-qf-panel="1"] [data-qf-next]').click();
 
-    await p.locator('[data-qf-panel="2"] input[value="' + c.service + '"]').check({ force: true });
+    await pick(p, c.service);
     await p.waitForTimeout(150);
-    if (c.placement) await p.locator('input[value="' + c.placement + '"]').check({ force: true });
+    if (c.placement) await pick(p, c.placement);
     if (c.dest) { await p.locator('#qf-dest').fill(c.dest); await p.waitForTimeout(250); }
     await p.locator('[data-qf-panel="2"] [data-qf-next]').click();
 
-    await p.locator('input[value="' + c.size + '"]').check({ force: true });
+    await pick(p, c.size);
     await p.locator('[data-qf-panel="3"] [data-qf-next]').click();
 
     const soon = new Date(Date.now() + 9 * 864e5).toISOString().slice(0, 10);
     await p.locator('#qf-date').fill(soon);
-    await p.locator('input[value="' + c.duration + '"]').check({ force: true });
+    await pick(p, c.duration);
     await p.waitForTimeout(120);
     await p.locator('#qf-billing').selectOption(c.billing);
     await p.locator('[data-qf-panel="4"] [data-qf-next]').click();
@@ -195,6 +200,51 @@ const CASES = [
     ok(rail.includes(rec(c.origin).suburb), 'the rail shows the origin suburb');
   }
 
+  /* ---- the billing dropdown ---- */
+  console.log();
+  console.log("billing cycle follows the hire");
+  await p.goto(URL, { waitUntil: "networkidle" });
+  await p.locator("#qf-origin").fill("2000");
+  await p.waitForTimeout(250);
+  await p.locator('[data-qf-panel="1"] [data-qf-next]').click();
+  await pick(p, "storage");
+  await p.waitForTimeout(150);
+  await pick(p, "facility");
+  await p.locator('[data-qf-panel="2"] [data-qf-next]').click();
+  await pick(p, "large_25m3");
+  await p.locator('[data-qf-panel="3"] [data-qf-next]').click();
+
+  const billing = () => p.evaluate(() => {
+    const s = document.getElementById("qf-billing");
+    return { value: s.value, offered: [...s.options].map((o) => o.value),
+             disabled: [...s.options].filter((o) => o.disabled).length };
+  });
+
+  await pick(p, "2_weeks"); await p.waitForTimeout(150);
+  let b1 = await billing();
+  /* Greying the options out is what made this read as a broken control. */
+  ok(b1.disabled === 0, "nothing in the dropdown is disabled");
+  ok(b1.value === "weekly", "two weeks defaults to the weekly rate, not a month of rent");
+  ok(!b1.offered.includes("12_months_upfront"),
+     "a 12-month prepay is not offered against a 2-week hire");
+
+  await pick(p, "12_plus_months"); await p.waitForTimeout(150);
+  let b2 = await billing();
+  ok(b2.offered.length === 5, "a 12-month hire is offered every cycle (saw " + b2.offered.length + ")");
+  await p.locator("#qf-billing").selectOption("12_months_upfront");
+  ok(await p.locator("#qf-billing").inputValue() === "12_months_upfront",
+     "and an upfront option can actually be chosen");
+
+  await pick(p, "4_to_11_months"); await p.waitForTimeout(150);
+  ok((await billing()).value === "monthly",
+     "a choice the shorter hire cannot carry falls back rather than sticking");
+  await p.locator("#qf-billing").selectOption("6_months_upfront");
+  await pick(p, "12_plus_months"); await p.waitForTimeout(150);
+  ok((await billing()).value === "6_months_upfront", "a choice that still fits is kept");
+
+  await p.locator("#qf-date").fill(new Date(Date.now() + 9 * 864e5).toISOString().slice(0, 10));
+  await p.locator('[data-qf-panel="4"] [data-qf-next]').click();
+  await p.waitForTimeout(300);
   /* ---- the last step validates, and is honest about having nowhere to post ---- */
   console.log('\nsubmitting');
   await p.locator('[data-qf-panel="5"] button[type=submit]').click();

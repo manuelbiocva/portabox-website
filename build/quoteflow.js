@@ -54,7 +54,7 @@ const CONTAINERS = [
   { id: "two_large_50m3", name: "Two 25 m³ Portaboxes", vol: "50 m³", count: 2,
     mo: R.large_25m3.monthlyRate * 2, wk: R.large_25m3.weeklyRate * 2,
     dims: "2 × 4.95 m × 2.20 m × 2.40 m", floor: "21.8 m²", door: "Dual large access doors",
-    fits: "5 bedroom expansive home · 36 to 50 m³ of contents", img: "facility-lot.png" },
+    fits: "5 bedroom expansive home · 36 to 50 m³ of contents", img: "size-large.jpg" },
 ];
 
 /* Room volumes for the "estimate by room and furniture" helper. The
@@ -71,9 +71,12 @@ const ROOMS = [
 ];
 
 const SERVICES = [
-  { id: "moving", t: "Moving", b: "We deliver the container, you load it, we drive it to the new address." },
-  { id: "storage", t: "Storage", b: "The container stays loaded — on your property or in a monitored facility." },
-  { id: "moving_storage", t: "Moving and storage", b: "Store it for a while, then have it delivered to the new address." },
+  { id: "moving", t: "Moving", img: "truck-coastal.png",
+    b: "We deliver the container, you load it, we drive it to the new address." },
+  { id: "storage", t: "Storage", img: "store-with-us.jpg",
+    b: "The container stays loaded — on your property or in a monitored facility." },
+  { id: "moving_storage", t: "Moving and storage", img: "hybrid-choice.jpg",
+    b: "Store it for a while, then have it delivered to the new address." },
 ];
 
 const DURATIONS = [
@@ -129,22 +132,40 @@ module.exports = function makeQuoteFlow(h) {
             ${help ? `<span class="g-qf-help" id="${id}-help">${help}</span>` : ""}
           </p>`;
 
+  const TICK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 5 5L19 7"/></svg>`;
+
   /* A choice is a radio with its label drawn as a card. The input stays in
-     the flow for the keyboard and for screen readers; CSS clips it. */
-  const choice = (name, id, value, title, body, extra) => `
-            <div class="g-qf-opt">
+     the flow for the keyboard and for screen readers; CSS clips it.
+
+     The card carries a visible box that fills and ticks when chosen. Without
+     it the cards read as three paragraphs of copy — the first version of this
+     screen gave no sign that anything on it was clickable. Square rather than
+     the conventional round radio, because nothing in this system has a
+     radius; the tick carries the meaning instead of the shape. */
+  const choice = (name, id, value, title, body, extra, img) => `
+            <div class="g-qf-opt${img ? " g-qf-opt--img" : ""}">
               <input type="radio" name="${name}" id="${id}" value="${value}">
               <label for="${id}">
-                <span class="g-qf-opt-t">${title}</span>
+                ${img ? `<span class="g-qf-opt-pic"><img src="/assets/img/${img}" alt="" loading="lazy" decoding="async" width="640" height="400"></span>` : ""}
+                <span class="g-qf-opt-head">
+                  <span class="g-qf-opt-t">${title}</span>
+                  <span class="g-qf-opt-box" aria-hidden="true">${TICK}</span>
+                </span>
                 ${body ? `<span class="g-qf-opt-b">${body}</span>` : ""}
                 ${extra || ""}
-                <span class="g-qf-opt-pick" aria-hidden="true"></span>
               </label>
             </div>`;
 
+  /* `.g-btn` pads only on the left, because the arrow cell fills the right
+     edge. A button without one therefore has no right padding at all, which
+     is how Previous came out with its text jammed against the border. It
+     gets the mirrored treatment instead: same height, same cell, arrow on
+     the left pointing back. */
+  const BACK = h.ARROW.replace('d="M7 17 17 7M9 7h8v8"', 'd="M20 12H4M10 6l-6 6 6 6"');
+
   const nav = (n, nextLabel) => `
           <div class="g-qf-nav">
-            ${n > 1 ? `<button type="button" class="g-btn g-btn--line" data-qf-back><span>Previous</span></button>` : "<span></span>"}
+            ${n > 1 ? `<button type="button" class="g-btn g-btn--line g-btn--back" data-qf-back><i>${BACK}</i><span>Previous</span></button>` : "<span></span>"}
             <button type="button" class="g-btn g-btn--yellow" data-qf-next><span>${nextLabel || "Continue"}</span><i>${h.ARROW}</i></button>
           </div>`;
 
@@ -173,17 +194,20 @@ module.exports = function makeQuoteFlow(h) {
 
   /* ---- Step 2: what ---- */
   const step2 = panel(2, `
+          <p class="g-qf-lead">Pick one. You can change it at any point before you send the quote.</p>
           <div class="g-qf-opts g-qf-opts--3">
-            ${SERVICES.map((s, i) => choice("service", "qf-svc-" + i, s.id, s.t, s.b)).join("")}
+            ${SERVICES.map((s, i) => choice("service", "qf-svc-" + i, s.id, s.t, s.b, "", s.img)).join("")}
           </div>
 
           <div class="g-qf-sub" data-qf-sub="placement" hidden>
             <h4 class="g-qf-subq">Where will the container live?</h4>
             <div class="g-qf-opts g-qf-opts--2">
               ${choice("placement", "qf-place-1", "my_place", "At my place",
-                "It sits on your driveway or yard. You keep the only keys and open it whenever you like.")}
+                "It sits on your driveway or yard. You keep the only keys and open it whenever you like.",
+                "", "doorstep-delivery.jpg")}
               ${choice("placement", "qf-place-2", "facility", "At a Portabox facility",
-                "We collect it once you have loaded it and store it in a monitored yard until you want it back.")}
+                "We collect it once you have loaded it and store it in a monitored yard until you want it back.",
+                "", "about-facility.jpg")}
             </div>
           </div>
 
@@ -209,7 +233,8 @@ module.exports = function makeQuoteFlow(h) {
                  <span>${c.floor} of driveway</span>
                  <span>${/[0-9]/.test(c.door) ? "Door " + c.door : c.door}</span>
                </span>
-               <span class="g-qf-rate"><b>$${c.mo}</b> per month<small>$${c.wk} per week</small></span>`)).join("")}
+               <span class="g-qf-rate"><b>$${c.mo}</b> per month<small>$${c.wk} per week</small></span>`,
+              c.img)).join("")}
           </div>
 
           <details class="g-qf-calc">
@@ -253,7 +278,7 @@ module.exports = function makeQuoteFlow(h) {
             <select id="qf-billing" name="billing">
               ${BILLING.map((b) => `<option value="${b.id}"${b.id === "monthly" ? " selected" : ""}>${b.t}</option>`).join("")}
             </select>
-            <span class="g-qf-help">Paying further ahead takes a percentage off the monthly rate. Nothing is charged today.</span>
+            <span class="g-qf-help">Paying further ahead takes a percentage off the monthly rate, so the longer the hire the more there is to choose from here. Nothing is charged today.</span>
           </p>
 
           <details class="g-qf-calc">
@@ -291,7 +316,7 @@ module.exports = function makeQuoteFlow(h) {
                 <label for="qf-agree">Portabox may contact me about this quote by phone, SMS or email.</label>
               </p>
               <div class="g-qf-nav">
-                <button type="button" class="g-btn g-btn--line" data-qf-back><span>Previous</span></button>
+                <button type="button" class="g-btn g-btn--line g-btn--back" data-qf-back><i>${BACK}</i><span>Previous</span></button>
                 <button type="submit" class="g-btn g-btn--yellow"><span>Send me this quote</span><i>${h.ARROW}</i></button>
               </div>
               <div class="g-qf-msg" role="status" aria-live="polite"></div>
