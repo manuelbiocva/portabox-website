@@ -184,11 +184,8 @@ module.exports = function makeQuoteFlow(h) {
           <p class="g-qf-lead">Start with the postcode the container is delivered to. We will tell you which depot covers it before you go any further.</p>
           ${field("qf-origin", "Delivery postcode or suburb",
             `type="text" name="origin" autocomplete="postal-code" inputmode="numeric" ` +
-            `placeholder="e.g. 5000, 3000, 2000, 4000" list="qf-suburbs" aria-describedby="qf-origin-help"`,
+            `placeholder="e.g. 5000, 3000, 2000, 4000" aria-describedby="qf-origin-help"`,
             "Four digits, or start typing a suburb.")}
-          <datalist id="qf-suburbs">${
-            DATA.postcodes.map((p) => `<option value="${p.postcode}">${esc(p.suburb)}, ${p.state}</option>`).join("")
-          }</datalist>
           <div class="g-qf-depot" data-qf-depot hidden></div>
           ${nav(1)}`);
 
@@ -215,7 +212,7 @@ module.exports = function makeQuoteFlow(h) {
             <h4 class="g-qf-subq">Where is it going?</h4>
             ${field("qf-dest", "Destination postcode or suburb",
               `type="text" name="destination" autocomplete="postal-code" inputmode="numeric" ` +
-              `placeholder="e.g. 3000 Melbourne" list="qf-suburbs" aria-describedby="qf-dest-help"`,
+              `placeholder="e.g. 3000 Melbourne" aria-describedby="qf-dest-help"`,
               "Anywhere in Australia. Interstate runs are priced off the route, not the kilometre.")}
             <div class="g-qf-depot" data-qf-depot-dest hidden></div>
           </div>
@@ -368,5 +365,12 @@ module.exports = function makeQuoteFlow(h) {
 </section>`;
   };
 };
+
+/* The suggestion popup needs only these three columns, so it travels as an
+   array of arrays — about 1.8 KB, against 9 KB for the pricing dataset. */
+module.exports.suburbsScript = () =>
+  '<script type="application/json" id="qf-suburbs">' +
+  JSON.stringify(DATA.postcodes.map((p) => [p.postcode, p.suburb, p.state])).replace(/</g, "\u003c") +
+  '</scr' + 'ipt>';
 
 module.exports.CONTAINERS = CONTAINERS;

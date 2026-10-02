@@ -76,6 +76,10 @@ const probe = () => {
 
   for (const url of pageUrls()) {
     await p.goto(BASE + url, { waitUntil: 'networkidle' });
+    /* /get-a-quote/ redirects to the quote app, a separate deployment with
+       its own controls and its own tests. Measuring them here would report
+       another project's contrast as this site's. */
+    if (!p.url().startsWith(BASE)) continue;
     /* The quote's later steps are hidden until you reach them, so reveal the
        panels rather than walking the flow five times. */
     await p.evaluate(() => {

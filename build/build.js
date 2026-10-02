@@ -282,12 +282,16 @@ const gintro = (chip, h, sub, btns) => `
 /* The multi-step instant quote. Its own module so the giga splice
    (tools/add-variant-g.py) cannot take it with the rest of the region. */
 const quoteFlow = require("./quoteflow")({ bandOf, gintro, C, url, ARROW });
+const QUOTE_SUBURBS = require("./quoteflow").suburbsScript();
 
 
 /* No id/label pair: a page can carry two of these and duplicate ids are invalid.
    giga.js binds every .quote-form and finds its own .quote-out. */
+/* The destination rides on the form rather than living in the script, so the
+   quote app's URL stays a content value in one place and a WordPress port does
+   not have to patch giga.js to change it. */
 const quoteForm = () => `
-      <form class="g-form quote-form" novalidate>
+      <form class="g-form quote-form" data-quote="${C.CONTACT.quote}" novalidate>
         <input type="text" inputmode="numeric" maxlength="4" placeholder="Your postcode" aria-label="Delivery postcode">
         ${traceSubmit("Get my instant quote", "", "", "primary")}
       </form>
@@ -1279,56 +1283,20 @@ PAGES.push({
   ].join("\n"),
 });
 
-/* ---- Instant quote ---- */
+/* ---- Instant quote ----
+   The quote itself is the client’s own React app, deployed separately from
+   github.com/manuelbiocva/portabox-instant-quote. This URL is in the scope of
+   work’s sitemap and is linked from outside the site, so it stays and
+   redirects rather than 404ing or serving a second, competing quote flow.
+
+   vercel.json does this as a 308 in production, before the page is ever
+   served. The page below is the fallback for any host that does not read
+   vercel.json — a WordPress install, or the local static server. */
 PAGES.push({
   file: outFile("instant-quote"), active: "instant-quote.html",
+  redirect: C.CONTACT.quoteApp,
   title: "Instant Quote | Portabox",
   desc: "Put in your postcode and see which depot covers you, what the container costs per month, and the price per cubic metre. From $209 a month.",
-  body: [
-    hero({
-      short: true, img: "doorstep-delivery.jpg",
-      alt: "A Portabox container being delivered to a home",
-      crumb: crumb([["Home", url("index")], ["Instant quote"]]),
-      h1: "Get your instant quote",
-      sub: "Tell us what you are moving or storing and where it is going. Most quotes land in your inbox within the minute.",
-      btns: traceBtn("#quote-form", "Start the quote", "Takes a minute", "primary") +
-            traceBtn(C.CONTACT.tel, "Call " + C.CONTACT.phone, "Talk to a depot", "outline"),
-    }),
-    trust(),
-    quoteFlow({ band: "light" }),
-    pricing({ band: "light" }),
-    steps({
-      band: "dark", chip: "What happens next", h: "From postcode to delivery",
-      sub: "Four steps, and you only do one of them.",
-      items: [
-        ["You check your postcode", "The field above tells you which of the four depots covers your address, or whether it runs as a regional job."],
-        ["You pick a size", "Three sizes, published volumes, and the per-cubic-metre rate printed next to each one. Not sure? Ring the depot and describe the house."],
-        ["We confirm the date and the spot", "We check access and where the container will sit. You do not need to be home for a standard placement."],
-        ["It arrives level", "The EARL hydraulic frame sets it flat on your driveway. You fit your own lock and keep the only keys."],
-      ],
-    }),
-    featureGrid({
-      band: "light", chip: "What the price includes",
-      h: "What you are actually paying for",
-      items: [
-        { ico: "truck", t: "Delivery and collection", b: "Standard placement inside the depot radius, lowered level on the hydraulic lift." },
-        { ico: "cube", t: "The whole container", b: "Priced by the cubic metre, not by the hire of a corner of a warehouse." },
-        { ico: "key", t: "Sole access", b: "You fit the lock and keep the only keys, at your place or in our facility." },
-        { ico: "clock", t: "Month to month", b: "Short or long term. Switch from storing to moving without repacking." },
-        { ico: "shield", t: "Monitored facilities", b: "If you store with us, the container sits in a 24 hour monitored yard." },
-        { ico: "globe", t: "Regional runs", b: "Outside the radius we quote the run individually — anywhere in Australia." },
-      ],
-    }),
-    statement({
-      band: "deep", chip: "Price match guarantee",
-      h: "Bring us a cheaper written quote and we will beat it.",
-      sub: "Divide any competitor's monthly rate by the cubic metres they actually give you, then compare it with ours.",
-      btns: traceBtn(C.CONTACT.priceMatch, "Submit competitor quote", "We will beat it", "primary") +
-            traceBtn(C.CONTACT.quoteForm, "Book on the full form", "Dates and payment", "outline"),
-    }),
-    faq(C.FAQ_PRICE, "Questions about pricing", "grey"),
-    ctaBand({ cyan: true }),
-  ].join("\n"),
 });
 
 /* ---- About us ---- */
@@ -2232,11 +2200,64 @@ PAGES.forEach((p) => {
   // The homepage carries its own nav/footer inside p.body; every other page
   // gets the same giga chrome wrapped around its sections here.
   p.path = "/" + p.file.replace(/index\.html$/, "");
+
+  /* A redirect page carries no chrome and no assets — it exists so the URL
+     keeps working on hosts that cannot do a server-side redirect, and so a
+     visitor with JavaScript off still gets there. The canonical points at the
+     destination and robots are told not to index this shell. */
+  if (p.redirect) {
+    const to = p.redirect;
+    const shell = `<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${p.title}</title>
+<meta name="robots" content="noindex,follow">
+<link rel="canonical" href="${to}">
+<meta http-equiv="refresh" content="0; url=${to}">
+<style>
+  body{margin:0;min-height:100vh;display:grid;place-items:center;background:#0E385D;color:#fff;
+       font:400 16px/1.6 Montserrat,"Helvetica Neue",Arial,sans-serif;text-align:center;padding:1.5rem}
+  a{color:#1EC4F4}
+</style>
+</head>
+<body>
+<main>
+  <p>Taking you to the Portabox instant quote&hellip;</p>
+  <p><a href="${to}">Continue to the quote</a></p>
+</main>
+<script>
+  /* Carry the postcode through, so a hand-off that lands here rather than on
+     the redirect still arrives with step 1 answered. */
+  (function () {
+    var q = location.search || "";
+    location.replace(${JSON.stringify(to)} + (q ? (${JSON.stringify(to)}.indexOf("?") > -1 ? "&" + q.slice(1) : q) : ""));
+  })();
+</script>
+</body>
+</html>`;
+    const rdest = path.join(OUT, p.file);
+    fs.mkdirSync(path.dirname(rdest), { recursive: true });
+    fs.writeFileSync(rdest, shell, "utf8");
+    n++;
+    console.log(`  ${String(Math.round(shell.length / 1024)).padStart(4)}KB  ${p.file}  -> ${to}`);
+    return;
+  }
+
   const gp = Object.assign({}, p, { bodyClass: "g", css: "giga.css", js: "giga.js" });
   const tail = `\n<script src="${asset("assets/js/giga.js")}"></script>\n</body>\n</html>`;
-  const html = p.standalone
+  let html = p.standalone
     ? standaloneHead(p) + p.body + `\n<script src="${asset("assets/js/" + p.js)}"></script>\n</body>\n</html>`
     : standaloneHead(gp) + gNav() + `\n<main id="main">\n` + alternate(p.body.replace(JOURNEY_SLOT, gJourney)) + `\n</main>\n` + gFooter() + tail;
+
+  /* A page with a postcode box also carries the suburb table its suggestion
+     popup reads — 1.8 KB, and only on the pages that have one. The hero form
+     is added by the chrome, so this tests the finished page rather than the
+     body it was built from. */
+  if (/class="g-form quote-form"|<form class="g-qf-main"| data-qf\b/.test(html)) {
+    html = html.replace("</body>", QUOTE_SUBURBS + "\n</body>");
+  }
   const dest = path.join(OUT, p.file);
   fs.mkdirSync(path.dirname(dest), { recursive: true });
   fs.writeFileSync(dest, html, "utf8");

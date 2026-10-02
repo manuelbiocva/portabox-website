@@ -4,6 +4,18 @@
   "installCommand": "echo no packages needed",
   "outputDirectory": "site",
   "trailingSlash": true,
+  "redirects": [
+    {
+      "source": "/get-a-quote",
+      "destination": "https://portabox-instant-quote.vercel.app/",
+      "permanent": false
+    },
+    {
+      "source": "/get-a-quote/",
+      "destination": "https://portabox-instant-quote.vercel.app/",
+      "permanent": false
+    }
+  ],
   "headers": [
     {
       "source": "/assets/img/(.*)",

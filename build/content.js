@@ -41,8 +41,14 @@ const CONTACT = {
   tel: "tel:1800467637",
   email: "sales@portabox.au",
   mailto: "mailto:sales@portabox.au",
-  quote: ROUTES["instant-quote"],         // every "Instant Quote" CTA lands here
-  quoteForm: "https://portabox.au/get-a-quote/",  // the live form the page hands off to
+  /* Every "Instant Quote" CTA on the site lands here, and so does the page at
+     ROUTES["instant-quote"], which redirects rather than serving a second
+     quote flow of its own. The client's own app, deployed from
+     github.com/manuelbiocva/portabox-instant-quote. It reads ?postcode=
+     so the hero boxes can hand over what the visitor already typed. */
+  quoteApp: "https://portabox-instant-quote.vercel.app/",
+  quote: "https://portabox-instant-quote.vercel.app/",
+  quoteForm: "https://portabox.au/get-a-quote/",  // the live form on the old site
   book: "https://app.smartsheet.com/b/form/356f960443654f9fb2ca37f45c4e8ff6",
   priceMatch: "https://app.smartsheet.com/b/form/35c0f3d1f2ab4ddcb16f717266fd86c0",
   contact: "https://portabox.au/contact/",

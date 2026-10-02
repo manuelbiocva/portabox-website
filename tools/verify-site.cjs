@@ -15,11 +15,20 @@ const files = pageUrls();   // served URL paths, nested per the scope's sitemap
   for (const f of files) {
     await p.goto(BASE+f, { waitUntil:'networkidle' });
     await p.waitForTimeout(700);
+
+    /* /get-a-quote/ redirects to the quote app, which is a separate
+       deployment with its own tests. Checking that the redirect fires is this
+       file's job; auditing what it lands on is not. */
+    if (!p.url().startsWith(BASE)) {
+      console.log('  redirect ok       :', f, '->', p.url());
+      continue;
+    }
+
     const r = await p.evaluate(() => {
       const ov = document.documentElement.scrollWidth - document.documentElement.clientWidth;
       const imgs = [...document.querySelectorAll('img')].filter(i=>!i.complete||i.naturalWidth===0).map(i=>i.getAttribute('src'));
       const links = [...document.querySelectorAll('a[href]')].map(a=>a.getAttribute('href'))
-        .filter(h=>h && !/^(https?:|tel:|mailto:|#)/.test(h));
+        .filter(h=>h && !/^(https?:|tel:|mailto:|sms:|#)/.test(h));
       return { ov, imgs, links:[...new Set(links)] };
     });
     if (r.ov > 0) overflow.push(f+':'+r.ov);

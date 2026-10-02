@@ -218,6 +218,179 @@
   /* ---------- Quote form helpers ----------
      Carries a postcode handed over from a small form, and names the depot as
      soon as a postcode is typed. */
+  /* ---------- Postcode suggestions ----------
+     The postcode boxes used to lean on <datalist>, which the browser draws
+     itself: Chrome renders it as a dark panel carrying its own autofill
+     chrome, which looks nothing like the page it is sitting on. This is the
+     same idea drawn by the site, following the ARIA combobox pattern so the
+     keyboard and a screen reader get the same list the mouse does.
+
+     The panel is appended to <body> rather than next to the input. Several
+     of the inputs sit inside a .g-rise, which animates the `translate`
+     property — and a transformed ancestor becomes the containing block for
+     position:fixed, so a panel anchored inside one drifts with the reveal.
+     Page coordinates against <body> are immune to that, and <body> carries
+     the .g class, so the scoped styles still apply. */
+  function suggests() {
+    var node = document.getElementById("qf-suburbs");
+    if (!node) return;
+
+    var ROWS;
+    try { ROWS = JSON.parse(node.textContent); } catch (e) { return; }
+    if (!ROWS || !ROWS.length) return;
+
+    var seq = 0;
+
+    function attach(input) {
+      var id = "qf-sugg-" + (++seq);
+      var list = document.createElement("ul");
+      list.className = "g-sugg";
+      list.id = id;
+      list.setAttribute("role", "listbox");
+      list.setAttribute("aria-label", "Matching postcodes");
+      list.hidden = true;
+      document.body.appendChild(list);
+
+      input.setAttribute("role", "combobox");
+      input.setAttribute("aria-expanded", "false");
+      input.setAttribute("aria-controls", id);
+      input.setAttribute("aria-autocomplete", "list");
+      /* The browser's own history dropdown would cover ours. */
+      input.setAttribute("autocomplete", "off");
+
+      var items = [], active = -1, picking = false;
+
+      function place() {
+        var r = input.getBoundingClientRect();
+        list.style.top = (r.bottom + window.pageYOffset) + "px";
+        list.style.left = (r.left + window.pageXOffset) + "px";
+        list.style.width = r.width + "px";
+      }
+
+      function close() {
+        list.hidden = true;
+        active = -1;
+        input.setAttribute("aria-expanded", "false");
+        input.removeAttribute("aria-activedescendant");
+      }
+
+      /* Digits match a postcode from the front. Letters match a suburb from
+         the front first, then anywhere — so "unley" finds Unley Park and
+         "adelaide" still finds North Adelaide. */
+      function match(q) {
+        q = String(q).trim().toLowerCase();
+        if (!q) return [];
+        var hits = [], i;
+        if (/^[0-9]+$/.test(q)) {
+          for (i = 0; i < ROWS.length && hits.length < 8; i++) {
+            if (ROWS[i][0].indexOf(q) === 0) hits.push(ROWS[i]);
+          }
+          return hits;
+        }
+        for (i = 0; i < ROWS.length && hits.length < 8; i++) {
+          if (ROWS[i][1].toLowerCase().indexOf(q) === 0) hits.push(ROWS[i]);
+        }
+        for (i = 0; i < ROWS.length && hits.length < 8; i++) {
+          if (hits.indexOf(ROWS[i]) < 0 && ROWS[i][1].toLowerCase().indexOf(q) > 0) hits.push(ROWS[i]);
+        }
+        return hits;
+      }
+
+      function render() {
+        items = match(input.value);
+        if (!items.length) { close(); return; }
+        var html = "";
+        for (var i = 0; i < items.length; i++) {
+          html += '<li role="option" aria-selected="false" id="' + id + "-" + i + '">' +
+                  "<b>" + items[i][0] + "</b><span>" + items[i][1] + ", " + items[i][2] + "</span></li>";
+        }
+        list.innerHTML = html;
+        place();
+        list.hidden = false;
+        input.setAttribute("aria-expanded", "true");
+        active = -1;
+      }
+
+      function highlight(i) {
+        var all = list.children, k;
+        for (k = 0; k < all.length; k++) {
+          all[k].className = k === i ? "on" : "";
+          all[k].setAttribute("aria-selected", k === i ? "true" : "false");
+        }
+        active = i;
+        if (i < 0) { input.removeAttribute("aria-activedescendant"); return; }
+        input.setAttribute("aria-activedescendant", id + "-" + i);
+        var el = all[i];
+        if (el.offsetTop < list.scrollTop) list.scrollTop = el.offsetTop;
+        else if (el.offsetTop + el.offsetHeight > list.scrollTop + list.clientHeight) {
+          list.scrollTop = el.offsetTop + el.offsetHeight - list.clientHeight;
+        }
+      }
+
+      function choose(i) {
+        if (!items[i]) return;
+        picking = true;
+        input.value = items[i][0];
+        /* Several suburbs share a postcode — 5061 is Hyde Park, Malvern and
+           Unley Park — and the lookup would otherwise answer with whichever
+           comes first, contradicting the row they just clicked. */
+        input.setAttribute("data-pick", items[i][0] + "|" + items[i][1]);
+        close();
+        /* Everything downstream — the depot line, the rail, the price — is
+           already listening for these, so a pick behaves exactly like a
+           typed postcode. */
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+        input.dispatchEvent(new Event("change", { bubbles: true }));
+        picking = false;
+      }
+
+      input.addEventListener("input", function () {
+        if (picking) return;
+        input.removeAttribute("data-pick");   // typing moves off the chosen row
+        render();
+      });
+      input.addEventListener("focus", function () { if (input.value) render(); });
+      /* A click on the panel fires blur first, so give it a beat to land. */
+      input.addEventListener("blur", function () { window.setTimeout(close, 150); });
+
+      input.addEventListener("keydown", function (e) {
+        if (list.hidden) {
+          if (e.key === "ArrowDown" && input.value) {
+            render();
+            if (!list.hidden) highlight(0);
+            e.preventDefault();
+          }
+          return;
+        }
+        if (e.key === "ArrowDown") { highlight((active + 1) % items.length); e.preventDefault(); }
+        else if (e.key === "ArrowUp") { highlight((active - 1 + items.length) % items.length); e.preventDefault(); }
+        else if (e.key === "Enter" && active > -1) { choose(active); e.preventDefault(); }
+        else if (e.key === "Escape") { close(); }
+        else if (e.key === "Tab") { close(); }
+      });
+
+      list.addEventListener("mousedown", function (e) {
+        var li = e.target.closest ? e.target.closest("li") : null;
+        if (!li) return;
+        e.preventDefault();          // hold focus so the blur timer cannot win
+        choose(Array.prototype.indexOf.call(list.children, li));
+      });
+      list.addEventListener("mousemove", function (e) {
+        var li = e.target.closest ? e.target.closest("li") : null;
+        if (li) highlight(Array.prototype.indexOf.call(list.children, li));
+      });
+
+      window.addEventListener("resize", function () { if (!list.hidden) place(); });
+      window.addEventListener("scroll", function () { if (!list.hidden) place(); }, { passive: true });
+    }
+
+    Array.prototype.forEach.call(document.querySelectorAll(".quote-form input"), attach);
+    ["qf-origin", "qf-dest"].forEach(function (x) {
+      var el = document.getElementById(x);
+      if (el) attach(el);
+    });
+  }
+
   /* ---------- Instant quote: the step flow ----------
      A port of the client's React prototype
      (website-changes/Portabox-Instant-Quote-source code): same five steps,
@@ -278,6 +451,20 @@
         if (n >= r[0] && n <= r[1]) {
           return { postcode: pc, suburb: r[5], state: r[2], lat: r[3], lng: r[4], region: r[5], approx: true };
         }
+      }
+      return null;
+    }
+
+    /* A postcode can cover several suburbs, so when one was chosen from the
+       suggestion list that exact record wins over the first match — both for
+       what the page says back and for the distance it measures. */
+    function picked(input, digits) {
+      var mark = input.getAttribute("data-pick");
+      if (!mark) return null;
+      var parts = mark.split("|");
+      if (parts[0] !== digits) return null;
+      for (var i = 0; i < D.postcodes.length; i++) {
+        if (D.postcodes[i].postcode === digits && D.postcodes[i].suburb === parts[1]) return D.postcodes[i];
       }
       return null;
     }
@@ -627,11 +814,19 @@
       var box = form.querySelector(boxSel);
       if (!input || !box) return;
       var say = function () {
-        var v = input.value.replace(/\D/g, "").slice(0, 4);
-        input.value = v;
-        if (!v) { box.hidden = true; set(null); return; }
-        if (v.length < 4) { box.hidden = true; set(null); return; }
-        var rec = lookup(v);
+        /* The label offers a suburb as well as a postcode, so letters are
+           left alone instead of being stripped out from under the typist —
+           the suggestion list turns the suburb into its postcode when one is
+           picked. Until there are four digits there is nothing to look up,
+           and saying so would only be noise while they are still typing. */
+        var raw = input.value;
+        var digits = raw.replace(/\D/g, "");
+        if (/^[0-9]*$/.test(raw) && raw.length > 4) {
+          digits = digits.slice(0, 4);
+          input.value = digits;
+        }
+        if (digits.length !== 4) { box.hidden = true; set(null); return; }
+        var rec = picked(input, digits) || lookup(digits);
         depotSay(box, rec, isDest);
         set(rec && !blocked(rec) ? rec : null);
       };
@@ -883,19 +1078,29 @@
   }
 
   /* ---------- Quote form ---------- */
+  /* Root-absolute paths assume the site owns the domain root. WordPress
+     often does not — a subdirectory install, or a different slug for the
+     quote page. The theme sets window.PORTABOX before this file loads
+     (wp_localize_script) and these fall back to the static paths, so the
+     generated site needs no PORTABOX object at all. */
+  var WP = window.PORTABOX || {};
+  var BASE = (WP.base || "").replace(/[/]$/, "");
+  var QUOTE_URL = WP.quoteUrl || BASE + "/get-a-quote/";
+  var at = function (path) { return BASE + path; };
+
   function depotFor(pc) {
     var hit = function (rs) {
       for (var i = 0; i < rs.length; i++) if (pc >= rs[i][0] && pc <= rs[i][1]) return true;
       return false;
     };
     if (hit([[1000,2599],[2619,2899],[2921,2999],[200,299],[2600,2618],[2900,2920]]))
-      return { hub: "Sydney", href: "/locations/sydney/", regional: false };
-    if (hit([[3000,3999],[8000,8999]])) return { hub: "Melbourne", href: "/locations/melbourne/", regional: false };
-    if (hit([[4000,4999],[9000,9999]])) return { hub: "Brisbane", href: "/locations/brisbane/", regional: false };
-    if (hit([[5000,5999]]))             return { hub: "Adelaide", href: "/locations/adelaide/", regional: false };
-    if (hit([[6000,6999]])) return { hub: "Western Australia", href: "/locations/regional-australia/", regional: true };
-    if (hit([[7000,7999]])) return { hub: "Tasmania",          href: "/locations/regional-australia/", regional: true };
-    if (hit([[800,999]]))   return { hub: "Northern Territory", href: "/locations/regional-australia/", regional: true };
+      return { hub: "Sydney", href: at("/locations/sydney/"), regional: false };
+    if (hit([[3000,3999],[8000,8999]])) return { hub: "Melbourne", href: at("/locations/melbourne/"), regional: false };
+    if (hit([[4000,4999],[9000,9999]])) return { hub: "Brisbane", href: at("/locations/brisbane/"), regional: false };
+    if (hit([[5000,5999]]))             return { hub: "Adelaide", href: at("/locations/adelaide/"), regional: false };
+    if (hit([[6000,6999]])) return { hub: "Western Australia", href: at("/locations/regional-australia/"), regional: true };
+    if (hit([[7000,7999]])) return { hub: "Tasmania",          href: at("/locations/regional-australia/"), regional: true };
+    if (hit([[800,999]]))   return { hub: "Northern Territory", href: at("/locations/regional-australia/"), regional: true };
     return null;
   }
 
@@ -929,32 +1134,15 @@
         input.focus();
         return;
       }
-      // The postcode boxes are a lead-in: they carry the postcode over to the
-      // full quote form rather than answering in place.
-      if (!/\/get-a-quote\/?$/.test(location.pathname)) {
-        location.href = "/get-a-quote/?postcode=" + encodeURIComponent(v) + "#quote-form";
-        return;
-      }
-
-      var was = label.textContent;
-      label.textContent = "Checking…";
+      /* The postcode boxes are a lead-in. They hand the postcode to the quote
+         app, which reads ?postcode= and opens with step 1 already answered.
+         The destination rides on the form so it stays a content value: see
+         quoteForm() in build/build.js and CONTACT.quote in build/content.js. */
+      var dest = form.getAttribute("data-quote") || QUOTE_URL;
+      label.textContent = "Taking you there…";
       btn.disabled = true;
-
-      window.setTimeout(function () {
-        label.textContent = was;
-        btn.disabled = false;
-        var d = depotFor(Number(v));
-        if (!d) {
-          input.setAttribute("aria-invalid", "true");
-          out.innerHTML = '<p class="quote-err">We could not match ' + v + ' to an Australian postcode.</p>';
-          return;
-        }
-        out.innerHTML = d.regional
-          ? '<div class="quote-ok"><b>' + v + '</b> sits outside our four depots, so ' + d.hub +
-            ' runs as a regional job. We quote those individually — call <b>1800 467 637</b>.</div>'
-          : '<div class="quote-ok">Your nearest depot is <b>' + d.hub + '</b>. We deliver to <b>' + v +
-            '</b> on a standard run. <a href="' + d.href + '" style="color:inherit;text-decoration:underline">See coverage</a></div>';
-      }, 620);
+      location.href = dest + (dest.indexOf("?") > -1 ? "&" : "?") +
+                      "postcode=" + encodeURIComponent(v);
     });
   }
 
@@ -1138,7 +1326,7 @@
     });
   }
 
-  function boot() { smooth(); nav(); mega(); reveals(); counters(); heroVideo(); quote(); contactForm(); quoteFlow(); journey(); year(); }
+  function boot() { smooth(); nav(); mega(); reveals(); counters(); heroVideo(); quote(); contactForm(); suggests(); quoteFlow(); journey(); year(); }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
   else boot();
 })();

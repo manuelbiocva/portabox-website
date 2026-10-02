@@ -53,23 +53,36 @@ cyan band.
 
 ### The instant quote
 
-`/get-a-quote/` is a port of the client's React prototype in
-`website-changes/Portabox-Instant-Quote-source code` — the same five steps
-(where, what, size, when, quote), the same pricing engine, the same numbers.
-It replaced a single screen that asked nine questions, including email and
-phone, before showing anything.
+The quote itself is **not on this site**. It is the client's own React app,
+deployed separately from
+[portabox-instant-quote](https://github.com/manuelbiocva/portabox-instant-quote)
+to <https://portabox-instant-quote.vercel.app/>.
 
-The numbers are not retyped. `tools/extract-quote-data.cjs` lifts the rates,
-delivery zones, leg fees, interstate matrix, fuel surcharge, supplies pricing
-and the postcode table straight out of the prototype's TypeScript into
-`build/quote-data.json`, which the build inlines into the page. Run it again
-whenever the client sends a new build of the quote app.
+What this site owns is the hand-off, and it has three parts:
 
-Where the prototype has no number — delivery zone 4, a state with no depot, a
-blocked postcode — the page says so and asks for a call. It does not guess.
+- **Every CTA** comes from `CONTACT.quote` in `build/content.js`. One constant,
+  127 links across 22 pages — change it there and the whole site follows.
+- **The postcode boxes** carry what the visitor typed, as
+  `?postcode=3000`. The destination rides on the form as `data-quote` rather
+  than living in `giga.js`, so a WordPress port changes content, not script.
+  The app reads that parameter and opens with step 1 already answered.
+- **`/get-a-quote/` redirects.** The URL is in the scope of work's sitemap and
+  is linked from outside, so it stays. `vercel.json` does it as a redirect in
+  production; the build also writes a small meta-refresh shell at that path as
+  the fallback for any host that does not read `vercel.json` — a WordPress
+  install, or the local static server. The shell is `noindex` and its canonical
+  points at the app.
 
-It lives in its own module because `tools/add-variant-g.py` replaces
-everything between the giga marker and the emit section of `build.js`.
+That chain spans two repositories, so it can break from a change at either end
+and still look fine from here. `tools/g-quote-handoff.cjs` drives it against
+the live app and fails if the postcode stops arriving.
+
+The site used to serve its own five-step flow at `/get-a-quote/`, built from
+the same pricing engine. It is no longer emitted, but `build/quoteflow.js` and
+its CSS and JS are still in the tree — if the external app is ever dropped,
+restoring the page entry brings it back. `tools/extract-quote-data.cjs` still
+lifts the rates out of the app's TypeScript, which is what keeps the two sets
+of numbers from drifting.
 
 ## The design
 
@@ -103,7 +116,7 @@ node tools/g-phero-audit.cjs        # hero text sampled against the actual photo
 node tools/g-mega-contrast.cjs      # the nav mega panels
 node tools/g-journey.cjs index      # scrubs the scroll animation beat by beat
 node tools/g-pages-states.cjs       # mobile, reduced motion, JS-off FAQ
-node tools/g-quoteflow.cjs          # drives the quote and checks its arithmetic
+node tools/g-quote-handoff.cjs      # CTAs, the redirect, the postcode hand-off
 node tools/g-responsive.cjs         # overflow, tap targets and text size,
                                     # 360 / 390 / 414 / 768 / 820 / 1024 / 1180
 ```
@@ -136,12 +149,12 @@ The forms validate in the browser but have nowhere to post. They say so on submi
 rather than pretending a message was sent. Before launch, point these at a real
 handler or a WordPress form plugin:
 
-- the last step of the quote on `/get-a-quote/`. The price it shows is real — it
-  is computed in the browser from the client's own engine — but there is no
-  mailbox behind the "send me this quote" button, and the page says so.
 - the enquiry form on `/contact/`
-- the postcode boxes, which resolve a depot client-side and hand the postcode
-  to the quote flow, where it answers step 1
+
+The postcode boxes are wired: they hand off to the quote app. The quote's own
+last step is the app's problem, not this site's — and it has one. Leads there
+go to `localStorage` and no further, and the admin portal that edits the rates
+has no login. Both are flagged in that repository's README.
 
 ## Content that must not be invented
 
