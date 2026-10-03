@@ -54,13 +54,23 @@ const ok = (cond, msg) => { if (!cond) fail.push(msg); console.log((cond ? '  ok
   const dest = await p.locator('.quote-form').first().getAttribute('data-quote');
   ok(dest === APP, 'the form carries the destination as data (' + dest + ')');
 
-  /* An empty or malformed postcode must not send anyone anywhere. */
-  await p.locator('.quote-form input').first().fill('12');
-  await p.locator('.quote-form button').first().click();
-  await p.waitForTimeout(400);
-  ok(p.url().startsWith(BASE), 'a short postcode is refused rather than handed over');
-
   if (!OFFLINE) {
+    /* The postcode is a shortcut, never a gate. Blocking someone at the one
+       button whose whole job is to start the quote is worse than letting the
+       app ask for the postcode on its own first step, where it is validated
+       properly — so an empty box and a half-typed one both still travel. */
+    await p.locator('.quote-form input').first().fill('');
+    await p.locator('.quote-form button').first().click();
+    await p.waitForTimeout(4000);
+    ok(p.url() === APP, 'an empty box still reaches the app (' + p.url() + ')');
+
+    await p.goto(BASE + '/', { waitUntil: 'networkidle' });
+    await p.locator('.quote-form input').first().fill('30');
+    await p.locator('.quote-form button').first().click();
+    await p.waitForTimeout(4000);
+    ok(p.url() === APP, 'so does a half-typed one, without a bad parameter (' + p.url() + ')');
+
+    await p.goto(BASE + '/', { waitUntil: 'networkidle' });
     await p.locator('.quote-form input').first().fill('3000');
     await p.locator('.quote-form button').first().click();
     await p.waitForTimeout(4000);

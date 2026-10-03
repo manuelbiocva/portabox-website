@@ -695,30 +695,14 @@ body.g { box-sizing:border-box; font-family:var(--font, "Montserrat", Arial, san
 }
 .g .g-form input::placeholder { color:var(--g-mute); }
 .g .g-form .g-btn { border-width:0; border-left:1px solid var(--g-rule); }
-.g .g-out { margin-top:1rem; min-height:1.2rem; }
-/* Nothing to announce yet: the reserved line left a gap under the hero
-   field before anything had been submitted. */
-.g .g-out:empty { margin-top:0; min-height:0; }
-.g .g-out .quote-ok {
-  background:var(--g-mist); border:0; border-left:3px solid var(--g-cyan);
-  padding:1rem 1.25rem; font-size:.9375rem; color:var(--g-body);
-}
-.g .g-out .quote-ok b { color:var(--g-ink); }
-.g .g-out .quote-err { font-size:.875rem; font-weight:700; color:#B02E22; }
 /* Both heroes are a dark scrim, so the field takes the dark-band treatment. */
 .g .g-band--navy .g-form, .g .g-band--deep .g-form,
 .g .g-hero .g-form, .g .g-phero .g-form { border-color:var(--g-rule-d); background:rgba(255,255,255,.08); }
 .g .g-hero .g-form input, .g .g-phero .g-form input { color:#fff; }
 .g .g-hero .g-form input::placeholder, .g .g-phero .g-form input::placeholder { color:var(--g-faint); }
-.g .g-hero .g-out .quote-ok, .g .g-phero .g-out .quote-ok { background:rgba(255,255,255,.1); color:#fff; }
-.g .g-hero .g-out .quote-ok b, .g .g-phero .g-out .quote-ok b { color:var(--g-cyan); }
-.g .g-hero .g-out .quote-err, .g .g-phero .g-out .quote-err { color:#FFC9C4; }
 .g .g-hero-form { margin-top:1.75rem; max-width:34rem; }
 .g .g-band--navy .g-form input, .g .g-band--deep .g-form input { color:#fff; }
 .g .g-band--navy .g-form input::placeholder, .g .g-band--deep .g-form input::placeholder { color:var(--g-faint); }
-.g .g-band--navy .g-out .quote-ok, .g .g-band--deep .g-out .quote-ok { background:rgba(255,255,255,.08); color:#fff; }
-.g .g-band--navy .g-out .quote-ok b, .g .g-band--deep .g-out .quote-ok b { color:var(--g-cyan); }
-.g .g-band--navy .g-out .quote-err, .g .g-band--deep .g-out .quote-err { color:#FFC9C4; }
 @media (max-width:560px){
   .g .g-form { flex-direction:column; }
   .g .g-form .g-btn { border-left:0; border-top:1px solid var(--g-rule); justify-content:space-between; }

@@ -234,7 +234,6 @@ function gJourney() {
             <input name="postcode" inputmode="numeric" maxlength="4" placeholder="Your postcode" aria-label="Your postcode">
             <button class="g-btn g-btn--yellow" type="submit"><span>Get my quote</span><i>${gArrow}</i></button>
           </div>
-          <div class="g-out quote-out" aria-live="polite"></div>
           <small>From $209 per month, priced by the cubic metre. Or call <a href="${C.CONTACT.tel}">${C.CONTACT.phone}</a></small>
         </form>
       </div>
@@ -662,7 +661,6 @@ function gFinal() {
         <input id="g-pc" type="text" inputmode="numeric" maxlength="4" placeholder="Your postcode">
         <button class="g-btn g-btn--yellow" type="submit"><span>Get my instant quote</span><i>${gArrow}</i></button>
       </form>
-      <div class="g-out quote-out" aria-live="polite"></div>
       <div class="g-btns" style="margin-top:1.75rem">${gBtn(C.CONTACT.tel, "Call " + C.CONTACT.phone, "line")}</div>
     </div>
   </div>

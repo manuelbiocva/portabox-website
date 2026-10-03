@@ -1108,41 +1108,36 @@
     Array.prototype.forEach.call(document.querySelectorAll(".quote-form"), bindQuote);
   }
 
-  /* There are two of these now, so each resolves its own result node: the
-     hero's sits beside the form, the journey's sits inside it. */
+  /* The postcode boxes are a lead-in to the quote app, not a form in their
+     own right. The postcode is a shortcut: supplied, it rides across as
+     ?postcode= and the app opens with step 1 already answered.
+
+     It is never a gate. An empty or half-typed box used to stop people at the
+     door with a red error, which is the worst place on the site to put one —
+     the app asks for the postcode on its own first step anyway, and validates
+     it there properly. So the button always goes. */
   function bindQuote(form) {
     var input = form.querySelector("input");
     var btn = form.querySelector("button");
-    var out = form.querySelector(".quote-out") ||
-              (form.parentElement && form.parentElement.querySelector(".quote-out"));
-    if (!input || !btn || !out) return;
+    if (!input || !btn) return;
 
     var label = btn.querySelector("span");
 
     input.addEventListener("input", function () {
       input.value = input.value.replace(/\D/g, "").slice(0, 4);
-      input.removeAttribute("aria-invalid");
-      out.innerHTML = "";
     });
 
     form.addEventListener("submit", function (e) {
       e.preventDefault();
-      var v = input.value.trim();
-      if (!/^\d{4}$/.test(v)) {
-        input.setAttribute("aria-invalid", "true");
-        out.innerHTML = '<p class="quote-err">An Australian postcode is four digits — try 3121.</p>';
-        input.focus();
-        return;
-      }
-      /* The postcode boxes are a lead-in. They hand the postcode to the quote
-         app, which reads ?postcode= and opens with step 1 already answered.
-         The destination rides on the form so it stays a content value: see
+      /* The destination rides on the form so it stays a content value: see
          quoteForm() in build/build.js and CONTACT.quote in build/content.js. */
       var dest = form.getAttribute("data-quote") || QUOTE_URL;
+      var v = input.value.replace(/\D/g, "").slice(0, 4);
       label.textContent = "Taking you there…";
       btn.disabled = true;
-      location.href = dest + (dest.indexOf("?") > -1 ? "&" : "?") +
-                      "postcode=" + encodeURIComponent(v);
+      location.href = /^\d{4}$/.test(v)
+        ? dest + (dest.indexOf("?") > -1 ? "&" : "?") + "postcode=" + encodeURIComponent(v)
+        : dest;
     });
   }
 

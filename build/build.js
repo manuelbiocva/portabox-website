@@ -286,7 +286,7 @@ const QUOTE_SUBURBS = require("./quoteflow").suburbsScript();
 
 
 /* No id/label pair: a page can carry two of these and duplicate ids are invalid.
-   giga.js binds every .quote-form and finds its own .quote-out. */
+   giga.js binds every .quote-form. */
 /* The destination rides on the form rather than living in the script, so the
    quote app's URL stays a content value in one place and a WordPress port does
    not have to patch giga.js to change it. */
@@ -294,8 +294,7 @@ const quoteForm = () => `
       <form class="g-form quote-form" data-quote="${C.CONTACT.quote}" novalidate>
         <input type="text" inputmode="numeric" maxlength="4" placeholder="Your postcode" aria-label="Delivery postcode">
         ${traceSubmit("Get my instant quote", "", "", "primary")}
-      </form>
-      <div class="g-out quote-out" aria-live="polite"></div>`;
+      </form>`;
 
 /* Contact form. Fields mirror the enquiry form on portabox.au/contact/.
    It validates in the browser but has nowhere to post yet — see contactForm()
@@ -1134,7 +1133,6 @@ function heroC(o) {
           <input type="text" inputmode="numeric" maxlength="4" placeholder="Your postcode" aria-label="Delivery postcode">
           ${traceSubmit("Get my price", "Let\u2019s go", "Depot found", "primary")}
         </form>
-        <div class="quote-out" aria-live="polite"></div>
       </div>
 
       <p class="hero-c-fine">From $209 per month &middot; $8.76 per cubic metre on the 25&nbsp;m³ &middot; Brisbane, Sydney, Melbourne, Adelaide</p>
@@ -1683,7 +1681,6 @@ function gJourney() {
             <input name="postcode" inputmode="numeric" maxlength="4" placeholder="Your postcode" aria-label="Your postcode">
             <button class="g-btn g-btn--yellow" type="submit"><span>Get my quote</span><i>${gArrow}</i></button>
           </div>
-          <div class="g-out quote-out" aria-live="polite"></div>
           <small>From $209 per month, priced by the cubic metre. Or call <a href="${C.CONTACT.tel}">${C.CONTACT.phone}</a></small>
         </form>
       </div>
@@ -2111,7 +2108,6 @@ function gFinal() {
         <input id="g-pc" type="text" inputmode="numeric" maxlength="4" placeholder="Your postcode">
         <button class="g-btn g-btn--yellow" type="submit"><span>Get my instant quote</span><i>${gArrow}</i></button>
       </form>
-      <div class="g-out quote-out" aria-live="polite"></div>
       <div class="g-btns" style="margin-top:1.75rem">${gBtn(C.CONTACT.tel, "Call " + C.CONTACT.phone, "line")}</div>
     </div>
   </div>

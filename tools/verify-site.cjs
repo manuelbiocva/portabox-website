@@ -3,7 +3,25 @@ const fs = require('fs'), path = require('path');
 const BASE = 'http://127.0.0.1:8899';
 const { pageUrls } = require('./pages.cjs');
 const files = pageUrls();   // served URL paths, nested per the scope's sitemap
+
+/* Braces, before the browser gets involved.
+   Deleting CSS rules by filtering lines is how a stylesheet ends up with a
+   rule's opening line gone and its declarations orphaned into whatever came
+   before. The page still loads, nothing errors, and a hero field quietly
+   turns white. The browser cannot report that; counting braces can. */
+function cssBalance() {
+  const css = fs.readFileSync(path.join('site', 'assets', 'css', 'giga.css'), 'utf8')
+    .replace(/\/\*[\s\S]*?\*\//g, '');
+  let depth = 0, stray = 0;
+  for (const ch of css) {
+    if (ch === '{') depth++;
+    else if (ch === '}') { depth--; if (depth < 0) { stray++; depth = 0; } }
+  }
+  return { stray, open: depth };
+}
+
 (async () => {
+  const braces = cssBalance();
   const b = await chromium.launch();
   const p = await b.newPage({ viewport:{width:1440,height:1000} });
   const bad404 = new Set(), errs = [];
@@ -50,6 +68,9 @@ const files = pageUrls();   // served URL paths, nested per the scope's sitemap
   // runtime script is a stale path.
   const jsStale = (fs.readFileSync('site/assets/js/giga.js', 'utf8').match(/"[a-z0-9-]+\.html"/g) || []);
   console.log('pages checked      :', files.length);
+  console.log('css braces         :', braces.stray || braces.open
+    ? `UNBALANCED — ${braces.stray} stray close(s), ${braces.open} left open`
+    : 'balanced');
   console.log('stale paths in js  :', jsStale.length ? [...new Set(jsStale)].join(', ') : 'none');
   console.log('desktop overflow   :', overflow.length?overflow.join(', '):'none');
   console.log('mobile overflow    :', movf.length?movf.join(', '):'none');
